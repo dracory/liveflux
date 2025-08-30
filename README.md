@@ -45,18 +45,15 @@ func (c *Component) Handle(ctx context.Context, action string, data url.Values) 
 }
 
 func (c *Component) Render(ctx context.Context) hb.TagInterface {
-    root := hb.Div().
-        Attr("data-lw-root", "1").
-        // Handler expects form fields: component, id, action
-        Child(hb.Input().Type("hidden").Name("component").Value("counter")).
-        Child(hb.Input().Type("hidden").Name("id").Value(c.GetID()))
-
-    root = root.Child(hb.H2().Text("Counter"))
-    root = root.Child(hb.Div().Style("font-size:2rem").Text(fmt.Sprintf("%d", c.Count)))
-    root = root.Child(hb.Button().Text("+1").Attr("data-lw-action", "inc"))
-    root = root.Child(hb.Button().Text("-1").Attr("data-lw-action", "dec"))
-    root = root.Child(hb.Button().Text("Reset").Attr("data-lw-action", "reset"))
-    return root
+    content := hb.Div()
+    content = content.Child(hb.H2().Text("Counter"))
+    content = content.Child(hb.Div().Style("font-size:2rem").Text(fmt.Sprintf("%d", c.Count)))
+    content = content.Child(hb.Button().Text("+1").Attr("data-lw-action", "inc"))
+    content = content.Child(hb.Button().Text("-1").Attr("data-lw-action", "dec"))
+    content = content.Child(hb.Button().Text("Reset").Attr("data-lw-action", "reset"))
+    
+    // Wrap content with standard Liveflux root
+    return c.Root(content)
 }
 
 // Register using an alias
@@ -120,6 +117,8 @@ Source: `examples/counter/`
   - `Mount(ctx, params map[string]string) error`
   - `Handle(ctx, action string, data url.Values) error`
   - `Render(ctx) hb.TagInterface`
+  - Provided by `liveflux.Base`:
+    - `Root(content hb.TagInterface) hb.TagInterface` — returns the standard component root (`data-lw-root="1"`) and required hidden fields (`component`, `id`), with your content appended.
 - Registry:
   - `liveflux.RegisterByAlias(alias string, ctor func() ComponentInterface)`
   - `liveflux.Register(ctor func() ComponentInterface)`

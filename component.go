@@ -128,3 +128,18 @@ func (b *Base) TakeRedirectDelaySeconds() int {
 	b.redirectAfterSeconds = 0
 	return d
 }
+
+// Root returns the standard Liveflux component root element with required
+// attributes and hidden fields, and appends the provided content as a child.
+// This avoids repeating boilerplate in every component's Render method.
+func (b *Base) Root(content hb.TagInterface) hb.TagInterface {
+	root := hb.Div().
+		Attr("data-lw-root", "1").
+		Child(hb.Input().Type("hidden").Name(FormComponent).Value(b.GetAlias())).
+		Child(hb.Input().Type("hidden").Name(FormID).Value(b.GetID()))
+
+	if content != nil {
+		root = root.Child(content)
+	}
+	return root
+}

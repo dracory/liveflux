@@ -36,10 +36,6 @@ func (c *Counter) Handle(ctx context.Context, action string, data url.Values) er
 
 // Render outputs the HTML for the component.
 func (c *Counter) Render(ctx context.Context) hb.TagInterface {
-	root := hb.Div().Attr("data-lw-root", "1").
-		Child(hb.Input().Type("hidden").Name(liveflux.FormComponent).Value(c.GetAlias())).
-		Child(hb.Input().Type("hidden").Name(liveflux.FormID).Value(c.GetID()))
-
 	content := hb.Div().
 		Child(hb.H2().Text("Counter")).
 		Child(hb.Div().Style("font-size: 2rem; margin: 10px 0;").Text(strconv.Itoa(c.Count))).
@@ -50,8 +46,7 @@ func (c *Counter) Render(ctx context.Context) hb.TagInterface {
 				Child(hb.Button().Class("btn btn-outline-danger").Attr("data-lw-action", "reset").Text("Reset")),
 		)
 
-	root.Child(content)
-	return root
+	return c.Root(content)
 }
 
 func init() {
