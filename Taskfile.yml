@@ -1,0 +1,46 @@
+version: '3'
+
+tasks:
+  # Repo-wide maintenance
+  tidy:
+    desc: go mod tidy (repo root)
+    cmds:
+      - go mod tidy
+
+  fmt:
+    desc: go fmt ./...
+    cmds:
+      - go fmt ./...
+
+  vet:
+    desc: go vet ./...
+    cmds:
+      - go vet ./...
+
+  test:
+    desc: Run unit tests
+    cmds:
+      - go test ./...
+
+  clean:
+    desc: Remove build artifacts in examples
+    cmds:
+      - powershell -NoProfile -Command "if (Test-Path examples/counter/bin) { Remove-Item -Recurse -Force examples/counter/bin }"
+
+  # Examples
+  examples:counter:run:
+    desc: Run the counter example
+    dir: examples/counter
+    cmds:
+      - go run .
+
+  examples:counter:build:
+    desc: Build the counter example binary
+    dir: examples/counter
+    cmds:
+      - go build -o bin/counter .
+
+  default:
+    desc: Alias to run counter example
+    cmds:
+      - task: examples:counter:run
