@@ -37,20 +37,29 @@ func baseJS() string {
 // JS returns the Liveflux client script. Optional ClientOptions configure the client
 // (merged into window.__lw before the runtime). Include once per page.
 func JS(opts ...ClientOptions) string {
-	// Backward-compatible behavior: no opts -> pure concatenation
-	if len(opts) == 0 {
-		return baseJS()
-	}
 	// Pick first options or zero value, then apply sensible defaults.
 	o := lo.FirstOr(opts, ClientOptions{})
+
 	if o.Endpoint == "" {
 		o.Endpoint = "/liveflux"
 	}
+
 	if o.Headers == nil {
 		o.Headers = map[string]string{}
 	}
+
+	// Expose redirect header names to the client so JS doesn't hardcode them
+	if o.RedirectHeader == "" {
+		o.RedirectHeader = RedirectHeader
+	}
+	if o.RedirectAfterHeader == "" {
+		o.RedirectAfterHeader = RedirectAfterHeader
+	}
+
 	b, _ := json.Marshal(o)
+
 	cfg := "(function(){var o=" + string(b) + ";window.__lw=Object.assign({},window.__lw||{},o);})();\n"
+
 	return cfg + baseJS()
 }
 
@@ -59,7 +68,6 @@ func Script(opts ...ClientOptions) hb.TagInterface {
 	return hb.Script(JS(opts...))
 }
 
-// JSWithEndpoint returns the client script prefixed with a small configuration
 // ClientOptions configures the embedded client.
 // All fields are optional; zero values are ignored.
 type ClientOptions struct {
@@ -67,4 +75,7 @@ type ClientOptions struct {
 	Headers     map[string]string `json:"headers,omitempty"`
 	Credentials string            `json:"credentials,omitempty"` // e.g., "same-origin", "include"
 	TimeoutMs   int               `json:"timeoutMs,omitempty"`   // request timeout; 0 = no timeout
+	// Names of response headers used for client-side redirects
+	RedirectHeader      string `json:"redirectHeader,omitempty"`
+	RedirectAfterHeader string `json:"redirectAfterHeader,omitempty"`
 }

@@ -17,6 +17,12 @@ const (
 	FormAction    = "action"
 )
 
+// Response header names for client-side redirect handling
+const (
+	RedirectHeader       = "X-Liveflux-Redirect"
+	RedirectAfterHeader  = "X-Liveflux-Redirect-After"
+)
+
 // Handler is an http.Handler that mounts/handles components and returns HTML.
 //
 // Usage patterns (client-side):
@@ -171,9 +177,9 @@ func (h *Handler) maybeWriteRedirect(w http.ResponseWriter, c Component) bool {
 		delay = rdelay.TakeRedirectDelaySeconds()
 	}
 
-	w.Header().Set("X-Liveflux-Redirect", url)
+	w.Header().Set(RedirectHeader, url)
 	if delay > 0 {
-		w.Header().Set("X-Liveflux-Redirect-After", cast.ToString(delay))
+		w.Header().Set(RedirectAfterHeader, cast.ToString(delay))
 	}
 
 	// Fallback HTML body: <script> redirect (with delay) and <noscript> meta refresh

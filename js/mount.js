@@ -9,9 +9,13 @@
   g.__lw.mountPlaceholders = function(){
     document.querySelectorAll('[data-lw-mount="1"]').forEach((el)=>{
       const component = el.getAttribute('data-lw-component');
+
       if(!component) return;
+
       const params = g.__lw.readParams(el);
+
       params.component = component;
+      
       g.__lw.post(params).then((html)=>{
         const tmp = document.createElement('div');
         tmp.innerHTML = html;
