@@ -46,18 +46,16 @@ func (c *Component) Handle(ctx context.Context, action string, data url.Values) 
 
 func (c *Component) Render(ctx context.Context) hb.TagInterface {
     root := hb.Div().
-        Attr("hx-post", "/liveflux"). // example endpoint
-        Attr("hx-target", "this").
-        Attr("hx-swap", "outerHTML").
+        Attr("data-lw-root", "1").
         // Handler expects form fields: component, id, action
         Child(hb.Input().Type("hidden").Name("component").Value("counter")).
         Child(hb.Input().Type("hidden").Name("id").Value(c.GetID()))
 
     root = root.Child(hb.H2().Text("Counter"))
     root = root.Child(hb.Div().Style("font-size:2rem").Text(fmt.Sprintf("%d", c.Count)))
-    root = root.Child(hb.Button().Text("+1").Attr("hx-vals", `{"action":"inc"}`))
-    root = root.Child(hb.Button().Text("-1").Attr("hx-vals", `{"action":"dec"}`))
-    root = root.Child(hb.Button().Text("Reset").Attr("hx-vals", `{"action":"reset"}`))
+    root = root.Child(hb.Button().Text("+1").Attr("data-lw-action", "inc"))
+    root = root.Child(hb.Button().Text("-1").Attr("data-lw-action", "dec"))
+    root = root.Child(hb.Button().Text("Reset").Attr("data-lw-action", "reset"))
     return root
 }
 
@@ -85,28 +83,17 @@ func main() {
 }
 ```
 
-3) Mount the component (HTMX)
+3) Mount the component (Liveflux client)
 
-Raw HTML:
-
-```html
-<div hx-post="/liveflux" hx-trigger="load" hx-target="this" hx-swap="outerHTML">
-  <input type="hidden" name="component" value="counter" />
-</div>
-```
-
-With `hb`:
+Include the client script once in your layout and render a placeholder by alias. The client will auto-mount the component and handle actions.
 
 ```go
-hb.Div().
-  Attr("hx-post", "/liveflux").
-  Attr("hx-trigger", "load").
-  Attr("hx-target", "this").
-  Attr("hx-swap", "outerHTML").
-  Child(hb.Input().Type("hidden").Name("component").Value("counter"))
-```
+// In your base layout
+layout = layout.Child(liveflux.Script())
 
-After the first response, the component HTML contains hidden `component` and `id`, so subsequent button clicks only need to send `action` via `hx-vals`.
+// Where you want the component
+ph := liveflux.PlaceholderByAlias("counter")
+```
 
 ## Package API
 
@@ -149,7 +136,7 @@ html := liveflux.SSRHTML(&counter.Component{}, map[string]string{"userID": "42"}
 
 - `liveflux.PlaceholderByAlias(alias string, params ...map[string]string) hb.TagInterface`
 - `liveflux.Placeholder(c ComponentInterface, params ...map[string]string) hb.TagInterface`
-- `liveflux.JS() string` and `liveflux.Script() hb.TagInterface` return the minimal client JS required for mounting and actions.
+- `liveflux.JS(opts ...liveflux.ClientOptions) string` and `liveflux.Script(opts ...liveflux.ClientOptions) hb.TagInterface` return the client JS and accept optional configuration (e.g., endpoint, headers).
 
 Include the client once per page (layout):
 
@@ -157,7 +144,25 @@ Include the client once per page (layout):
 // Using hb
 layout = layout.Child(liveflux.Script())
 // or: layout = layout.Child(hb.Script(liveflux.JS()))
+// or configure a custom endpoint (e.g., behind /api/liveflux):
+layout = layout.Child(liveflux.Script(liveflux.ClientOptions{Endpoint: "/api/liveflux"}))
 ```
+
+#### Client configuration
+
+You can configure the embedded client via Go helpers or by setting `window.__lw` before the script loads:
+
+```go
+// Go (hb) – full options
+layout = layout.Child(liveflux.Script(liveflux.ClientOptions{
+    Endpoint:    "/api/liveflux",
+    Headers:     map[string]string{"X-CSRF-Token": token},
+    Credentials: "same-origin", // or "include"
+    TimeoutMs:   10000,
+}))
+```
+
+Prefer the Go helper API; manual `window.__lw` configuration is typically unnecessary.
 
 Mount via placeholder (built-in client auto-mounts on load):
 
@@ -173,7 +178,6 @@ Data attributes used by the client:
 - `data-lw-component="<alias>"` — registered alias
 - `data-lw-param-<name>="<value>"` — initial params passed to `Mount`
 
-HTMX remains fully compatible; use whichever transport you prefer.
 
 ## State store
 

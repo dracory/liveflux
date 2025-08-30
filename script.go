@@ -2,8 +2,10 @@ package liveflux
 
 import (
 	_ "embed"
+	"encoding/json"
 
 	"github.com/gouniverse/hb"
+	"github.com/samber/lo"
 )
 
 // Embed split client-side JS parts. Order matters for concatenation.
@@ -23,10 +25,8 @@ var clientHandlersJS string
 //go:embed js/bootstrap.js
 var clientBootstrapJS string
 
-// JS returns the standard Liveflux client script used to mount and act on components.
-// Include once per page (e.g., in your base layout) either via hb.Script(liveflux.JS())
-// or using liveflux.Script().
-func JS() string {
+// baseJS concatenates embedded client modules.
+func baseJS() string {
 	return clientUtilJS + "\n" +
 		clientNetworkJS + "\n" +
 		clientMountJS + "\n" +
@@ -34,16 +34,37 @@ func JS() string {
 		clientBootstrapJS
 }
 
-// Script returns an hb.Script tag containing the standard client JS.
-func Script() hb.TagInterface { return hb.Script(JS()) }
-
-// JSWithEndpoint returns the client script prefixed with a small configuration
-// snippet that sets the transport endpoint (defaults to "/liveflux").
-// Example: hb.Script(liveflux.JSWithEndpoint("/api/liveflux"))
-func JSWithEndpoint(endpoint string) string {
-	cfg := "(function(){window.__lw=window.__lw||{};window.__lw.endpoint='" + endpoint + "';})();\n"
-	return cfg + JS()
+// JS returns the Liveflux client script. Optional ClientOptions configure the client
+// (merged into window.__lw before the runtime). Include once per page.
+func JS(opts ...ClientOptions) string {
+    // Backward-compatible behavior: no opts -> pure concatenation
+    if len(opts) == 0 {
+        return baseJS()
+    }
+    // Pick first options or zero value, then apply sensible defaults.
+    o := lo.FirstOr(opts, ClientOptions{})
+    if o.Endpoint == "" {
+        o.Endpoint = "/liveflux"
+    }
+    if o.Headers == nil {
+        o.Headers = map[string]string{}
+    }
+    b, _ := json.Marshal(o)
+    cfg := "(function(){var o=" + string(b) + ";window.__lw=Object.assign({},window.__lw||{},o);})();\n"
+    return cfg + baseJS()
 }
 
-// ScriptWithEndpoint returns an hb.Script tag that sets the endpoint and embeds the client JS.
-func ScriptWithEndpoint(endpoint string) hb.TagInterface { return hb.Script(JSWithEndpoint(endpoint)) }
+// Script returns an hb.Script tag containing the client JS with optional configuration.
+func Script(opts ...ClientOptions) hb.TagInterface {
+	return hb.Script(JS(opts...))
+}
+
+// JSWithEndpoint returns the client script prefixed with a small configuration
+// ClientOptions configures the embedded client.
+// All fields are optional; zero values are ignored.
+type ClientOptions struct {
+	Endpoint    string            `json:"endpoint,omitempty"`
+	Headers     map[string]string `json:"headers,omitempty"`
+	Credentials string            `json:"credentials,omitempty"` // e.g., "same-origin", "include"
+	TimeoutMs   int               `json:"timeoutMs,omitempty"`   // request timeout; 0 = no timeout
+}
