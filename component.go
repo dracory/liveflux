@@ -25,11 +25,11 @@ import (
 //
 // Example usage:
 //
-//	type Counter struct { livewire.Base; Count int }
+//	type Counter struct { liveflux.Base; Count int }
 //	func (c *Counter) Mount(ctx context.Context, params map[string]string) error { c.Count = 0; return nil }
 //	func (c *Counter) Handle(ctx context.Context, action string, data url.Values) error { if action=="inc" { c.Count++ }; return nil }
-//	func (c *Counter) Render(ctx context.Context) hb.Tag { return hb.Div().Textf("%d", c.Count) }
-//	livewire.Register("counter", func() livewire.Component { return &Counter{} })
+//	func (c *Counter) Render(ctx context.Context) hb.TagInterface { return hb.Div().Textf("%d", c.Count) }
+//	liveflux.RegisterByAlias("counter", func() liveflux.ComponentInterface { return &Counter{} })
 //
 // See handler.go for the HTTP entry point.
 type ComponentInterface interface {

@@ -2,7 +2,7 @@
   if(window.__lwInitDone) return; window.__lwInitDone = true;
 
   /**
-   * Bootstraps the Livewire client:
+   * Bootstraps the Liveflux client:
    * - Attaches global click/submit listeners
    * - Mounts placeholders on initial load
    * Runs after DOMContentLoaded if needed.

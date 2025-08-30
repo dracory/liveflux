@@ -16,7 +16,7 @@ var registry = map[string]ctor{}
 // passing string aliases at call sites.
 func New(component ComponentInterface) (ComponentInterface, error) {
 	if component == nil {
-		return nil, fmt.Errorf("livewire: New requires non-nil component")
+		return nil, fmt.Errorf("liveflux: New requires non-nil component")
 	}
 
 	alias := AliasOf(component)
@@ -26,7 +26,7 @@ func New(component ComponentInterface) (ComponentInterface, error) {
 
 	ctor, ok := registry[alias]
 	if !ok {
-		return nil, fmt.Errorf("livewire: component '%s' not registered", alias)
+		return nil, fmt.Errorf("liveflux: component '%s' not registered", alias)
 	}
 
 	inst := ctor()
@@ -43,10 +43,10 @@ var typeToAlias = map[reflect.Type]string{}
 // Typically called from init() in the component's package.
 func RegisterByAlias(alias string, c ctor) {
 	if alias == "" || c == nil {
-		panic("livewire: RegisterByAlias requires non-empty alias and non-nil constructor")
+		panic("liveflux: RegisterByAlias requires non-empty alias and non-nil constructor")
 	}
 	if _, exists := registry[alias]; exists {
-		panic(fmt.Sprintf("livewire: component '%s' already registered", alias))
+		panic(fmt.Sprintf("liveflux: component '%s' already registered", alias))
 	}
 	registry[alias] = c
 	// Store reverse lookup for ergonomics
@@ -56,11 +56,11 @@ func RegisterByAlias(alias string, c ctor) {
 }
 
 // newByAlias creates a new component instance by its registered alias.
-// Internal to the livewire package to avoid encouraging string usage at call sites.
+// Internal to the liveflux package to avoid encouraging string usage at call sites.
 func newByAlias(alias string) (ComponentInterface, error) {
 	c, ok := registry[alias]
 	if !ok {
-		return nil, fmt.Errorf("livewire: component '%s' not registered", alias)
+		return nil, fmt.Errorf("liveflux: component '%s' not registered", alias)
 	}
 	inst := c()
 	if inst != nil {
@@ -74,18 +74,18 @@ func newByAlias(alias string) (ComponentInterface, error) {
 // as the registry alias. Component must implement GetAlias() (enforced by interface).
 func Register(c ctor) {
 	if c == nil {
-		panic("livewire: Register requires non-nil constructor")
+		panic("liveflux: Register requires non-nil constructor")
 	}
 	inst := c()
 	if inst == nil {
-		panic("livewire: Register constructor returned nil instance")
+		panic("liveflux: Register constructor returned nil instance")
 	}
 	alias := inst.GetAlias()
 	if alias == "" {
 		alias = DefaultAliasFromType(inst)
 	}
 	if alias == "" {
-		panic("livewire: Register could not determine alias (empty)")
+		panic("liveflux: Register could not determine alias (empty)")
 	}
 	RegisterByAlias(alias, c)
 }

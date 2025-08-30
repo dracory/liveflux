@@ -92,7 +92,7 @@ func (h *Handler) mount(ctx context.Context, w http.ResponseWriter, r *http.Requ
 	}
 
 	if err := c.Mount(ctx, params); err != nil {
-		log.Printf("livewire: mount error: %v", err)
+		log.Printf("liveflux: mount error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write([]byte("mount error"))
 		return
@@ -146,7 +146,7 @@ func (h *Handler) validateAliasAndID(w http.ResponseWriter, alias, id string) bo
 // processAction invokes the component's Handle for the given action. Returns true if successful.
 func (h *Handler) processAction(ctx context.Context, w http.ResponseWriter, c Component, r *http.Request) bool {
 	if err := c.Handle(ctx, r.FormValue(FormAction), r.Form); err != nil {
-		log.Printf("livewire: handle error: %v", err)
+		log.Printf("liveflux: handle error: %v", err)
 		h.writeError(w, http.StatusBadRequest, "action error")
 		return false
 	}

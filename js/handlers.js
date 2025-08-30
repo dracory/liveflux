@@ -43,7 +43,7 @@
   };
 
   /**
-   * Intercepts form submission within a Livewire component, serializes form data,
+   * Intercepts form submission within a Liveflux component, serializes form data,
    * augments with submitter data and data-lw-param-*, sends to server, and swaps
    * the component DOM with server-rendered HTML.
    * @param {SubmitEvent} e - Submit event.
@@ -75,3 +75,4 @@
     }).catch((err)=>{ console.error('form submit', err); });
   };
 })();
+
