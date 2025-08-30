@@ -8,7 +8,7 @@
 | Rendering | Server returns full HTML (`hb.TagInterface.ToHTML()`) | Blade views re-rendered; client morphs DOM |
 | State | Component instance persisted via `Store` (default in-memory) | Public properties serialized (session-like) |
 | Templating | `hb` (builder) by default; any HTML works | Blade templates |
-| Client directives | Minimal (`data-lw-action`, placeholders) | Rich (`wire:*`, Alpine integration) |
+| Client directives | Minimal (`data-flux-action`, placeholders) | Rich (`wire:*`, Alpine integration) |
 | Redirects | Custom redirect headers + HTML fallback | Framework redirects |
 | SSR | Inherent (server-rendered each request) | Server-rendered Blade + client morph |
 | Partial updates | OuterHTML swap (no DOM diff) | DOM diff/morph for granular updates |

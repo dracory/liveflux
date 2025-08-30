@@ -2,21 +2,21 @@
   const g = window; g.__lw = g.__lw || {};
 
   /**
-   * Handles clicks on elements with data-lw-action, serializes data from the
+   * Handles clicks on elements with data-flux-action, serializes data from the
    * nearest form (or component root), merges button params, and swaps the
    * component DOM with server-rendered HTML.
    * @param {MouseEvent} e - Click event.
    * @returns {void}
    */
   g.__lw.handleActionClick = function(e){
-    const btn = e.target.closest('[data-lw-action]');
+    const btn = e.target.closest('[data-flux-action]');
     if(!btn) return;
-    const root = btn.closest('[data-lw-root]');
+    const root = btn.closest('[data-flux-root]');
     if(!root) return;
     const comp = root.querySelector('input[name="component"]');
     const id = root.querySelector('input[name="id"]');
     if(!comp||!id) return;
-    const action = btn.getAttribute('data-lw-action');
+    const action = btn.getAttribute('data-flux-action');
     // Resolve the associated form: prefer closest form, otherwise HTML 'form' attribute
     const formId = btn.getAttribute('form');
     const assocForm = btn.closest('form') || (formId ? document.getElementById(formId) : null);
@@ -44,22 +44,22 @@
 
   /**
    * Intercepts form submission within a Liveflux component, serializes form data,
-   * augments with submitter data and data-lw-param-*, sends to server, and swaps
+   * augments with submitter data and data-flux-param-*, sends to server, and swaps
    * the component DOM with server-rendered HTML.
    * @param {SubmitEvent} e - Submit event.
    * @returns {void}
    */
   g.__lw.handleFormSubmit = function(e){
-    const form = e.target.closest('[data-lw-root] form, form');
+    const form = e.target.closest('[data-flux-root] form, form');
     if(!form) return;
-    const root = form.closest('[data-lw-root]');
+    const root = form.closest('[data-flux-root]');
     if(!root) return;
     const comp = root.querySelector('input[name="component"]');
     const id = root.querySelector('input[name="id"]');
     if(!comp||!id) return;
     e.preventDefault();
-    const submitter = e.submitter || root.querySelector('[data-lw-action]');
-    const action = (submitter && submitter.getAttribute('data-lw-action')) || form.getAttribute('data-lw-action') || 'submit';
+    const submitter = e.submitter || root.querySelector('[data-flux-action]');
+    const action = (submitter && submitter.getAttribute('data-flux-action')) || form.getAttribute('data-flux-action') || 'submit';
     const fields = g.__lw.serializeElement(form);
     if (submitter) {
       const extra = g.__lw.readParams(submitter);

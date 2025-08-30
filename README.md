@@ -48,9 +48,9 @@ func (c *Component) Render(ctx context.Context) hb.TagInterface {
     content := hb.Div()
     content = content.Child(hb.H2().Text("Counter"))
     content = content.Child(hb.Div().Style("font-size:2rem").Text(fmt.Sprintf("%d", c.Count)))
-    content = content.Child(hb.Button().Text("+1").Attr("data-lw-action", "inc"))
-    content = content.Child(hb.Button().Text("-1").Attr("data-lw-action", "dec"))
-    content = content.Child(hb.Button().Text("Reset").Attr("data-lw-action", "reset"))
+    content = content.Child(hb.Button().Text("+1").Attr("data-flux-action", "inc"))
+    content = content.Child(hb.Button().Text("-1").Attr("data-flux-action", "dec"))
+    content = content.Child(hb.Button().Text("Reset").Attr("data-flux-action", "reset"))
     
     // Wrap content with standard Liveflux root
     return c.Root(content)
@@ -118,7 +118,7 @@ Source: `examples/counter/`
   - `Handle(ctx, action string, data url.Values) error`
   - `Render(ctx) hb.TagInterface`
   - Provided by `liveflux.Base`:
-    - `Root(content hb.TagInterface) hb.TagInterface` — returns the standard component root (`data-lw-root="1"`) and required hidden fields (`component`, `id`), with your content appended.
+    - `Root(content hb.TagInterface) hb.TagInterface` — returns the standard component root (`data-flux-root="1"`) and required hidden fields (`component`, `id`), with your content appended.
 - Registry:
   - `liveflux.RegisterByAlias(alias string, ctor func() ComponentInterface)`
   - `liveflux.Register(ctor func() ComponentInterface)`
@@ -186,14 +186,14 @@ Mount via placeholder (built-in client auto-mounts on load):
 ```go
 // Placeholder by alias; optional params become data attributes
 ph := liveflux.PlaceholderByAlias("counter", map[string]string{"theme": "dark"})
-// Renders: <div data-lw-mount="1" data-lw-component="counter" data-lw-param-theme="dark">Loading counter...</div>
+// Renders: <div data-flux-mount="1" data-flux-component="counter" data-flux-param-theme="dark">Loading counter...</div>
 ```
 
 Data attributes used by the client:
 
-- `data-lw-mount="1"` — element to mount
-- `data-lw-component="<alias>"` — registered alias
-- `data-lw-param-<name>="<value>"` — initial params passed to `Mount`
+- `data-flux-mount="1"` — element to mount
+- `data-flux-component="<alias>"` — registered alias
+- `data-flux-param-<name>="<value>"` — initial params passed to `Mount`
 
 
 ## State store

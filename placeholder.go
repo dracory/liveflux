@@ -8,22 +8,22 @@ import (
 )
 
 // PlaceholderByAlias returns a generic mount placeholder for a component by alias.
-// The inline JS client should look for elements with data-lw-mount="1"
-// and use the data-lw-component value to POST an initial mount.
+// The inline JS client should look for elements with data-flux-mount="1"
+// and use the data-flux-component value to POST an initial mount.
 func PlaceholderByAlias(alias string, params ...map[string]string) hb.TagInterface {
 	p := lo.FirstOr(params, map[string]string{})
 
 	label := fmt.Sprintf("Loading %s...", alias)
 	div := hb.Div().
-		Attr("data-lw-mount", "1").
-		Attr("data-lw-component", alias).
+		Attr("data-flux-mount", "1").
+		Attr("data-flux-component", alias).
 		Text(label)
 
 	for k, v := range p {
 		if k == "" {
 			continue
 		}
-		div = div.Attr("data-lw-param-"+k, v)
+		div = div.Attr("data-flux-param-"+k, v)
 	}
 
 	return div

@@ -8,7 +8,7 @@
 | Rendering | Server returns full HTML (`hb.TagInterface.ToHTML()`) | Server re-renders ERB/partials; client morphs DOM |
 | State | Component instance persisted via `Store` (in-memory default) | Request/session/Reflex instance vars; no long-lived component state |
 | Templating | `hb` (builder) by default; any HTML works | Rails views/partials (ERB/HAML/SLIM), CableReady ops |
-| Client directives | Minimal (`data-lw-action`, placeholders) | `data-reflex` attributes, Stimulus controllers, `stimulus_reflex` helpers |
+| Client directives | Minimal (`data-flux-action`, placeholders) | `data-reflex` attributes, Stimulus controllers, `stimulus_reflex` helpers |
 | Redirects | Custom redirect headers + HTML fallback | Standard Rails redirects; Turbo-compatible setups often used |
 | SSR | Inherent (server-rendered each request) | Inherent; Reflex augments with WS roundtrips |
 | Partial updates | OuterHTML swap (no DOM diff) | morphdom-based granular DOM patching via HTML diffs |

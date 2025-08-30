@@ -8,7 +8,7 @@
 | Rendering | Server returns full HTML (`hb.TagInterface.ToHTML()`) | Server renders HEEx; client patches DOM via diffs |
 | State | Component instance persisted via `Store` (default in-memory) | Server process holds `socket.assigns` (state on server) |
 | Templating | `hb` (builder) by default; any HTML works | HEEx (HTML + Elixir), function components, slots |
-| Client directives | Minimal (`data-lw-action`, placeholders) | Rich `phx-*` events (`phx-click`, `phx-submit`, `phx-change`, etc.) |
+| Client directives | Minimal (`data-flux-action`, placeholders) | Rich `phx-*` events (`phx-click`, `phx-submit`, `phx-change`, etc.) |
 | Redirects | Custom redirect headers + HTML fallback | Live navigation: `push_patch`, `push_redirect`, `redirect` |
 | SSR | Inherent (server-rendered each request) | Initial server render; then LiveView upgrades over WS |
 | Partial updates | OuterHTML swap (no DOM diff) | DOM patches via diff protocol; `phx-update` modes |

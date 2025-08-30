@@ -53,7 +53,7 @@
   };
 
   /**
-   * Reads data attributes in the form data-lw-param-<name> from an element.
+   * Reads data attributes in the form data-flux-param-<name> from an element.
    * @param {Element|null} el - Element to read params from.
    * @returns {Record<string, string>} Map of param name to value.
    */
@@ -61,8 +61,8 @@
     const out = {};
     if(!el || !el.attributes) return out;
     for(const attr of el.attributes){
-      if(attr.name && attr.name.startsWith('data-lw-param-')){
-        out[attr.name.substring('data-lw-param-'.length)] = attr.value;
+      if(attr.name && attr.name.startsWith('data-flux-param-')){
+        out[attr.name.substring('data-flux-param-'.length)] = attr.value;
       }
     }
     return out;

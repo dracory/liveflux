@@ -8,7 +8,7 @@
 | Rendering | Server returns full HTML (`hb.TagInterface.ToHTML()`) | Server renders ERB/HTML; client updates frames/targets |
 | State | Component instance persisted via `Store` (in-memory by default) | No persistent component state; request-driven; session for auth |
 | Templating | `hb` (builder) by default; any HTML works | Rails views/partials (ERB/HAML/SLIM), `turbo-frame`, `turbo-stream` |
-| Client directives | Minimal (`data-lw-action`, placeholders) | `data-turbo`, `turbo-frame`, `turbo-stream`, Stimulus controllers |
+| Client directives | Minimal (`data-flux-action`, placeholders) | `data-turbo`, `turbo-frame`, `turbo-stream`, Stimulus controllers |
 | Redirects | Custom redirect headers + HTML fallback | Standard Rails redirects; Turbo drive handles seamlessly |
 | SSR | Inherent (server-rendered each request) | Inherent SSR; progressive enhancement by Turbo |
 | Partial updates | OuterHTML swap (no DOM diff) | Targeted updates via Turbo Streams (append/prepend/replace/remove) |

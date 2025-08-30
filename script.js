@@ -50,16 +50,16 @@
       const out = {};
       if(!el || !el.attributes) return out;
       for(const attr of el.attributes){
-        if(attr.name && attr.name.startsWith('data-lw-param-')){
-          out[attr.name.substring('data-lw-param-'.length)] = attr.value;
+        if(attr.name && attr.name.startsWith('data-flux-param-')){
+          out[attr.name.substring('data-flux-param-'.length)] = attr.value;
         }
       }
       return out;
     }
 
     function mountPlaceholders(){
-      document.querySelectorAll('[data-lw-mount="1"]').forEach((el)=>{
-        const component = el.getAttribute('data-lw-component');
+      document.querySelectorAll('[data-flux-mount="1"]').forEach((el)=>{
+        const component = el.getAttribute('data-flux-component');
         if(!component) return;
         const params = readParams(el);
         params.component = component;
@@ -73,14 +73,14 @@
     }
 
     function handleActionClick(e){
-      const btn = e.target.closest('[data-lw-action]');
+      const btn = e.target.closest('[data-flux-action]');
       if(!btn) return;
-      const root = btn.closest('[data-lw-root]');
+      const root = btn.closest('[data-flux-root]');
       if(!root) return;
       const comp = root.querySelector('input[name="component"]');
       const id = root.querySelector('input[name="id"]');
       if(!comp||!id) return;
-      const action = btn.getAttribute('data-lw-action');
+      const action = btn.getAttribute('data-flux-action');
       const form = btn.closest('form');
       const fields = form ? serializeElement(form) : serializeElement(root);
       // Also include button-provided params
@@ -96,18 +96,18 @@
     }
 
     function handleFormSubmit(e){
-      const form = e.target.closest('[data-lw-root] form, form');
+      const form = e.target.closest('[data-flux-root] form, form');
       if(!form) return;
-      const root = form.closest('[data-lw-root]');
+      const root = form.closest('[data-flux-root]');
       if(!root) return;
       const comp = root.querySelector('input[name="component"]');
       const id = root.querySelector('input[name="id"]');
       if(!comp||!id) return;
       e.preventDefault();
-      const submitter = e.submitter || root.querySelector('[data-lw-action]');
-      const action = (submitter && submitter.getAttribute('data-lw-action')) || form.getAttribute('data-lw-action') || 'submit';
+      const submitter = e.submitter || root.querySelector('[data-flux-action]');
+      const action = (submitter && submitter.getAttribute('data-flux-action')) || form.getAttribute('data-flux-action') || 'submit';
       const fields = serializeElement(form);
-      // Include submitter name/value and data-lw-param-* (e.g., page number)
+      // Include submitter name/value and data-flux-param-* (e.g., page number)
       if (submitter) {
         const extra = readParams(submitter);
         if (submitter.name) { extra[submitter.name] = submitter.value; }

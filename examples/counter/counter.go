@@ -46,15 +46,15 @@ func (c *Counter) Render(ctx context.Context) hb.TagInterface {
 			hb.Div().
 				Child(hb.Button().
 					Class("btn btn-primary me-2").
-					Attr("data-lw-action", "inc").
+					Attr("data-flux-action", "inc").
 					Text("+1")).
 				Child(hb.Button().
 					Class("btn btn-secondary me-2").
-					Attr("data-lw-action", "dec").
+					Attr("data-flux-action", "dec").
 					Text("-1")).
 				Child(hb.Button().
 					Class("btn btn-outline-danger").
-					Attr("data-lw-action", "reset").
+					Attr("data-flux-action", "reset").
 					Text("Reset")),
 		)
 

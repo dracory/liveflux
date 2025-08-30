@@ -2,13 +2,13 @@
   const g = window; g.__lw = g.__lw || {};
 
   /**
-   * Finds placeholders marked with data-lw-mount="1" and replaces them with
+   * Finds placeholders marked with data-flux-mount="1" and replaces them with
    * server-rendered component HTML, executing any scripts inside.
    * @returns {void}
    */
   g.__lw.mountPlaceholders = function(){
-    document.querySelectorAll('[data-lw-mount="1"]').forEach((el)=>{
-      const component = el.getAttribute('data-lw-component');
+    document.querySelectorAll('[data-flux-mount="1"]').forEach((el)=>{
+      const component = el.getAttribute('data-flux-component');
 
       if(!component) return;
 

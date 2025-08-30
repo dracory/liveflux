@@ -8,7 +8,7 @@
 | Rendering | Server returns full HTML (`hb.TagInterface.ToHTML()`) | Razor Components render to DOM; diff-based renderer |
 | State | Component instance persisted via `Store` (in-memory default) | Component state in .NET objects; cascading values/DI; persists in server circuit (Server) or in browser (WASM) |
 | Templating | `hb` (builder) by default; any HTML works | Razor syntax (`.razor`), components, parameters, slots (`RenderFragment`) |
-| Client directives | Minimal (`data-lw-action`, placeholders) | Event binding `@onclick`, `@onchange`, two-way `@bind`, lifecycle methods |
+| Client directives | Minimal (`data-flux-action`, placeholders) | Event binding `@onclick`, `@onchange`, two-way `@bind`, lifecycle methods |
 | Redirects | Custom redirect headers + HTML fallback | NavigationManager for client-side navigation; server redirects via ASP.NET |
 | SSR | Inherent (server-rendered each request) | Optional: Blazor Server is stateful over SignalR; Blazor WASM is client-rendered; .NET 8+ supports SSR/streaming for Razor Components |
 | Partial updates | OuterHTML swap (no DOM diff) | Diff/virtual DOM-like renderer applies minimal DOM patches |

@@ -21,13 +21,13 @@ func TestPlaceholderByAlias_BuildsDivWithParams(t *testing.T) {
 	tag := PlaceholderByAlias(alias, map[string]string{"foo": "bar", "": "ignore"})
 	h := tag.ToHTML()
 	// Basic attributes
-	if !strings.Contains(h, "data-lw-mount=\"1\"") {
-		t.Fatalf("expected data-lw-mount=1, got: %s", h)
+	if !strings.Contains(h, "data-flux-mount=\"1\"") {
+		t.Fatalf("expected data-flux-mount=1, got: %s", h)
 	}
-	if !strings.Contains(h, "data-lw-component=\""+alias+"\"") {
-		t.Fatalf("expected data-lw-component with alias, got: %s", h)
+	if !strings.Contains(h, "data-flux-component=\""+alias+"\"") {
+		t.Fatalf("expected data-flux-component with alias, got: %s", h)
 	}
-	if !strings.Contains(h, "data-lw-param-foo=\"bar\"") {
+	if !strings.Contains(h, "data-flux-param-foo=\"bar\"") {
 		t.Fatalf("expected data param attr, got: %s", h)
 	}
 	if !strings.Contains(h, "Loading "+alias+"...") {
@@ -57,10 +57,10 @@ func TestPlaceholder_ComponentWithAlias_Registered(t *testing.T) {
 
 	c := &phComp{}
 	h := Placeholder(c, map[string]string{"x": "1"}).ToHTML()
-	if !strings.Contains(h, "data-lw-component=\""+unique+"\"") {
+	if !strings.Contains(h, "data-flux-component=\""+unique+"\"") {
 		t.Fatalf("expected placeholder to use registered alias %q, got: %s", unique, h)
 	}
-	if !strings.Contains(h, "data-lw-param-x=\"1\"") {
+	if !strings.Contains(h, "data-flux-param-x=\"1\"") {
 		t.Fatalf("expected param to be rendered, got: %s", h)
 	}
 }
