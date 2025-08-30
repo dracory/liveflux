@@ -50,19 +50,28 @@ func DefaultAliasFromType(c ComponentInterface) string {
 func toKebab(s string) string {
 	var b strings.Builder
 	var prevLower bool
+	var lastHyphen bool
 	for i, r := range s {
 		if unicode.IsUpper(r) {
-			if i > 0 && (prevLower || (i+1 < len(s) && unicode.IsLower(rune(s[i+1])))) {
+			nextLower := i+1 < len(s) && unicode.IsLower(rune(s[i+1]))
+			if i > 0 && (prevLower || nextLower) && !lastHyphen {
 				b.WriteByte('-')
+				lastHyphen = true
 			}
 			b.WriteRune(unicode.ToLower(r))
 			prevLower = false
-		} else if r == '_' || r == ' ' {
-			b.WriteByte('-')
+			lastHyphen = false
+		} else if r == '_' || r == ' ' || r == '-' {
+			// write a single hyphen for any delimiter, but avoid duplicates
+			if !lastHyphen && b.Len() > 0 {
+				b.WriteByte('-')
+				lastHyphen = true
+			}
 			prevLower = false
 		} else {
 			b.WriteRune(r)
 			prevLower = true
+			lastHyphen = false
 		}
 	}
 	return b.String()
