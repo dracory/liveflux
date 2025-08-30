@@ -15,7 +15,7 @@
 
     async function post(params){
       const body = new URLSearchParams(params);
-      const res = await fetch('/livewire',{
+      const res = await fetch((window.__lw && window.__lw.endpoint) || '/liveflux',{
         method:'POST',
         headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'text/html'},
         body,

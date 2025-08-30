@@ -225,11 +225,11 @@ func TestHandler_HandleRedirect(t *testing.T) {
 		t.Fatalf("expected 200 with redirect fallback body, got %d", actRec.Code)
 	}
 	hdr := actRec.Result().Header
-	if hdr.Get("X-Livewire-Redirect") != "/next" {
-		t.Fatalf("missing X-Livewire-Redirect header, got %q", hdr.Get("X-Livewire-Redirect"))
+	if hdr.Get("X-Liveflux-Redirect") != "/next" {
+		t.Fatalf("missing X-Liveflux-Redirect header, got %q", hdr.Get("X-Liveflux-Redirect"))
 	}
-	if hdr.Get("X-Livewire-Redirect-After") != "2" {
-		t.Fatalf("missing/incorrect redirect delay header, got %q", hdr.Get("X-Livewire-Redirect-After"))
+	if hdr.Get("X-Liveflux-Redirect-After") != "2" {
+		t.Fatalf("missing/incorrect redirect delay header, got %q", hdr.Get("X-Liveflux-Redirect-After"))
 	}
 	body := actRec.Body.String()
 	if !strings.Contains(body, "<noscript><meta http-equiv=\"refresh\"") || !strings.Contains(body, "window.location.replace") {

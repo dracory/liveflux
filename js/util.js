@@ -1,6 +1,10 @@
 (function(){
   const g = window;
   g.__lw = g.__lw || {};
+  // Default endpoint; can be overridden by integrators before or via JSWithEndpoint
+  if (!g.__lw.endpoint) {
+    g.__lw.endpoint = '/liveflux';
+  }
 
   /**
    * Executes any <script> tags within the provided root node by cloning them,

@@ -171,9 +171,9 @@ func (h *Handler) maybeWriteRedirect(w http.ResponseWriter, c Component) bool {
 		delay = rdelay.TakeRedirectDelaySeconds()
 	}
 
-	w.Header().Set("X-Livewire-Redirect", url)
+	w.Header().Set("X-Liveflux-Redirect", url)
 	if delay > 0 {
-		w.Header().Set("X-Livewire-Redirect-After", cast.ToString(delay))
+		w.Header().Set("X-Liveflux-Redirect-After", cast.ToString(delay))
 	}
 
 	// Fallback HTML body: <script> redirect (with delay) and <noscript> meta refresh
