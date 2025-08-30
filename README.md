@@ -229,9 +229,9 @@ This project is dual-licensed under the following terms:
 
 ## Similar projects
 
-- Laravel Livewire (PHP): https://livewire.laravel.com
-- Phoenix LiveView (Elixir): https://hexdocs.pm/phoenix_live_view
-- Hotwire Turbo (Rails): https://turbo.hotwired.dev
-- StimulusReflex (Ruby): https://docs.stimulusreflex.com
+- Laravel Livewire (PHP): https://livewire.laravel.com [Comparison](comparisons/php_livewire_comparison.md)
+- Phoenix LiveView (Elixir): https://hexdocs.pm/phoenix_live_view [Comparison](comparisons/phoenix_liveview_comparison.md)
+- Hotwire Turbo (Rails): https://turbo.hotwired.dev [Comparison](comparisons/hotwire_turbo_comparison.md)
+- StimulusReflex (Ruby): https://docs.stimulusreflex.com [Comparison](comparisons/stimulusreflex_comparison.md)
 - Inertia.js (multi-framework): https://inertiajs.com
-- Blazor (C#/.NET): https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor
+- Blazor (C#/.NET): https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor [Comparison](comparisons/blazor_comparison.md)
