@@ -37,21 +37,21 @@ func baseJS() string {
 // JS returns the Liveflux client script. Optional ClientOptions configure the client
 // (merged into window.__lw before the runtime). Include once per page.
 func JS(opts ...ClientOptions) string {
-    // Backward-compatible behavior: no opts -> pure concatenation
-    if len(opts) == 0 {
-        return baseJS()
-    }
-    // Pick first options or zero value, then apply sensible defaults.
-    o := lo.FirstOr(opts, ClientOptions{})
-    if o.Endpoint == "" {
-        o.Endpoint = "/liveflux"
-    }
-    if o.Headers == nil {
-        o.Headers = map[string]string{}
-    }
-    b, _ := json.Marshal(o)
-    cfg := "(function(){var o=" + string(b) + ";window.__lw=Object.assign({},window.__lw||{},o);})();\n"
-    return cfg + baseJS()
+	// Backward-compatible behavior: no opts -> pure concatenation
+	if len(opts) == 0 {
+		return baseJS()
+	}
+	// Pick first options or zero value, then apply sensible defaults.
+	o := lo.FirstOr(opts, ClientOptions{})
+	if o.Endpoint == "" {
+		o.Endpoint = "/liveflux"
+	}
+	if o.Headers == nil {
+		o.Headers = map[string]string{}
+	}
+	b, _ := json.Marshal(o)
+	cfg := "(function(){var o=" + string(b) + ";window.__lw=Object.assign({},window.__lw||{},o);})();\n"
+	return cfg + baseJS()
 }
 
 // Script returns an hb.Script tag containing the client JS with optional configuration.

@@ -2,8 +2,8 @@ package liveflux
 
 import (
 	"context"
-	"fmt"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -13,7 +13,10 @@ import (
 	"github.com/gouniverse/hb"
 )
 
-type handlerComp struct{ Base; Count int }
+type handlerComp struct {
+	Base
+	Count int
+}
 
 func (c *handlerComp) GetAlias() string { return "" }
 func (c *handlerComp) Mount(_ context.Context, params map[string]string) error {

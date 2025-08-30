@@ -11,10 +11,10 @@ import (
 
 type phComp struct{ Base }
 
-func (c *phComp) GetAlias() string { return "" }
-func (c *phComp) Mount(context.Context, map[string]string) error { return nil }
+func (c *phComp) GetAlias() string                                 { return "" }
+func (c *phComp) Mount(context.Context, map[string]string) error   { return nil }
 func (c *phComp) Handle(context.Context, string, url.Values) error { return nil }
-func (c *phComp) Render(context.Context) hb.TagInterface { return hb.Div() }
+func (c *phComp) Render(context.Context) hb.TagInterface           { return hb.Div() }
 
 func TestPlaceholderByAlias_BuildsDivWithParams(t *testing.T) {
 	alias := "users.list"

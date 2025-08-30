@@ -11,16 +11,17 @@ import (
 
 // Types for DefaultAliasFromType tests
 type counterType struct{ Base }
-func (c *counterType) GetAlias() string { return "" }
-func (c *counterType) Mount(ctx context.Context, params map[string]string) error { return nil }
-func (c *counterType) Handle(ctx context.Context, action string, data url.Values) error { return nil }
-func (c *counterType) Render(ctx context.Context) hb.TagInterface { return hb.Div() }
 
-type Liveflux struct{ Base } // matches package name case-insensitively
-func (c *Liveflux) GetAlias() string { return "" }
-func (c *Liveflux) Mount(ctx context.Context, params map[string]string) error { return nil }
+func (c *counterType) GetAlias() string                                                 { return "" }
+func (c *counterType) Mount(ctx context.Context, params map[string]string) error        { return nil }
+func (c *counterType) Handle(ctx context.Context, action string, data url.Values) error { return nil }
+func (c *counterType) Render(ctx context.Context) hb.TagInterface                       { return hb.Div() }
+
+type Liveflux struct{ Base }                                                         // matches package name case-insensitively
+func (c *Liveflux) GetAlias() string                                                 { return "" }
+func (c *Liveflux) Mount(ctx context.Context, params map[string]string) error        { return nil }
 func (c *Liveflux) Handle(ctx context.Context, action string, data url.Values) error { return nil }
-func (c *Liveflux) Render(ctx context.Context) hb.TagInterface { return hb.Div() }
+func (c *Liveflux) Render(ctx context.Context) hb.TagInterface                       { return hb.Div() }
 
 func TestNewID_LengthCharsetUniqueness(t *testing.T) {
 	allowed := "123456789bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ"
