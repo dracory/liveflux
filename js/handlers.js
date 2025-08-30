@@ -9,14 +9,14 @@
    * @returns {void}
    */
   g.__lw.handleActionClick = function(e){
-    const btn = e.target.closest('[data-flux-action]');
+    const btn = e.target.closest('[data-flux-action], [flux-action]');
     if(!btn) return;
-    const root = btn.closest('[data-flux-root]');
+    const root = btn.closest('[data-flux-root], [flux-root]');
     if(!root) return;
     const comp = root.querySelector('input[name="component"]');
     const id = root.querySelector('input[name="id"]');
     if(!comp||!id) return;
-    const action = btn.getAttribute('data-flux-action');
+    const action = btn.getAttribute('data-flux-action') || btn.getAttribute('flux-action');
     // Resolve the associated form: prefer closest form, otherwise HTML 'form' attribute
     const formId = btn.getAttribute('form');
     const assocForm = btn.closest('form') || (formId ? document.getElementById(formId) : null);
@@ -50,16 +50,16 @@
    * @returns {void}
    */
   g.__lw.handleFormSubmit = function(e){
-    const form = e.target.closest('[data-flux-root] form, form');
+    const form = e.target.closest('[data-flux-root] form, [flux-root] form, form');
     if(!form) return;
-    const root = form.closest('[data-flux-root]');
+    const root = form.closest('[data-flux-root], [flux-root]');
     if(!root) return;
     const comp = root.querySelector('input[name="component"]');
     const id = root.querySelector('input[name="id"]');
     if(!comp||!id) return;
     e.preventDefault();
-    const submitter = e.submitter || root.querySelector('[data-flux-action]');
-    const action = (submitter && submitter.getAttribute('data-flux-action')) || form.getAttribute('data-flux-action') || 'submit';
+    const submitter = e.submitter || root.querySelector('[data-flux-action], [flux-action]');
+    const action = (submitter && (submitter.getAttribute('data-flux-action') || submitter.getAttribute('flux-action'))) || form.getAttribute('data-flux-action') || form.getAttribute('flux-action') || 'submit';
     const fields = g.__lw.serializeElement(form);
     if (submitter) {
       const extra = g.__lw.readParams(submitter);

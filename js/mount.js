@@ -7,8 +7,8 @@
    * @returns {void}
    */
   g.__lw.mountPlaceholders = function(){
-    document.querySelectorAll('[data-flux-mount="1"]').forEach((el)=>{
-      const component = el.getAttribute('data-flux-component');
+    document.querySelectorAll('[data-flux-mount="1"], [flux-mount="1"]').forEach((el)=>{
+      const component = el.getAttribute('data-flux-component') || el.getAttribute('flux-component');
 
       if(!component) return;
 
