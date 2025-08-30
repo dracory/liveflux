@@ -50,8 +50,8 @@ This document compares our Go package `liveflux` with Phoenix LiveView (Elixir),
 ## Client API & Templating
 - __Our pkg__
   - Templating via `github.com/gouniverse/hb` (builder producing HTML). No HEEx-equivalent.
-  - Mount via helper: `liveflux.PlaceholderByAlias(alias, params)` producing `<div data-lw-mount="1" data-lw-component="...">` consumed by the built-in client.
-  - Actions: elements annotated with `data-lw-action`, posts include `component`, `id`, `action`.
+  - Mount via helper: `liveflux.PlaceholderByAlias(alias, params)` producing `<div data-flux-mount="1" data-flux-component="...">` consumed by the built-in client.
+  - Actions: elements annotated with `data-flux-action`, posts include `component`, `id`, `action`.
 - __Phoenix LiveView__
   - HEEx templating with assign interpolation and function components.
   - Rich client events and attributes: `phx-click`, `phx-submit`, `phx-change`, `phx-keydown`, `phx-blur`, `phx-focus`, `phx-target`, `phx-value-*`.
@@ -136,7 +136,7 @@ This document compares our Go package `liveflux` with Phoenix LiveView (Elixir),
   - Our: `liveflux.PlaceholderByAlias("counter")` -> client mounts via `/liveflux`.
   - Elixir: Router `live "/counter", MyAppWeb.CounterLive` and render via `live_render/3` or by navigating to the route.
 - __Actions__
-  - Our: button with `data-lw-action="inc"` -> `Handle(ctx, "inc", formValues)`.
+  - Our: button with `data-flux-action="inc"` -> `Handle(ctx, "inc", formValues)`.
   - Elixir: `<button phx-click="inc">` -> `handle_event("inc", params, socket)` increments state.
 - __Redirect / Navigation__
   - Our: `c.Redirect("/next", 1)` -> custom redirect headers + fallback HTML.

@@ -49,8 +49,8 @@ This document compares our Go package `liveflux` with Laravel Livewire (PHP), hi
 ## Client API & Templating
 - __Our pkg__
   - Templating via `github.com/gouniverse/hb` (builder producing HTML). No Blade-equivalent.
-  - Mount via our helper: `liveflux.PlaceholderByAlias(alias, params)` which produces `<div data-lw-mount="1" data-lw-component="...">` consumed by the built-in client.
-  - Actions: buttons/submitters annotated with `data-lw-action`, posts include `component`, `id`, `action`.
+  - Mount via our helper: `liveflux.PlaceholderByAlias(alias, params)` which produces `<div data-flux-mount="1" data-flux-component="...">` consumed by the built-in client.
+  - Actions: buttons/submitters annotated with `data-flux-action`, posts include `component`, `id`, `action`.
 - __Laravel Livewire__
   - Blade with `@livewire('component')` and directives.
   - Rich client directives: `wire:click`, `wire:submit`, `wire:model`, `wire:loading`, `wire:poll`, etc.
@@ -132,7 +132,7 @@ This document compares our Go package `liveflux` with Laravel Livewire (PHP), hi
   - Our: `liveflux.PlaceholderByAlias("counter")` -> client mounts via `/liveflux`.
   - PHP: `@livewire('counter')` in Blade.
 - __Actions__
-  - Our: button with `data-lw-action="inc"` -> `Handle(ctx, "inc", formValues)`.
+  - Our: button with `data-flux-action="inc"` -> `Handle(ctx, "inc", formValues)`.
   - PHP: `<button wire:click="inc">` -> `increment()` method.
 - __Redirect__
   - Our: `c.Redirect("/next", 1)` -> custom redirect headers + fallback HTML.

@@ -46,7 +46,7 @@ This document compares our Go package `liveflux` with Blazor, highlighting conce
 
 ## Client API & Templating
 - __Our pkg__
-  - Templating via `github.com/gouniverse/hb` (HTML builder). Mount placeholders via `liveflux.PlaceholderByAlias(alias, params)` and `data-lw-action` for actions.
+  - Templating via `github.com/gouniverse/hb` (HTML builder). Mount placeholders via `liveflux.PlaceholderByAlias(alias, params)` and `data-flux-action` for actions.
 - __Blazor__
   - Razor templating combines HTML and C# inline; components encapsulate UI and logic.
   - Event binding with `@on*`, two-way binding with `@bind-Value`/`@bind`.
@@ -116,7 +116,7 @@ This document compares our Go package `liveflux` with Blazor, highlighting conce
   - Our: `liveflux.PlaceholderByAlias("counter")` -> client mounts via `/liveflux`.
   - Blazor: Define `Counter.razor`; route via `@page "/counter"`; render as `<Counter />`.
 - __Actions__
-  - Our: button `data-lw-action="inc"` -> `Handle(ctx, "inc", formValues)`.
+  - Our: button `data-flux-action="inc"` -> `Handle(ctx, "inc", formValues)`.
   - Blazor: `<button @onclick="Increment">` -> C# method mutates state; re-render occurs.
 - __Redirects / Navigation__
   - Our: `c.Redirect("/next", 1)` -> custom headers + fallback HTML.

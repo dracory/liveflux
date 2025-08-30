@@ -46,8 +46,8 @@ This document compares our Go package `liveflux` with StimulusReflex, highlighti
 
 ## Client API & Templating
 - __Our pkg__
-  - Mount via `liveflux.PlaceholderByAlias(alias, params)` producing `<div data-lw-mount>` consumed by our client.
-  - Actions via `data-lw-action` sending `component`, `id`, `action`.
+  - Mount via `liveflux.PlaceholderByAlias(alias, params)` producing `<div data-flux-mount>` consumed by our client.
+  - Actions via `data-flux-action` sending `component`, `id`, `action`.
 - __StimulusReflex__
   - Stimulus controllers attach `data-reflex="click->ExampleReflex#do_thing"` (and similar) to elements.
   - Templates are standard Rails ERB/partials; Reflex replaces/morphs designated elements.
@@ -116,7 +116,7 @@ This document compares our Go package `liveflux` with StimulusReflex, highlighti
   - Our: `liveflux.PlaceholderByAlias("counter")` -> client mounts via `/liveflux`.
   - Rails: normal ERB partial rendered in a view; Stimulus controller attaches behaviors.
 - __Actions__
-  - Our: button `data-lw-action="inc"` -> `Handle(ctx, "inc", formValues)`.
+  - Our: button `data-flux-action="inc"` -> `Handle(ctx, "inc", formValues)`.
   - Rails: `<button data-reflex="click->CounterReflex#inc">` -> `CounterReflex#inc` updates and re-renders partial; DOM morph applied.
 - __Redirects__
   - Our: `c.Redirect("/next", 1)` -> custom headers + fallback HTML.

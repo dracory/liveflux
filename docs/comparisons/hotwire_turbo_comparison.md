@@ -47,8 +47,8 @@ This document compares our Go package `liveflux` with Hotwire Turbo (Rails), foc
 
 ## Client API & Templating
 - __Our pkg__
-  - `liveflux.PlaceholderByAlias(alias, params)` renders `<div data-lw-mount>` consumed by the client.
-  - Actions via `data-lw-action` (clicks/forms) posting `component`, `id`, `action`.
+  - `liveflux.PlaceholderByAlias(alias, params)` renders `<div data-flux-mount>` consumed by the client.
+  - Actions via `data-flux-action` (clicks/forms) posting `component`, `id`, `action`.
 - __Hotwire Turbo__
   - Templates: Rails ERB with `turbo-frame id="..."` and partials.
   - Streams: server renders `<turbo-stream action="replace" target="...">` wrappers around partial HTML.
@@ -120,7 +120,7 @@ This document compares our Go package `liveflux` with Hotwire Turbo (Rails), foc
   - Our: `liveflux.PlaceholderByAlias("counter")` -> client mounts via `/liveflux`.
   - Rails: `turbo-frame id="counter"` around content; controller renders the frame's partial.
 - __Actions__
-  - Our: button `data-lw-action="inc"` -> `Handle(ctx, "inc", formValues)`.
+  - Our: button `data-flux-action="inc"` -> `Handle(ctx, "inc", formValues)`.
   - Rails: form submission to a controller action returns a `<turbo-stream action="replace" target="counter">` with updated partial.
 - __Redirects__
   - Our: `c.Redirect("/next", 1)` -> custom headers + fallback HTML.
