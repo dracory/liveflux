@@ -95,6 +95,24 @@ layout = layout.Child(liveflux.Script())
 ph := liveflux.PlaceholderByAlias("counter")
 ```
 
+## Examples
+
+### Counter (two instances side-by-side)
+
+Run from repo root:
+
+```bash
+go run ./examples/counter
+# or, with Task
+task examples:counter:run
+```
+
+Screenshot:
+
+![Counter Example](examples/counter/screenshot.png)
+
+Source: `examples/counter/`
+
 ## Package API
 
 - Interface `liveflux.ComponentInterface`:
