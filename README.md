@@ -45,12 +45,12 @@ func (c *Component) Handle(ctx context.Context, action string, data url.Values) 
 }
 
 func (c *Component) Render(ctx context.Context) hb.TagInterface {
-    content := hb.Div()
-    content = content.Child(hb.H2().Text("Counter"))
-    content = content.Child(hb.Div().Style("font-size:2rem").Text(fmt.Sprintf("%d", c.Count)))
-    content = content.Child(hb.Button().Text("+1").Attr("data-flux-action", "inc"))
-    content = content.Child(hb.Button().Text("-1").Attr("data-flux-action", "dec"))
-    content = content.Child(hb.Button().Text("Reset").Attr("data-flux-action", "reset"))
+    content := hb.Div().
+        Child(hb.H2().Text("Counter")).
+        Child(hb.Div().Style("font-size:2rem").Text(fmt.Sprintf("%d", c.Count))).
+        Child(hb.Button().Text("+1").Data("flux-action", "inc")).
+        Child(hb.Button().Text("-1").Data("flux-action", "dec")).
+        Child(hb.Button().Text("Reset").Data("flux-action", "reset"))
     
     // Wrap content with standard Liveflux root
     return c.Root(content)
