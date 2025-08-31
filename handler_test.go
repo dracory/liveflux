@@ -47,9 +47,9 @@ func (c *handlerComp) Render(_ context.Context) hb.TagInterface {
 }
 
 // helper to register a fresh alias each test
-func registerTestAlias(t *testing.T, ctor func() ComponentInterface) string {
+func registerTestAlias(t *testing.T, proto ComponentInterface) string {
 	alias := "test." + NewID()
-	RegisterByAlias(alias, ctor)
+	RegisterByAlias(alias, proto)
 	return alias
 }
 
@@ -89,7 +89,7 @@ func TestHandler_MountNotRegistered(t *testing.T) {
 func TestHandler_MountSuccess_RendersAndStores(t *testing.T) {
 	s := NewMemoryStore()
 	h := NewHandler(s)
-	alias := registerTestAlias(t, func() ComponentInterface { return &handlerComp{} })
+	alias := registerTestAlias(t, &handlerComp{})
 	form := url.Values{
 		"component": {alias},
 		"init":      {"1"},
@@ -113,7 +113,7 @@ func TestHandler_MountSuccess_RendersAndStores(t *testing.T) {
 
 func TestHandler_MountError(t *testing.T) {
 	h := NewHandler(NewMemoryStore())
-	alias := registerTestAlias(t, func() ComponentInterface { return &handlerComp{} })
+	alias := registerTestAlias(t, &handlerComp{})
 	form := url.Values{
 		"component": {alias},
 		"init":      {"err"},
@@ -143,7 +143,7 @@ func TestHandler_HandleValidateMissing(t *testing.T) {
 func TestHandler_HandleActionSuccess(t *testing.T) {
 	s := NewMemoryStore()
 	h := NewHandler(s)
-	alias := registerTestAlias(t, func() ComponentInterface { return &handlerComp{} })
+	alias := registerTestAlias(t, &handlerComp{})
 	// First mount to create and store
 	mountForm := url.Values{"component": {alias}}
 	mountReq := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(mountForm.Encode()))
@@ -177,7 +177,7 @@ func TestHandler_HandleActionSuccess(t *testing.T) {
 func TestHandler_HandleActionError(t *testing.T) {
 	s := NewMemoryStore()
 	h := NewHandler(s)
-	alias := registerTestAlias(t, func() ComponentInterface { return &handlerComp{} })
+	alias := registerTestAlias(t, &handlerComp{})
 	// mount
 	mountForm := url.Values{"component": {alias}}
 	mountReq := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(mountForm.Encode()))
@@ -204,7 +204,7 @@ func TestHandler_HandleActionError(t *testing.T) {
 func TestHandler_HandleRedirect(t *testing.T) {
 	s := NewMemoryStore()
 	h := NewHandler(s)
-	alias := registerTestAlias(t, func() ComponentInterface { return &handlerComp{} })
+	alias := registerTestAlias(t, &handlerComp{})
 	// mount
 	mountForm := url.Values{"component": {alias}}
 	mountReq := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(mountForm.Encode()))

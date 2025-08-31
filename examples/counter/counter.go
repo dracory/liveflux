@@ -15,6 +15,10 @@ type Counter struct {
 	Count int
 }
 
+func (c *Counter) GetAlias() string {
+	return "counter"
+}
+
 // Mount initializes the component's state.
 func (c *Counter) Mount(ctx context.Context, params map[string]string) error {
 	c.Count = 0
@@ -36,26 +40,32 @@ func (c *Counter) Handle(ctx context.Context, action string, data url.Values) er
 
 // Render outputs the HTML for the component.
 func (c *Counter) Render(ctx context.Context) hb.TagInterface {
+	title := hb.H2().Text("Counter")
+
+	display := hb.Div().
+		Style("font-size: 2rem; margin: 10px 0;").
+		Text(strconv.Itoa(c.Count))
+
+	buttonIncrement := hb.Button().
+		Data("flux-action", "inc").
+		Text("+1")
+
+	buttonDecrement := hb.Button().
+		Data("flux-action", "dec").
+		Text("-1")
+
+	buttonReset := hb.Button().
+		Data("flux-action", "reset").
+		Text("Reset")
+
 	content := hb.Div().
-		Child(hb.H2().
-			Text("Counter")).
-		Child(hb.Div().
-			Style("font-size: 2rem; margin: 10px 0;").
-			Text(strconv.Itoa(c.Count))).
+		Child(title).
+		Child(display).
 		Child(
 			hb.Div().
-				Child(hb.Button().
-					Class("btn btn-primary me-2").
-					Attr("data-flux-action", "inc").
-					Text("+1")).
-				Child(hb.Button().
-					Class("btn btn-secondary me-2").
-					Attr("data-flux-action", "dec").
-					Text("-1")).
-				Child(hb.Button().
-					Class("btn btn-outline-danger").
-					Attr("data-flux-action", "reset").
-					Text("Reset")),
+				Child(buttonIncrement).
+				Child(buttonDecrement).
+				Child(buttonReset),
 		)
 
 	return c.Root(content)
@@ -63,5 +73,5 @@ func (c *Counter) Render(ctx context.Context) hb.TagInterface {
 
 func init() {
 	// Register using default alias derived from type ("counter")
-	liveflux.Register(func() liveflux.ComponentInterface { return &Counter{} })
+	liveflux.Register(new(Counter))
 }

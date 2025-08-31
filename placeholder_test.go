@@ -53,7 +53,7 @@ func TestPlaceholder_ComponentNoAlias(t *testing.T) {
 func TestPlaceholder_ComponentWithAlias_Registered(t *testing.T) {
 	// Register this type with a unique alias and ensure Placeholder uses it
 	unique := "test." + NewID()
-	RegisterByAlias(unique, func() ComponentInterface { return &phComp{} })
+	RegisterByAlias(unique, &phComp{})
 
 	c := &phComp{}
 	h := Placeholder(c, map[string]string{"x": "1"}).ToHTML()
