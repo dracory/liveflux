@@ -15,19 +15,13 @@ func main() {
 
 	// Home page renders one Tree component and includes the client script
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		inst, err := liveflux.New(&Tree{})
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			_, _ = w.Write([]byte("error: " + err.Error()))
-			return
-		}
-
 		html := `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">` +
 			`<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">` +
+			`<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">` +
 			`<title>Liveflux Tree</title></head><body class="p-4">`
 
 		html += `<div class="container">`
-		html += `<h3 class="mb-3">Tree Example</h3>` + liveflux.SSR(inst).ToHTML()
+		html += `<h3 class="mb-3">Tree Example</h3>` + liveflux.SSR(&Tree{Title: "Continents and Countries"}).ToHTML()
 		html += `</div>`
 
 		// Client runtime (include once)

@@ -11,6 +11,10 @@ go run ./examples/counter
 
 Then open http://localhost:8080
 
+## Screenshot
+
+![Counter — Two instances](./screenshot.png)
+
 ## What it does
 - Renders a server-side Counter using `liveflux.SSR`
 - Mounts the JS runtime via `liveflux.Script()`

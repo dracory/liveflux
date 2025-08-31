@@ -15,6 +15,14 @@ go run ./examples/tree
 
 Then open http://localhost:8080
 
+## Screenshots
+
+![Tree — Overview](./screenshot.png)
+
+![Tree — Edit node](./screenshot_edit_node.png)
+
+![Tree — Add child](./screenshot_add_child.png)
+
 ## What it does
 - Renders a server-side Tree using `liveflux.SSR`
 - Uses forms and `data-flux-action` to send actions: `add_root`, `add_child`, `delete`

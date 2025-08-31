@@ -110,6 +110,26 @@ Screenshot:
 
 Source: `examples/counter/`
 
+### Tree (nested list with modal add/edit)
+
+Run from repo root:
+
+```bash
+go run ./examples/tree
+# or, with Task
+task examples:tree:run
+```
+
+Screenshots:
+
+![Tree — Overview](examples/tree/screenshot.png)
+
+![Tree — Edit node](examples/tree/screenshot_edit_node.png)
+
+![Tree — Add child](examples/tree/screenshot_add_child.png)
+
+Source: `examples/tree/`
+
 ## Package API
 
 - Interface `liveflux.ComponentInterface`:

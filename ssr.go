@@ -18,6 +18,10 @@ func SSR(c ComponentInterface, params ...map[string]string) hb.TagInterface {
 
 	ctx := context.Background()
 
+	// Ensure alias is set so the client can route actions (adds hidden 'component' input)
+    // Call unconditionally; Base.SetAlias only sets once and no-ops otherwise.
+    c.SetAlias(c.GetAlias())
+
 	// Ensure instance has ID for subsequent client actions/state persistence
 	if c.GetID() == "" {
 		c.SetID(NewID())
