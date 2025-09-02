@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gouniverse/hb"
+	"github.com/dracory/hb"
 )
 
 // Types for DefaultAliasFromType tests

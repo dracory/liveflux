@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/gouniverse/hb"
+	"github.com/dracory/hb"
 )
 
 // minimal component for store tests

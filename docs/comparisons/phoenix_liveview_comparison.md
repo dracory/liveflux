@@ -49,7 +49,7 @@ This document compares our Go package `liveflux` with Phoenix LiveView (Elixir),
 
 ## Client API & Templating
 - __Our pkg__
-  - Templating via `github.com/gouniverse/hb` (builder producing HTML). No HEEx-equivalent.
+  - Templating via `github.com/dracory/hb` (builder producing HTML). No HEEx-equivalent.
   - Mount via helper: `liveflux.PlaceholderByAlias(alias, params)` producing `<div data-flux-mount="1" data-flux-component="...">` consumed by the built-in client.
   - Actions: elements annotated with `data-flux-action`, posts include `component`, `id`, `action`.
 - __Phoenix LiveView__

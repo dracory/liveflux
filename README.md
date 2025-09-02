@@ -4,7 +4,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/dracory/liveflux)](https://goreportcard.com/report/github.com/dracory/liveflux)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/dracory/liveflux)](https://pkg.go.dev/github.com/dracory/liveflux)
 
-Liveflux is a server-driven component system for Go. It uses [`github.com/gouniverse/hb`](https://github.com/gouniverse/hb) internally for component tags, but it works with any server setup or frontend—responses are plain HTML and the client transport is framework-agnostic.
+Liveflux is a server-driven component system for Go. It uses [`github.com/dracory/hb`](https://github.com/dracory/hb) internally for component tags, but it works with any server setup or frontend—responses are plain HTML and the client transport is framework-agnostic.
 
 - Endpoint: your choice (example: `POST /liveflux`) (handler accepts `POST` and `GET`)
 - Transport: built-in JS (any client that can POST/GET forms works)
@@ -24,7 +24,7 @@ import (
     "fmt"
     "net/url"
 
-    "github.com/gouniverse/hb"
+    "github.com/dracory/hb"
     "github.com/dracory/liveflux"
 )
 

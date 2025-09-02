@@ -5,8 +5,8 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/dracory/hb"
 	"github.com/dracory/liveflux"
-	"github.com/gouniverse/hb"
 )
 
 // Counter is a minimal Liveflux counter example.

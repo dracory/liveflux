@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/dracory/hb"
 	"github.com/dracory/liveflux"
-	"github.com/gouniverse/hb"
 )
 
 // Node represents a tree node.

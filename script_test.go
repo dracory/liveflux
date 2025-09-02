@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gouniverse/hb"
+	"github.com/dracory/hb"
 )
 
 // helper to read a file relative to this package directory
@@ -60,4 +60,9 @@ func TestJSIncludesRedirectHeadersConfig(t *testing.T) {
 	}
 }
 
-func min(a, b int) int { if a < b { return a }; return b }
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}

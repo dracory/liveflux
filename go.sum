@@ -1,13 +1,13 @@
 github.com/dracory/arr v0.1.0 h1:qMY72i7e74nHVYiLv4CfGen1i3FVpzsnTGYFUIfMEyc=
 github.com/dracory/arr v0.1.0/go.mod h1:CWZGRcEKs9+wWxRXF8aCQzwOxGk107fYiUAByTqeMMc=
+github.com/dracory/hb v1.88.0 h1:PpxQ9IGTy/L8fZ2iQxTUhieB6u16sluuw/TNxYUcHPs=
+github.com/dracory/hb v1.88.0/go.mod h1:ixoy4T+Vr3HADrxkt5MhXQnkOWo0NSuN5WYPXfKjZCs=
 github.com/dracory/str v0.3.0 h1:4I1a7MGp73WukPVac+cLFh6bA7X5bVLTVSComhUXTr0=
 github.com/dracory/str v0.3.0/go.mod h1:9p5fqokBVw5GEO/CJ2xCmCq1cfjxAiKS2KK7RUFIwRE=
 github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=
 github.com/frankban/quicktest v1.14.6/go.mod h1:4ptaffx2x8+WTWXmUCuVU6aPUX1/Mz7zb5vbUoiM6w0=
 github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=
 github.com/google/go-cmp v0.5.9/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
-github.com/gouniverse/hb v1.87.0 h1:x6Hd66mrVnbxZHCgWYfi8+FtUblKP4oee2YINAusaKw=
-github.com/gouniverse/hb v1.87.0/go.mod h1:VkHqNfFBFHWyd0vSxKqfGrMXmSoPpGyN4OBLHWi/ymw=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/pretty v0.3.1/go.mod h1:hoEshYVHaxMs3cyo3Yncou5ZscifuDolrwPKZanG3xk=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=

@@ -46,7 +46,7 @@ This document compares our Go package `liveflux` with Blazor, highlighting conce
 
 ## Client API & Templating
 - __Our pkg__
-  - Templating via `github.com/gouniverse/hb` (HTML builder). Mount placeholders via `liveflux.PlaceholderByAlias(alias, params)` and `data-flux-action` for actions.
+  - Templating via `github.com/dracory/hb` (HTML builder). Mount placeholders via `liveflux.PlaceholderByAlias(alias, params)` and `data-flux-action` for actions.
 - __Blazor__
   - Razor templating combines HTML and C# inline; components encapsulate UI and logic.
   - Event binding with `@on*`, two-way binding with `@bind-Value`/`@bind`.
