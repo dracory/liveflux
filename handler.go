@@ -14,7 +14,7 @@ import (
 const (
 	FormComponent = "liveflux_component_type"
 	FormID        = "liveflux_component_id"
-	FormAction    = "livefuse_action"
+	FormAction    = "liveflux_action"
 )
 
 // Response header names for client-side redirect handling
@@ -27,7 +27,7 @@ const (
 //
 // Usage patterns (client-side):
 // - To mount: POST with form field `liveflux_component_type` (alias) (and optional params) -> returns initial HTML
-// - To act:   POST with `liveflux_component_type` (alias), `liveflux_component_id`, `livefuse_action` (+ any user fields) -> returns updated HTML
+// - To act:   POST with `liveflux_component_type` (alias), `liveflux_component_id`, `liveflux_action` (+ any user fields) -> returns updated HTML
 //
 // State is stored via the configured Store (default: in-memory). For production,
 // wire a session-backed implementation.

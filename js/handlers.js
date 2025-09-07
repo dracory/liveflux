@@ -33,7 +33,7 @@
     const fields = assocForm ? g.__lw.serializeElement(assocForm) : g.__lw.serializeElement(root);
     const btnParams = g.__lw.readParams(btn);
     if (btn.name) { btnParams[btn.name] = btn.value; }
-    const params = Object.assign({}, fields, btnParams, { liveflux_component_type: comp.value, liveflux_component_id: id.value, livefuse_action: action });
+    const params = Object.assign({}, fields, btnParams, { liveflux_component_type: comp.value, liveflux_component_id: id.value, liveflux_action: action });
     g.__lw.post(params).then((html)=>{
       const tmp = document.createElement('div');
       tmp.innerHTML = html;
@@ -66,7 +66,7 @@
       if (submitter.name) { extra[submitter.name] = submitter.value; }
       Object.assign(fields, extra);
     }
-    const params = Object.assign({}, fields, { liveflux_component_type: comp.value, liveflux_component_id: id.value, livefuse_action: action });
+    const params = Object.assign({}, fields, { liveflux_component_type: comp.value, liveflux_component_id: id.value, liveflux_action: action });
     g.__lw.post(params).then((html)=>{
       const tmp = document.createElement('div');
       tmp.innerHTML = html;
