@@ -13,8 +13,8 @@
     if(!btn) return;
     const root = btn.closest('[data-flux-root], [flux-root]');
     if(!root) return;
-    const comp = root.querySelector('input[name="component"]');
-    const id = root.querySelector('input[name="id"]');
+    const comp = root.querySelector('input[name="liveflux_component_type"]');
+    const id = root.querySelector('input[name="liveflux_component_id"]');
     if(!comp||!id) return;
     const action = btn.getAttribute('data-flux-action') || btn.getAttribute('flux-action');
     // Resolve the associated form: prefer closest form, otherwise HTML 'form' attribute
@@ -33,7 +33,7 @@
     const fields = assocForm ? g.__lw.serializeElement(assocForm) : g.__lw.serializeElement(root);
     const btnParams = g.__lw.readParams(btn);
     if (btn.name) { btnParams[btn.name] = btn.value; }
-    const params = Object.assign({}, fields, btnParams, { component: comp.value, id: id.value, action });
+    const params = Object.assign({}, fields, btnParams, { liveflux_component_type: comp.value, liveflux_component_id: id.value, livefuse_action: action });
     g.__lw.post(params).then((html)=>{
       const tmp = document.createElement('div');
       tmp.innerHTML = html;
@@ -54,8 +54,8 @@
     if(!form) return;
     const root = form.closest('[data-flux-root], [flux-root]');
     if(!root) return;
-    const comp = root.querySelector('input[name="component"]');
-    const id = root.querySelector('input[name="id"]');
+    const comp = root.querySelector('input[name="liveflux_component_type"]');
+    const id = root.querySelector('input[name="liveflux_component_id"]');
     if(!comp||!id) return;
     e.preventDefault();
     const submitter = e.submitter || root.querySelector('[data-flux-action], [flux-action]');
@@ -66,7 +66,7 @@
       if (submitter.name) { extra[submitter.name] = submitter.value; }
       Object.assign(fields, extra);
     }
-    const params = Object.assign({}, fields, { component: comp.value, id: id.value, action });
+    const params = Object.assign({}, fields, { liveflux_component_type: comp.value, liveflux_component_id: id.value, livefuse_action: action });
     g.__lw.post(params).then((html)=>{
       const tmp = document.createElement('div');
       tmp.innerHTML = html;

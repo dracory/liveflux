@@ -14,7 +14,7 @@
 
       const params = g.__lw.readParams(el);
 
-      params.component = component;
+      params.liveflux_component_type = component;
       
       g.__lw.post(params).then((html)=>{
         const tmp = document.createElement('div');

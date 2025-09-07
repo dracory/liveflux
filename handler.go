@@ -12,9 +12,9 @@ import (
 
 // Form field names used by the handler
 const (
-	FormComponent = "component"
-	FormID        = "id"
-	FormAction    = "action"
+	FormComponent = "liveflux_component_type"
+	FormID        = "liveflux_component_id"
+	FormAction    = "livefuse_action"
 )
 
 // Response header names for client-side redirect handling
@@ -26,8 +26,8 @@ const (
 // Handler is an http.Handler that mounts/handles components and returns HTML.
 //
 // Usage patterns (client-side):
-// - To mount: POST with form field `component` (alias) (and optional params) -> returns initial HTML
-// - To act:   POST with `component` (alias), `id`, `action` (+ any form fields) -> returns updated HTML
+// - To mount: POST with form field `liveflux_component_type` (alias) (and optional params) -> returns initial HTML
+// - To act:   POST with `liveflux_component_type` (alias), `liveflux_component_id`, `livefuse_action` (+ any user fields) -> returns updated HTML
 //
 // State is stored via the configured Store (default: in-memory). For production,
 // wire a session-backed implementation.

@@ -62,7 +62,7 @@
         const component = el.getAttribute('data-flux-component');
         if(!component) return;
         const params = readParams(el);
-        params.component = component;
+        params.liveflux_component_type = component;
         post(params).then((html)=>{
           const tmp = document.createElement('div');
           tmp.innerHTML = html;
@@ -77,8 +77,8 @@
       if(!btn) return;
       const root = btn.closest('[data-flux-root]');
       if(!root) return;
-      const comp = root.querySelector('input[name="component"]');
-      const id = root.querySelector('input[name="id"]');
+      const comp = root.querySelector('input[name="liveflux_component_type"]');
+      const id = root.querySelector('input[name="liveflux_component_id"]');
       if(!comp||!id) return;
       const action = btn.getAttribute('data-flux-action');
       const form = btn.closest('form');
@@ -86,7 +86,7 @@
       // Also include button-provided params
       const btnParams = readParams(btn);
       if (btn.name) { btnParams[btn.name] = btn.value; }
-      const params = Object.assign({}, fields, btnParams, { component: comp.value, id: id.value, action });
+      const params = Object.assign({}, fields, btnParams, { liveflux_component_type: comp.value, liveflux_component_id: id.value, livefuse_action: action });
       post(params).then((html)=>{
         const tmp = document.createElement('div');
         tmp.innerHTML = html;
@@ -100,8 +100,8 @@
       if(!form) return;
       const root = form.closest('[data-flux-root]');
       if(!root) return;
-      const comp = root.querySelector('input[name="component"]');
-      const id = root.querySelector('input[name="id"]');
+      const comp = root.querySelector('input[name="liveflux_component_type"]');
+      const id = root.querySelector('input[name="liveflux_component_id"]');
       if(!comp||!id) return;
       e.preventDefault();
       const submitter = e.submitter || root.querySelector('[data-flux-action]');
@@ -113,7 +113,7 @@
         if (submitter.name) { extra[submitter.name] = submitter.value; }
         Object.assign(fields, extra);
       }
-      const params = Object.assign({}, fields, { component: comp.value, id: id.value, action });
+      const params = Object.assign({}, fields, { liveflux_component_type: comp.value, liveflux_component_id: id.value, livefuse_action: action });
       post(params).then((html)=>{
         const tmp = document.createElement('div');
         tmp.innerHTML = html;
