@@ -76,7 +76,7 @@ func TestHandler_MountMissingAlias(t *testing.T) {
 
 func TestHandler_MountNotRegistered(t *testing.T) {
 	h := NewHandler(NewMemoryStore())
-	form := url.Values{"component": {"unknown.alias"}}
+	form := url.Values{FormComponent: {"unknown.alias"}}
 	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	rec := httptest.NewRecorder()
@@ -91,8 +91,8 @@ func TestHandler_MountSuccess_RendersAndStores(t *testing.T) {
 	h := NewHandler(s)
 	alias := registerTestAlias(t, &handlerComp{})
 	form := url.Values{
-		"component": {alias},
-		"init":      {"1"},
+		FormComponent: {alias},
+		"init":       {"1"},
 	}
 	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -115,8 +115,8 @@ func TestHandler_MountError(t *testing.T) {
 	h := NewHandler(NewMemoryStore())
 	alias := registerTestAlias(t, &handlerComp{})
 	form := url.Values{
-		"component": {alias},
-		"init":      {"err"},
+		FormComponent: {alias},
+		"init":       {"err"},
 	}
 	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -130,7 +130,7 @@ func TestHandler_MountError(t *testing.T) {
 func TestHandler_HandleValidateMissing(t *testing.T) {
 	h := NewHandler(NewMemoryStore())
 	// Provide a non-empty id to take the handle path, but leave alias empty to trigger validation error
-	form := url.Values{"component": {""}, "id": {"some-id"}}
+	form := url.Values{FormComponent: {""}, FormID: {"some-id"}}
 	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	rec := httptest.NewRecorder()
@@ -145,7 +145,7 @@ func TestHandler_HandleActionSuccess(t *testing.T) {
 	h := NewHandler(s)
 	alias := registerTestAlias(t, &handlerComp{})
 	// First mount to create and store
-	mountForm := url.Values{"component": {alias}}
+	mountForm := url.Values{FormComponent: {alias}}
 	mountReq := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(mountForm.Encode()))
 	mountReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	mountRec := httptest.NewRecorder()
@@ -161,7 +161,7 @@ func TestHandler_HandleActionSuccess(t *testing.T) {
 	id := html[start : start+end]
 
 	// act inc
-	actForm := url.Values{"component": {alias}, "id": {id}, "action": {"inc"}}
+	actForm := url.Values{FormComponent: {alias}, FormID: {id}, FormAction: {"inc"}}
 	actReq := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(actForm.Encode()))
 	actReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	actRec := httptest.NewRecorder()
@@ -179,7 +179,7 @@ func TestHandler_HandleActionError(t *testing.T) {
 	h := NewHandler(s)
 	alias := registerTestAlias(t, &handlerComp{})
 	// mount
-	mountForm := url.Values{"component": {alias}}
+	mountForm := url.Values{FormComponent: {alias}}
 	mountReq := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(mountForm.Encode()))
 	mountReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	mountRec := httptest.NewRecorder()
@@ -191,7 +191,7 @@ func TestHandler_HandleActionError(t *testing.T) {
 	id := html[start : start+end]
 
 	// act invalid
-	actForm := url.Values{"component": {alias}, "id": {id}, "action": {"oops"}}
+	actForm := url.Values{FormComponent: {alias}, FormID: {id}, FormAction: {"oops"}}
 	actReq := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(actForm.Encode()))
 	actReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	actRec := httptest.NewRecorder()
@@ -206,7 +206,7 @@ func TestHandler_HandleRedirect(t *testing.T) {
 	h := NewHandler(s)
 	alias := registerTestAlias(t, &handlerComp{})
 	// mount
-	mountForm := url.Values{"component": {alias}}
+	mountForm := url.Values{FormComponent: {alias}}
 	mountReq := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(mountForm.Encode()))
 	mountReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	mountRec := httptest.NewRecorder()
@@ -218,7 +218,7 @@ func TestHandler_HandleRedirect(t *testing.T) {
 	id := html[start : start+end]
 
 	// act request redirect
-	actForm := url.Values{"component": {alias}, "id": {id}, "action": {"redir"}}
+	actForm := url.Values{FormComponent: {alias}, FormID: {id}, FormAction: {"redir"}}
 	actReq := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(actForm.Encode()))
 	actReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	actRec := httptest.NewRecorder()

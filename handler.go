@@ -91,6 +91,7 @@ func (h *Handler) mount(ctx context.Context, w http.ResponseWriter, r *http.Requ
 
 	params := map[string]string{}
 	for key := range r.Form {
+		// Skip canonical field names
 		if key == FormComponent || key == FormID || key == FormAction {
 			continue
 		}
