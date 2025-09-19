@@ -148,6 +148,22 @@ Screenshots:
 
 Source: `examples/tree/`
 
+### WebSocket Counter (two instances)
+
+Run from repo root:
+
+```bash
+go run ./examples/websocket
+# or, with Task
+task examples:websocket:run
+```
+
+Screenshot:
+
+![WebSocket Counter Example](examples/websocket/screenshot.png)
+
+Source: `examples/websocket/`
+
 ## Package API
 
 - Interface `liveflux.ComponentInterface`:
