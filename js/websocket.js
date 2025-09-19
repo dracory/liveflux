@@ -205,7 +205,9 @@ function lfwsAutoInit() {
   wsElements.forEach(el => {
     const url = el.dataset.fluxWsUrl || (() => {
       const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      return `${protocol}//${window.location.host}${window.location.pathname}`;
+      const g = window; const cfg = (g && g.__lw) ? g.__lw : {};
+      const wsPath = cfg.wsEndpoint || cfg.endpoint || '/liveflux';
+      return `${protocol}//${window.location.host}${wsPath.startsWith('/') ? wsPath : ('/' + wsPath)}`;
     })();
     const componentID = el.dataset.fluxComponentId || null;
     try { console.log('[LFWS] creating client', { url, componentID }); } catch (_) {}

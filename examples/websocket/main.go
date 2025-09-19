@@ -5,7 +5,6 @@ import (
 	"mime"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/dracory/liveflux"
@@ -31,7 +30,7 @@ func main() {
 			"../../static",      // when running from examples/websocket
 		}
 		for _, dir := range candidates {
-			if f, err := os.Stat(filepath.Join(dir, "liveflux-ws.js")); err == nil && !f.IsDir() {
+			if f, err := os.Stat(dir); err == nil && f.IsDir() {
 				return dir
 			}
 		}
@@ -40,10 +39,26 @@ func main() {
 	}
 	staticDir := resolveStaticDir()
 
-	// Serve the WS client with explicit MIME type first
-	mux.HandleFunc("/static/liveflux-ws.js", func(w http.ResponseWriter, r *http.Request) {
+	// Resolve core websocket client location (repo js/websocket.js)
+	resolveWSClient := func() string {
+		candidates := []string{
+			"./js/websocket.js",        // when running from repo root
+			"../../js/websocket.js",    // when running from examples/websocket
+		}
+		for _, p := range candidates {
+			if f, err := os.Stat(p); err == nil && !f.IsDir() {
+				return p
+			}
+		}
+		// fallback path (may 404 if not present)
+		return "./js/websocket.js"
+	}
+	wsClientPath := resolveWSClient()
+
+	// Serve the WS client with explicit MIME type
+	mux.HandleFunc("/static/websocket.js", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
-		http.ServeFile(w, r, filepath.Join(staticDir, "liveflux-ws.js"))
+		http.ServeFile(w, r, wsClientPath)
 	})
 
 	// Generic static files (images, css, etc.)
@@ -79,10 +94,10 @@ func main() {
 		html += `<div class="col-md-6"><h3>WebSocket Counter 2</h3>` + liveflux.SSR(inst2).ToHTML() + `</div>`
 		html += `</div></div>`
 
-		// Include WebSocket client (websocket-only example)
-		html += `<script src="/static/liveflux-ws.js"></script>`
-        // Inline debug bootstrap to verify client is loaded and elements are found
-        html += `<script>
+		// Include WebSocket client (from core js/websocket.js)
+		html += `<script src="/static/websocket.js"></script>`
+		// Inline debug bootstrap to verify client is loaded and elements are found
+		html += `<script>
           console.log('[BOOT] inline script running');
           console.log('[BOOT] LiveFluxWS typeof =', typeof window.LiveFluxWS);
           const els = document.querySelectorAll('[data-flux-ws]');

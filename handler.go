@@ -43,6 +43,25 @@ func NewHandler(store Store) *Handler {
 	return &Handler{Store: store}
 }
 
+// NewHandlerWS returns a handler that supports both WebSocket upgrades and regular HTTP POST/GET.
+// It is a convenience wrapper around NewWebSocketHandler(store) so developers don't have to
+// think about which transport is being used.
+func NewHandlerWS(store Store) http.Handler {
+	return NewWebSocketHandler(store)
+}
+
+// NewHandlerEx returns a handler depending on the enableWebSocket flag:
+// - If enableWebSocket is true, it returns a handler that can upgrade to WebSocket and also
+//   handle regular HTTP (POST/GET) requests.
+// - If false, it returns the standard HTTP-only handler.
+// This allows simple usage like: mux.Handle("/liveflux", liveflux.NewHandlerEx(nil, true))
+func NewHandlerEx(store Store, enableWebSocket bool) http.Handler {
+	if enableWebSocket {
+		return NewWebSocketHandler(store)
+	}
+	return NewHandler(store)
+}
+
 // ServeHTTP implements http.Handler.
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost && r.Method != http.MethodGet {
