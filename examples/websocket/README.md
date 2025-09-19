@@ -13,8 +13,7 @@ Then open http://localhost:8080
 
 ## Screenshot
 
-<!-- Optional: add a screenshot image next to this README -->
-<!-- ![WebSocket Counter — Two instances](./screenshot.png) -->
+![WebSocket Counter — Two instances](./screenshot.png)
 
 ## What it does
 - Renders two server-side `WebSocketCounter` components using `liveflux.SSR`
