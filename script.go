@@ -25,13 +25,20 @@ var clientHandlersJS string
 //go:embed js/bootstrap.js
 var clientBootstrapJS string
 
+//go:embed js/websocket.js
+var clientWebSocketJS string
+
 // baseJS concatenates embedded client modules.
-func baseJS() string {
-	return clientUtilJS + "\n" +
+func baseJS(includeWS bool) string {
+	js := clientUtilJS + "\n" +
 		clientNetworkJS + "\n" +
 		clientMountJS + "\n" +
 		clientHandlersJS + "\n" +
 		clientBootstrapJS
+	if includeWS {
+		js += "\n" + clientWebSocketJS
+	}
+	return js
 }
 
 // JS returns the Liveflux client script. Optional ClientOptions configure the client
@@ -44,11 +51,13 @@ func JS(opts ...ClientOptions) string {
 		o.Endpoint = "/liveflux"
 	}
 
+	// Note: WebSocketURL is optional. If not provided, the WS client will
+    // fall back to using Endpoint on the client side.
+
 	if o.Headers == nil {
 		o.Headers = map[string]string{}
 	}
 
-	// Expose redirect header names to the client so JS doesn't hardcode them
 	if o.RedirectHeader == "" {
 		o.RedirectHeader = RedirectHeader
 	}
@@ -60,7 +69,7 @@ func JS(opts ...ClientOptions) string {
 
 	cfg := "(function(){var o=" + string(b) + ";window.__lw=Object.assign({},window.__lw||{},o);})();\n"
 
-	return cfg + baseJS()
+	return cfg + baseJS(o.UseWebSocket)
 }
 
 // Script returns an hb.Script tag containing the client JS with optional configuration.
@@ -78,4 +87,8 @@ type ClientOptions struct {
 	// Names of response headers used for client-side redirects
 	RedirectHeader      string `json:"redirectHeader,omitempty"`
 	RedirectAfterHeader string `json:"redirectAfterHeader,omitempty"`
+
+	// WebSocket integration
+	UseWebSocket bool   `json:"useWebSocket,omitempty"`
+	WebSocketURL string `json:"wsEndpoint,omitempty"`
 }

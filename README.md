@@ -75,7 +75,18 @@ import (
 
 func main() {
     mux := http.NewServeMux()
-    mux.Handle("/liveflux", liveflux.NewHandler(nil)) // nil -> uses default in-memory store
+    // Option A: HTTP-only (POST/GET) transport
+    // mux.Handle("/liveflux", liveflux.NewHandler(nil)) // nil -> uses default in-memory store
+
+    // Option B (recommended): Combined WebSocket + HTTP transport
+    // One handler that upgrades WS when requested and falls back to HTTP otherwise.
+    mux.Handle("/liveflux", liveflux.NewHandlerWS(nil))
+
+    // Option C: Explicit switch
+    // mux.Handle("/liveflux", liveflux.NewHandlerEx(nil, true)) // enableWebSocket=true
+
+    // (Optional) Serve a dedicated WS URL if you prefer keeping it separate
+    // mux.Handle("/liveflux-ws", liveflux.NewHandlerWS(nil))
     http.ListenAndServe(":8080", mux)
 }
 ```
@@ -87,6 +98,13 @@ Include the client script once in your layout and render a placeholder by alias.
 ```go
 // In your base layout
 layout = layout.Child(liveflux.Script())
+
+// If you want the client to use WebSockets automatically (recommended with NewHandlerWS), enable it:
+// layout = layout.Child(liveflux.Script(liveflux.ClientOptions{
+//     UseWebSocket: true,
+//     // optional override (defaults to "/liveflux"):
+//     WebSocketURL: "/liveflux",
+// }))
 
 // Where you want the component
 ph := liveflux.PlaceholderByAlias("counter")
