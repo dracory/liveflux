@@ -19,8 +19,8 @@ const (
 
 // Response header names for client-side redirect handling
 const (
-	RedirectHeader       = "X-Liveflux-Redirect"
-	RedirectAfterHeader  = "X-Liveflux-Redirect-After"
+	RedirectHeader      = "X-Liveflux-Redirect"
+	RedirectAfterHeader = "X-Liveflux-Redirect-After"
 )
 
 // Handler is an http.Handler that mounts/handles components and returns HTML.
@@ -51,9 +51,10 @@ func NewHandlerWS(store Store) http.Handler {
 }
 
 // NewHandlerEx returns a handler depending on the enableWebSocket flag:
-// - If enableWebSocket is true, it returns a handler that can upgrade to WebSocket and also
-//   handle regular HTTP (POST/GET) requests.
-// - If false, it returns the standard HTTP-only handler.
+//   - If enableWebSocket is true, it returns a handler that can upgrade to WebSocket and also
+//     handle regular HTTP (POST/GET) requests.
+//   - If false, it returns the standard HTTP-only handler.
+//
 // This allows simple usage like: mux.Handle("/liveflux", liveflux.NewHandlerEx(nil, true))
 func NewHandlerEx(store Store, enableWebSocket bool) http.Handler {
 	if enableWebSocket {
@@ -91,13 +92,16 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.handle(ctx, w, r, alias, id, action)
 }
 
+// mount creates a new component instance and mounts it.
 func (h *Handler) mount(ctx context.Context, w http.ResponseWriter, r *http.Request, alias string) {
+	// Validate alias
 	if alias == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte("missing component alias"))
 		return
 	}
 
+	// Create new component instance
 	c, err := newByAlias(alias)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
@@ -105,9 +109,11 @@ func (h *Handler) mount(ctx context.Context, w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	// Generate and set ID
 	id := NewID()
 	c.SetID(id)
 
+	// Extract parameters
 	params := map[string]string{}
 	for key := range r.Form {
 		// Skip canonical field names
@@ -117,8 +123,12 @@ func (h *Handler) mount(ctx context.Context, w http.ResponseWriter, r *http.Requ
 		params[key] = r.Form.Get(key)
 	}
 
+	// Mount the component
 	if err := c.Mount(ctx, params); err != nil {
+		// Log error to console
 		log.Printf("liveflux: mount error: %v", err)
+
+		// Send 500 error to client with generic error message
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write([]byte("mount error"))
 		return
@@ -136,6 +146,7 @@ func (h *Handler) handle(ctx context.Context, w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	// Retrieve component from store
 	c, ok := h.Store.Get(id)
 	if !ok || c == nil {
 		h.writeError(w, http.StatusNotFound, "component not found")
@@ -145,6 +156,7 @@ func (h *Handler) handle(ctx context.Context, w http.ResponseWriter, r *http.Req
 	// Optional: ensure the retrieved instance matches requested alias by type registry alias.
 	// Skipped for simplicity.
 
+	// Process action if present
 	if action != "" {
 		if !h.processAction(ctx, w, c, r) {
 			return
@@ -153,10 +165,12 @@ func (h *Handler) handle(ctx context.Context, w http.ResponseWriter, r *http.Req
 		h.Store.Set(c)
 	}
 
+	// Handle redirect if requested
 	if h.maybeWriteRedirect(w, c) {
 		return
 	}
 
+	// Render the component
 	h.writeRender(ctx, w, c)
 }
 

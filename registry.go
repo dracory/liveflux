@@ -47,17 +47,18 @@ var typeToAlias = map[reflect.Type]string{}
 
 // RegisterByAlias makes a component constructor available by alias.
 // Typically called from init() in the component's package.
-func RegisterByAlias(alias string, c ComponentInterface) {
+func RegisterByAlias(alias string, c ComponentInterface) error {
 	if alias == "" || c == nil {
-		panic("liveflux: RegisterByAlias requires non-empty alias and non-nil constructor")
+		return fmt.Errorf("liveflux: RegisterByAlias requires non-empty alias and non-nil constructor")
 	}
 	if _, exists := registry[alias]; exists {
-		panic(fmt.Sprintf("liveflux: component '%s' already registered", alias))
+		return fmt.Errorf("liveflux: component '%s' already registered", alias)
 	}
 	// Store the prototype in the registry.
 	registry[alias] = c
 	// Store reverse lookup for ergonomics using the prototype type.
 	typeToAlias[reflect.TypeOf(c)] = alias
+	return nil
 }
 
 // newByAlias creates a new component instance by its registered alias.
@@ -83,17 +84,17 @@ func newByAlias(alias string) (ComponentInterface, error) {
 
 // Register registers a component constructor using the component's GetAlias()
 // as the registry alias. Component must implement GetAlias() (enforced by interface).
-func Register(c ComponentInterface) {
+func Register(c ComponentInterface) error {
 	if c == nil {
-		panic("liveflux: Register requires non-nil constructor")
+		return fmt.Errorf("liveflux: Register requires non-nil constructor")
 	}
 
 	alias := c.GetAlias()
 	if alias == "" {
-		panic("liveflux: Register could not determine alias (empty)")
+		return fmt.Errorf("liveflux: Register could not determine alias (empty)")
 	}
 
-	RegisterByAlias(alias, c)
+	return RegisterByAlias(alias, c)
 }
 
 // AliasOf returns the registered alias for the given component instance's type.
