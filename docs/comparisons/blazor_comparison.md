@@ -4,7 +4,7 @@
 |---|---|---|
 | Language / Stack | Go library | .NET (ASP.NET Core) UI framework |
 | Endpoint | POST/GET `/liveflux` | ASP.NET Core endpoints; Blazor Server (SignalR) or Blazor WebAssembly (HTTP) |
-| Transport | Plain forms via built-in client (form-encoded) | Blazor Server: SignalR (WebSocket) diff patches; Blazor WASM: client-side runtime re-renders locally |
+| Transport | Plain forms via built-in client (form-encoded) or optional WebSocket transport via `NewHandlerWS`/`NewWebSocketHandler` | Blazor Server: SignalR (WebSocket) diff patches; Blazor WASM: client-side runtime re-renders locally |
 | Rendering | Server returns full HTML (`hb.TagInterface.ToHTML()`) | Razor Components render to DOM; diff-based renderer |
 | State | Component instance persisted via `Store` (in-memory default) | Component state in .NET objects; cascading values/DI; persists in server circuit (Server) or in browser (WASM) |
 | Templating | `hb` (builder) by default; any HTML works | Razor syntax (`.razor`), components, parameters, slots (`RenderFragment`) |
@@ -20,13 +20,13 @@
 This document compares our Go package `liveflux` with Blazor, highlighting concepts, APIs, and trade-offs.
 
 ## Summary
-- Liveflux: minimal server-driven components with simple HTTP transport and full-HTML responses.
+- Liveflux: minimal server-driven components with simple HTTP transport or optional WebSocket support and full-HTML responses.
 - Blazor: a comprehensive component model in .NET, with Blazor Server (real-time over SignalR) and Blazor WebAssembly (runs .NET in the browser). Rich templating, binding, and tooling.
 
 ## Architecture
 - __Our pkg (`liveflux`)__
   - Endpoint: `POST/GET /liveflux` (`handler.go`).
-  - Transport: built-in lightweight client, form-encoded POST/GET.
+  - Transport: built-in lightweight client, form-encoded POST/GET, or optional WebSocket transport via `NewHandlerWS`/`NewWebSocketHandler`.
   - Rendering: returns full component HTML via `hb.TagInterface.ToHTML()`.
   - State: `Store` interface with default `MemoryStore` (`state.go`).
   - Registration: type registry/aliases (`registry.go`).
@@ -80,6 +80,8 @@ This document compares our Go package `liveflux` with Blazor, highlighting conce
 - __Implemented in our pkg__
   - Server-driven components with explicit action handling.
   - Pluggable state store, minimal embedded JS client, redirect headers with fallback.
+  - Minimal client: embedded JS (mount placeholders, action clicks, form submit, script re-execution).
+  - Optional WebSocket transport with `WebSocketHandler`, including origin allow-listing, CSRF checks, TLS enforcement, rate limiting, and per-message validation (`websocket.go`).
 - __Not (yet) implemented vs. Blazor__
   - Diff-based renderer with minimal DOM patching.
   - Rich two-way binding and validation components.

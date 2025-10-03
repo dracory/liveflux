@@ -4,7 +4,7 @@
 |---|---|---|
 | Language / Stack | Go library | Rails ecosystem: Stimulus + Action Cable + Reflex |
 | Endpoint | POST/GET `/liveflux` | Normal Rails routes; Reflex over WebSocket (Action Cable) |
-| Transport | Plain forms via built-in client (form-encoded) | WebSocket messages; DOM morphs via morphdom |
+| Transport | Plain forms via built-in client (form-encoded) or optional WebSocket transport via `NewHandlerWS`/`NewWebSocketHandler` | WebSocket messages; DOM morphs via morphdom |
 | Rendering | Server returns full HTML (`hb.TagInterface.ToHTML()`) | Server re-renders ERB/partials; client morphs DOM |
 | State | Component instance persisted via `Store` (in-memory default) | Request/session/Reflex instance vars; no long-lived component state |
 | Templating | `hb` (builder) by default; any HTML works | Rails views/partials (ERB/HAML/SLIM), CableReady ops |
@@ -20,13 +20,13 @@
 This document compares our Go package `liveflux` with StimulusReflex, highlighting concepts, APIs, and trade-offs.
 
 ## Summary
-- Liveflux: minimal server-driven components using HTTP form submissions and full-HTML returns.
+- Liveflux: minimal server-driven components using HTTP form submissions, optional WebSocket support, and full-HTML returns.
 - StimulusReflex: enhances Rails apps with real-time interactions using WebSockets; Reflex actions re-render partials and morph the DOM.
 
 ## Architecture
 - __Our pkg (`liveflux`)__
   - Endpoint: `POST/GET /liveflux` (`handler.go`).
-  - Transport: built-in lightweight client, form-encoded POST/GET.
+  - Transport: built-in lightweight client, form-encoded POST/GET, or optional WebSocket transport via `NewHandlerWS`/`NewWebSocketHandler`.
   - Rendering: returns full component HTML via `hb.TagInterface.ToHTML()`.
   - State: `Store` interface with default `MemoryStore` (`state.go`).
   - Registration: component registry/aliases (`registry.go`).
@@ -74,12 +74,13 @@ This document compares our Go package `liveflux` with StimulusReflex, highlighti
   - Full component subtree re-render and root `outerHTML` swap.
 - __StimulusReflex__
   - Server renders partials; morphdom applies granular patches, minimizing layout thrash.
-  - CableReady operations can target specific nodes for fine-grained updates.
 
 ## Features Comparison
 - __Implemented in our pkg__
   - Server-driven components with explicit action handling.
   - Pluggable state store, minimal embedded JS client, redirect headers with fallback.
+  - Minimal client: embedded JS (mount placeholders, action clicks, form submit, script re-execution).
+  - Optional WebSocket transport with `WebSocketHandler`, including origin allow-listing, CSRF checks, TLS enforcement, rate limiting, and per-message validation (`websocket.go`).
 - __Not (yet) implemented vs. StimulusReflex__
   - WebSocket transport and morphdom-based granular patching.
   - CableReady-like client operation catalog (append/prepend/replace/update/etc.).
@@ -87,7 +88,6 @@ This document compares our Go package `liveflux` with StimulusReflex, highlighti
 
 ## Developer Experience
 - __Our pkg__
-  - Small, explicit API; bring your own patterns.
 - __StimulusReflex__
   - Conventional Rails DX, Stimulus for small JS controllers, Reflex for server actions.
   - Rich lifecycle hooks; integrates well with Turbo/Action Cable.

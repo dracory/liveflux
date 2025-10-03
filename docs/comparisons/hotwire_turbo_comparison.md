@@ -4,7 +4,7 @@
 |---|---|---|
 | Language / Stack | Go library | Rails ecosystem (Turbo + Stimulus) |
 | Endpoint | POST/GET `/liveflux` | Rails routes; normal controllers/views |
-| Transport | Plain forms via built-in client (form-encoded) | HTML-over-the-wire; Turbo Frames/Streams; Action Cable for streams |
+| Transport | Plain forms via built-in client (form-encoded) or optional WebSocket transport via `NewHandlerWS`/`NewWebSocketHandler` | HTML-over-the-wire; Turbo Frames/Streams; Action Cable for streams |
 | Rendering | Server returns full HTML (`hb.TagInterface.ToHTML()`) | Server renders ERB/HTML; client updates frames/targets |
 | State | Component instance persisted via `Store` (in-memory by default) | No persistent component state; request-driven; session for auth |
 | Templating | `hb` (builder) by default; any HTML works | Rails views/partials (ERB/HAML/SLIM), `turbo-frame`, `turbo-stream` |
@@ -20,13 +20,13 @@
 This document compares our Go package `liveflux` with Hotwire Turbo (Rails), focusing on concepts, APIs, and trade-offs.
 
 ## Summary
-- Liveflux: minimal server-driven components with explicit `Mount/Handle/Render` cycle and simple HTTP transport.
+- Liveflux: minimal server-driven components with explicit `Mount/Handle/Render` cycle, simple HTTP transport, and optional WebSocket support.
 - Hotwire Turbo: enhances traditional Rails apps with HTML-over-the-wire, Turbo Drive (navigation), Turbo Frames (partial page updates), and Turbo Streams (server-pushed updates).
 
 ## Architecture
 - __Our pkg (`liveflux`)__
   - Endpoint: `POST/GET /liveflux` (`handler.go`).
-  - Transport: built-in lightweight client, form-encoded POST/GET.
+  - Transport: built-in lightweight client, form-encoded POST/GET, or optional WebSocket transport via `NewHandlerWS`/`NewWebSocketHandler`.
   - Rendering: returns full component HTML via `hb.TagInterface.ToHTML()`.
   - State: `Store` interface with default `MemoryStore` (`state.go`).
   - Registration: component registry/aliases (`registry.go`).

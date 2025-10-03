@@ -4,7 +4,7 @@
 |---|---|---|
 | Language / Stack | Go library | Phoenix/Elixir framework feature |
 | Endpoint | POST/GET `/liveflux` | Router `live` routes; initial HTTP then WebSocket |
-| Transport | Plain forms via built-in client (form-encoded) | WebSocket with JSON diff patches (after initial render) |
+| Transport | Plain forms via built-in client (form-encoded) or optional WebSocket transport via `NewHandlerWS`/`NewWebSocketHandler` | WebSocket with JSON diff patches (after initial render) |
 | Rendering | Server returns full HTML (`hb.TagInterface.ToHTML()`) | Server renders HEEx; client patches DOM via diffs |
 | State | Component instance persisted via `Store` (default in-memory) | Server process holds `socket.assigns` (state on server) |
 | Templating | `hb` (builder) by default; any HTML works | HEEx (HTML + Elixir), function components, slots |
@@ -20,14 +20,14 @@
 This document compares our Go package `liveflux` with Phoenix LiveView (Elixir), highlighting concepts, APIs, and trade-offs.
 
 ## Summary
-- Liveflux is a minimal, server-driven component system.
+- Liveflux is a minimal, server-driven component system with optional WebSocket support.
 - Transport is simple form POST/GET via the included client script; rendering is HTML (via `hb`).
 - Phoenix LiveView provides real-time, stateful UI over WebSockets with HEEx templates, rich client events, uploads, and first-class router/view integration.
 
 ## Architecture
 - __Our pkg (`liveflux`)__
   - Endpoint: `POST/GET /liveflux` (`handler.go`).
-  - Transport: built-in lightweight client (embedded via `script.go`), standard form-encoded POST/GET.
+  - Transport: built-in lightweight client (embedded via `script.go`), standard form-encoded POST/GET, or optional WebSocket transport via `NewHandlerWS`/`NewWebSocketHandler`.
   - Rendering: server returns full component HTML using `hb.TagInterface.ToHTML()`.
   - State: `Store` interface with default in-memory `MemoryStore` (`state.go`).
   - Registration: type-based registry, aliases via `Register`/`RegisterByAlias` (`registry.go`).
@@ -90,6 +90,7 @@ This document compares our Go package `liveflux` with Phoenix LiveView (Elixir),
   - In-memory `Store` with pluggable interface (`state.go`).
   - Basic redirects with delay headers.
   - Minimal client: embedded JS (mount placeholders, action clicks, form submit, script re-execution).
+  - Optional WebSocket transport with `WebSocketHandler`, including origin allow-listing, CSRF checks, TLS enforcement, rate limiting, and per-message validation (`websocket.go`).
 - __Not (yet) implemented vs. Phoenix LiveView__
   - WebSocket transport with diff protocol and granular DOM patching.
   - Built-in form/state binding with debounce/throttle.

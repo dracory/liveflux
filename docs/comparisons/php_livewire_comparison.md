@@ -4,7 +4,7 @@
 |---|---|---|
 | Language / Stack | Go library | Laravel/PHP framework feature |
 | Endpoint | POST/GET `/liveflux` | Laravel-defined route(s) |
-| Transport | Plain forms via built-in client (form-encoded) | JSON payloads with diffs + DOM morph |
+| Transport | Plain forms via built-in client (form-encoded) or optional WebSocket transport via `NewHandlerWS`/`NewWebSocketHandler` | JSON payloads with diffs + DOM morph |
 | Rendering | Server returns full HTML (`hb.TagInterface.ToHTML()`) | Blade views re-rendered; client morphs DOM |
 | State | Component instance persisted via `Store` (default in-memory) | Public properties serialized (session-like) |
 | Templating | `hb` (builder) by default; any HTML works | Blade templates |
@@ -20,14 +20,14 @@
 This document compares our Go package `liveflux` with Laravel Livewire (PHP), highlighting concepts, APIs, and trade-offs.
 
 ## Summary
-- Liveflux is a minimal, server-driven component system.
+- Liveflux is a minimal, server-driven component system with optional WebSocket support.
 - Transport is simple form POST/GET via the included client script; rendering is HTML (via `hb`).
 - Laravel Livewire is a mature framework integrated with Laravel + Blade, offering richer features (two-way binding, validation, uploads, nested layouts, Alpine integration, etc.).
 
 ## Architecture
 - __Our pkg (`liveflux`)__
   - Endpoint: `POST/GET /liveflux` (`handler.go`).
-  - Transport: built-in lightweight client (embedded via `script.go`), standard form-encoded POST/GET.
+  - Transport: built-in lightweight client (embedded via `script.go`), standard form-encoded POST/GET, or optional WebSocket transport via `NewHandlerWS`/`NewWebSocketHandler`.
   - Rendering: server returns full component HTML using `hb.TagInterface.ToHTML()`.
   - State: `Store` interface with default in-memory `MemoryStore` (`state.go`).
   - Registration: type-based registry, aliases via `Register`/`RegisterByAlias` (`registry.go`).
@@ -86,6 +86,7 @@ This document compares our Go package `liveflux` with Laravel Livewire (PHP), hi
   - In-memory `Store` with pluggable interface (`state.go`).
   - Basic redirects with delay headers.
   - Minimal client: embedded JS (mount placeholders, action clicks, form submit, script re-execution).
+  - Optional WebSocket transport with `WebSocketHandler`, including origin allow-listing, CSRF checks, TLS enforcement, rate limiting, and per-message validation (`websocket.go`).
 - __Not (yet) implemented vs. Laravel Livewire__
   - Two-way binding (`wire:model`), debouncing/throttling modifiers.
   - Built-in validation helpers integrated with form state.
