@@ -4,126 +4,23 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/dracory/liveflux)](https://goreportcard.com/report/github.com/dracory/liveflux)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/dracory/liveflux)](https://pkg.go.dev/github.com/dracory/liveflux)
 
-Liveflux is a server-driven component system for Go. It uses [`github.com/dracory/hb`](https://github.com/dracory/hb) internally for component tags, but it works with any server setup or frontend—responses are plain HTML and the client transport is framework-agnostic.
+Liveflux is a server-driven component system for Go. It uses [`github.com/dracory/hb`](https://github.com/dracory/hb) for HTML generation but works with any server or frontend—the transport is plain HTML over HTTP or WebSocket.
 
-- Endpoint: your choice (example: `POST /liveflux`) (handler accepts `POST` and `GET`)
-- Transport: built-in JS (any client that can POST/GET forms works)
-- Rendering: `hb.TagInterface.ToHTML()` (internal detail). You can integrate with any templating/system since the handler returns HTML.
-- State: In-memory by default via `MemoryStore` (swap with a session-backed store for production)
+## Highlights
+
+- **Server-first rendering**: Components run on the server, returning HTML for any client.
+- **Lightweight runtime**: Bundled JS handles mounts, actions, redirects, and optional WebSockets.
+- **Composable state**: Per-component state persists via pluggable stores (`MemoryStore` by default).
+- **Transport flexibility**: Use standard HTTP POST/GET or upgrade seamlessly to WebSockets.
 
 ## Quick start
 
-1) Register a component
+- Install: `go get github.com/dracory/liveflux`
+- Register a component and embed `liveflux.Base`
+- Mount the handler at `/liveflux`
+- Include `liveflux.Script()` and use `liveflux.PlaceholderByAlias()` or `liveflux.SSR()`
 
-```go
-// internal/components/counter/counter.go
-package counter
-
-import (
-    "context"
-    "fmt"
-    "net/url"
-
-    "github.com/dracory/hb"
-    "github.com/dracory/liveflux"
-)
-
-type Component struct { liveflux.Base; Count int }
-
-func (c *Component) Mount(ctx context.Context, params map[string]string) error {
-    c.Count = 0
-    return nil
-}
-
-func (c *Component) Handle(ctx context.Context, action string, data url.Values) error {
-    switch action {
-    case "inc": c.Count++
-    case "dec": c.Count--
-    case "reset": c.Count = 0
-    }
-    return nil
-}
-
-func (c *Component) Render(ctx context.Context) hb.TagInterface {
-    content := hb.Div().
-        Child(hb.H2().Text("Counter")).
-        Child(hb.Div().Style("font-size:2rem").Text(fmt.Sprintf("%d", c.Count))).
-        Child(hb.Button().Text("+1").Data("flux-action", "inc")).
-        Child(hb.Button().Text("-1").Data("flux-action", "dec")).
-        Child(hb.Button().Text("Reset").Data("flux-action", "reset"))
-    
-    // Wrap content with standard Liveflux root
-    return c.Root(content)
-}
-
-// Register using an alias
-func init() { liveflux.RegisterByAlias("counter", func() liveflux.ComponentInterface { return &Component{} }) }
-```
-
-2) Wire the endpoint
-
-Create an HTTP route and attach the handler:
-
-```go
-// main.go (or your router setup)
-package main
-
-import (
-    "net/http"
-    "github.com/dracory/liveflux"
-)
-
-func main() {
-    mux := http.NewServeMux()
-    // Option A: HTTP-only (POST/GET) transport
-    // mux.Handle("/liveflux", liveflux.NewHandler(nil)) // nil -> uses default in-memory store
-
-    // Option B (recommended): Combined WebSocket + HTTP transport
-    // One handler that upgrades WS when requested and falls back to HTTP otherwise.
-    mux.Handle("/liveflux", liveflux.NewHandlerWS(nil))
-
-    // Advanced WebSocket options (optional)
-    // mux.Handle("/liveflux", liveflux.NewWebSocketHandler(nil,
-    //     liveflux.WithWebSocketAllowedOrigins("https://example.com"),
-    //     liveflux.WithWebSocketCSRFCheck(func(r *http.Request) error {
-    //         if r.Header.Get("X-CSRF") == "token" { return nil }
-    //         return errors.New("csrf token missing")
-    //     }),
-    //     liveflux.WithWebSocketRequireTLS(true),
-    //     liveflux.WithWebSocketRateLimit(5, time.Minute),
-    //     liveflux.WithWebSocketMessageValidator(func(msg *liveflux.WebSocketMessage) error {
-    //         if msg.Action == "unsafe" { return fmt.Errorf("action disallowed") }
-    //         return nil
-    //     }),
-    // ))
-
-    // Option C: Explicit switch
-    // mux.Handle("/liveflux", liveflux.NewHandlerEx(nil, true)) // enableWebSocket=true
-
-    // (Optional) Serve a dedicated WS URL if you prefer keeping it separate
-    // mux.Handle("/liveflux-ws", liveflux.NewHandlerWS(nil))
-    http.ListenAndServe(":8080", mux)
-}
-```
-
-3) Mount the component (Liveflux client)
-
-Include the client script once in your layout and render a placeholder by alias. The client will auto-mount the component and handle actions.
-
-```go
-// In your base layout
-layout = layout.Child(liveflux.Script())
-
-// If you want the client to use WebSockets automatically (recommended with NewHandlerWS), enable it:
-// layout = layout.Child(liveflux.Script(liveflux.ClientOptions{
-//     UseWebSocket: true,
-//     // optional override (defaults to "/liveflux"):
-//     WebSocketURL: "/liveflux",
-// }))
-
-// Where you want the component
-ph := liveflux.PlaceholderByAlias("counter")
-```
+Full walkthroughs live in `docs/getting_started.md` and `docs/components.md`.
 
 ## Examples
 
@@ -179,114 +76,31 @@ Screenshot:
 
 Source: `examples/websocket/`
 
+## Documentation
+
+Start with the focused guides under `docs/`:
+
+- [Overview](docs/overview.md)
+- [Getting started](docs/getting_started.md)
+- [Components](docs/components.md)
+- [Architecture](docs/architecture.md)
+- [Handler & transport](docs/handler_and_transport.md)
+- [State management](docs/state_management.md)
+- [WebSocket integration](docs/websocket.md)
+
 ## Package API
 
-- Interface `liveflux.ComponentInterface`:
-  - `GetID() string`, `SetID(id string)`
-  - `Mount(ctx, params map[string]string) error`
-  - `Handle(ctx, action string, data url.Values) error`
-  - `Render(ctx) hb.TagInterface`
-  - Provided by `liveflux.Base`:
-    - `Root(content hb.TagInterface) hb.TagInterface` — returns the standard component root (`data-flux-root="1"`) and required hidden fields (`component`, `id`), with your content appended.
-- Registry:
-  - `liveflux.RegisterByAlias(alias string, ctor func() ComponentInterface)`
-  - `liveflux.Register(ctor func() ComponentInterface)`
-  - `liveflux.New(example ComponentInterface) (ComponentInterface, error)`
-- Handler:
-  - `liveflux.NewHandler(store Store)` → `http.Handler`
-- Form fields (constants):
-  - `component`, `id`, `action`
-
-Constants exported by the package:
-
-- `FormComponent = "component"`
-- `FormID = "id"`
-- `FormAction = "action"`
-
-### SSR (server-side render) helpers
-
-- `liveflux.SSR(c ComponentInterface, params ...map[string]string) hb.TagInterface`
-- `liveflux.SSRHTML(c ComponentInterface, params ...map[string]string) string`
-
-Use these to mount and render a component entirely on the server once (good for SEO) while still enabling the client runtime to hydrate later.
-
-Example:
-
-```go
-// server-side
-html := liveflux.SSRHTML(&counter.Component{}, map[string]string{"userID": "42"})
-// write `html` into your page; include client JS to hydrate for actions
-```
-
-### Placeholders and client script
-
-- `liveflux.PlaceholderByAlias(alias string, params ...map[string]string) hb.TagInterface`
-- `liveflux.Placeholder(c ComponentInterface, params ...map[string]string) hb.TagInterface`
-- `liveflux.JS(opts ...liveflux.ClientOptions) string` and `liveflux.Script(opts ...liveflux.ClientOptions) hb.TagInterface` return the client JS and accept optional configuration (e.g., endpoint, headers).
-
-Include the client once per page (layout):
-
-```go
-// Using hb
-layout = layout.Child(liveflux.Script())
-// or: layout = layout.Child(hb.Script(liveflux.JS()))
-// or configure a custom endpoint (e.g., behind /api/liveflux):
-layout = layout.Child(liveflux.Script(liveflux.ClientOptions{Endpoint: "/api/liveflux"}))
-```
-
-#### Client configuration
-
-You can configure the embedded client via Go helpers or by setting `window.__lw` before the script loads:
-
-```go
-// Go (hb) – full options
-layout = layout.Child(liveflux.Script(liveflux.ClientOptions{
-    Endpoint:    "/api/liveflux",
-    Headers:     map[string]string{"X-CSRF-Token": token},
-    Credentials: "same-origin", // or "include"
-    TimeoutMs:   10000,
-}))
-```
-
-Prefer the Go helper API; manual `window.__lw` configuration is typically unnecessary.
-
-Mount via placeholder (built-in client auto-mounts on load):
-
-```go
-// Placeholder by alias; optional params become data attributes
-ph := liveflux.PlaceholderByAlias("counter", map[string]string{"theme": "dark"})
-// Renders: <div data-flux-mount="1" data-flux-component="counter" data-flux-param-theme="dark">Loading counter...</div>
-```
-
-Data attributes used by the client:
-
-- `data-flux-mount="1"` — element to mount
-- `data-flux-component="<alias>"` — registered alias
-- `data-flux-param-<name>="<value>"` — initial params passed to `Mount`
-
-
-## State store
-
-Default: in-memory `MemoryStore` (process-local), exposed as `StoreDefault`. For multi-instance or restart-safe state, provide your own implementation of `liveflux.Store` (e.g., session-backed) and pass it to `liveflux.NewHandler(store)`.
-
-Registry & aliases:
-
-- `RegisterByAlias(alias string, ctor func() ComponentInterface)`
-- `Register(ctor func() ComponentInterface)` — uses `GetAlias()` or derives via `DefaultAliasFromType`
-- `New(example ComponentInterface)` — constructs a fresh instance using the example's alias/type
-
-`DefaultAliasFromType` derives `<pkg>.<type-kebab>` or just `<pkg>` when names match.
-
-Redirects:
-
-- If a component calls `Base.Redirect(url, delaySeconds...)`, the handler sets custom redirect headers and writes a small HTML fallback that performs the redirect via `<script>` and `<noscript>` meta refresh.
+- **Components**: `ComponentInterface`, `Base`, and registry helpers (`Register`, `RegisterByAlias`, `New`). See `docs/components.md` and `docs/architecture.md`.
+- **Handlers**: HTTP + WebSocket entry points (`NewHandler`, `NewHandlerWS`, `NewWebSocketHandler`). See `docs/handler_and_transport.md` and `docs/websocket.md`.
+- **SSR helpers**: `SSR`, `SSRHTML` for first render hydration. See `docs/ssr.md`.
+- **Stores**: `Store` interface with default `MemoryStore`. See `docs/state_management.md` for custom implementations.
 
 ## Production notes
 
-- Validate inputs in `Handle`.
-- Avoid storing secrets in component fields if using client-side state approaches.
-- For larger UIs, split into nested components and mount them independently.
-- Add CSRF as needed (HTMX posts are standard forms).
+- Validate inputs in `Handle` and sanitize client data.
+- Use session-backed or distributed stores in multi-instance deployments.
+- Configure CSRF and allowed origins for HTTP/WebSocket endpoints.
+- Decompose large views into smaller Liveflux components.
 
 ## License
 
