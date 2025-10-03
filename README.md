@@ -82,6 +82,21 @@ func main() {
     // One handler that upgrades WS when requested and falls back to HTTP otherwise.
     mux.Handle("/liveflux", liveflux.NewHandlerWS(nil))
 
+    // Advanced WebSocket options (optional)
+    // mux.Handle("/liveflux", liveflux.NewWebSocketHandler(nil,
+    //     liveflux.WithWebSocketAllowedOrigins("https://example.com"),
+    //     liveflux.WithWebSocketCSRFCheck(func(r *http.Request) error {
+    //         if r.Header.Get("X-CSRF") == "token" { return nil }
+    //         return errors.New("csrf token missing")
+    //     }),
+    //     liveflux.WithWebSocketRequireTLS(true),
+    //     liveflux.WithWebSocketRateLimit(5, time.Minute),
+    //     liveflux.WithWebSocketMessageValidator(func(msg *liveflux.WebSocketMessage) error {
+    //         if msg.Action == "unsafe" { return fmt.Errorf("action disallowed") }
+    //         return nil
+    //     }),
+    // ))
+
     // Option C: Explicit switch
     // mux.Handle("/liveflux", liveflux.NewHandlerEx(nil, true)) // enableWebSocket=true
 
