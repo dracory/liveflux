@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/gorilla/websocket"
@@ -19,6 +20,35 @@ var (
 		CheckOrigin: func(r *http.Request) bool { return true },
 	}
 )
+
+type websocketOptions struct {
+	allowedOrigins []string
+}
+
+// WebSocketOption configures optional behaviour for the WebSocket handler.
+type WebSocketOption func(*websocketOptions)
+
+func defaultWebSocketOptions() websocketOptions {
+	return websocketOptions{}
+}
+
+// WithWebSocketAllowedOrigins restricts allowed WebSocket upgrade origins to the
+// provided list. Comparisons are case-insensitive and expect fully qualified
+// origin strings (scheme://host[:port]). When no origins are specified the
+// handler falls back to the default upgrader behaviour (allow all).
+func WithWebSocketAllowedOrigins(origins ...string) WebSocketOption {
+	trimmed := make([]string, 0, len(origins))
+	for _, origin := range origins {
+		o := strings.TrimSpace(origin)
+		if o == "" {
+			continue
+		}
+		trimmed = append(trimmed, o)
+	}
+	return func(opts *websocketOptions) {
+		opts.allowedOrigins = trimmed
+	}
+}
 
 // WebSocketMessage represents a message sent over WebSocket.
 type WebSocketMessage struct {
@@ -43,16 +73,53 @@ type WebSocketHandler struct {
 	mu           sync.RWMutex
 	clients      map[string]map[*websocket.Conn]bool // componentID -> connections
 	constructors map[string]func() Component         // alias -> constructor
+	allowedOrigins []string
 }
 
 // NewWebSocketHandler creates a new WebSocketHandler.
-func NewWebSocketHandler(store Store) *WebSocketHandler {
-	return &WebSocketHandler{
-		Handler:      NewHandler(store),
-		upgrader:     DefaultWebSocketUpgrader,
-		clients:      make(map[string]map[*websocket.Conn]bool),
-		constructors: make(map[string]func() Component),
+func NewWebSocketHandler(store Store, optFns ...WebSocketOption) *WebSocketHandler {
+	options := defaultWebSocketOptions()
+	for _, fn := range optFns {
+		if fn != nil {
+			fn(&options)
+		}
 	}
+
+	h := &WebSocketHandler{
+		Handler:        NewHandler(store),
+		upgrader:       DefaultWebSocketUpgrader,
+		clients:        make(map[string]map[*websocket.Conn]bool),
+		constructors:   make(map[string]func() Component),
+		allowedOrigins: append([]string(nil), options.allowedOrigins...),
+	}
+
+	defaultCheck := DefaultWebSocketUpgrader.CheckOrigin
+	h.upgrader.CheckOrigin = func(r *http.Request) bool {
+		return h.checkOrigin(r, defaultCheck)
+	}
+
+	return h
+}
+
+// checkOrigin validates the upgrade origin against the allow-list, falling back
+// to the upstream upgrader behaviour when no list is configured.
+func (h *WebSocketHandler) checkOrigin(r *http.Request, defaultCheck func(*http.Request) bool) bool {
+	if len(h.allowedOrigins) == 0 {
+		return defaultCheck(r)
+	}
+
+	origin := r.Header.Get("Origin")
+	if origin == "" {
+		return false
+	}
+
+	for _, allowed := range h.allowedOrigins {
+		if strings.EqualFold(origin, allowed) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // Handle registers a component constructor for the given alias.

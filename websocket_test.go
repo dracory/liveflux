@@ -197,3 +197,28 @@ func TestWebSocketHandler_UnregisterOnClose(t *testing.T) {
 		t.Fatalf("expected no clients after close")
 	}
 }
+
+func TestWebSocketHandler_AllowedOriginsPermitMatch(t *testing.T) {
+	h := NewWebSocketHandler(nil, WithWebSocketAllowedOrigins("https://example.com"))
+	req := httptest.NewRequest(http.MethodGet, "http://server/liveflux", nil)
+	req.Header.Set("Origin", "https://example.com")
+
+	if !h.upgrader.CheckOrigin(req) {
+		t.Fatalf("expected matching origin to be allowed")
+	}
+}
+
+func TestWebSocketHandler_AllowedOriginsRejectMismatch(t *testing.T) {
+	h := NewWebSocketHandler(nil, WithWebSocketAllowedOrigins("https://example.com"))
+
+	req := httptest.NewRequest(http.MethodGet, "http://server/liveflux", nil)
+	req.Header.Set("Origin", "https://other.com")
+	if h.upgrader.CheckOrigin(req) {
+		t.Fatalf("expected mismatched origin to be rejected")
+	}
+
+	noOrigin := httptest.NewRequest(http.MethodGet, "http://server/liveflux", nil)
+	if h.upgrader.CheckOrigin(noOrigin) {
+		t.Fatalf("expected missing origin to be rejected when allow list configured")
+	}
+}
