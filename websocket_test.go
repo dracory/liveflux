@@ -79,8 +79,8 @@ func TestWebSocketHandler_RateLimitAllowsWithinThreshold(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unexpected dial error on attempt %d: %v", i, err)
 		}
-		if resp != nil {
-			t.Fatalf("expected WebSocket upgrade success, got HTTP response %d", resp.StatusCode)
+		if resp != nil && resp.StatusCode != http.StatusSwitchingProtocols {
+			t.Fatalf("unexpected HTTP response on upgrade: %d", resp.StatusCode)
 		}
 		conn.Close()
 	}
@@ -95,8 +95,8 @@ func TestWebSocketHandler_RateLimitBlocksExcess(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected dial error for first attempt: %v", err)
 	}
-	if resp != nil {
-		t.Fatalf("expected WebSocket upgrade success, got HTTP response %d", resp.StatusCode)
+	if resp != nil && resp.StatusCode != http.StatusSwitchingProtocols {
+		t.Fatalf("unexpected HTTP response on upgrade: %d", resp.StatusCode)
 	}
 	conn.Close()
 
