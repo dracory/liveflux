@@ -69,6 +69,49 @@ func TestWebSocketHandler_RequireTLSPermitsSecure(t *testing.T) {
 	}
 }
 
+func TestWebSocketHandler_RateLimitAllowsWithinThreshold(t *testing.T) {
+	ratelimited := NewWebSocketHandler(nil, WithWebSocketRateLimit(2, time.Second))
+	ts := httptest.NewServer(ratelimited)
+	defer ts.Close()
+
+	for i := 0; i < 2; i++ {
+		conn, resp, err := dialWS(t, ts.URL)
+		if err != nil {
+			t.Fatalf("unexpected dial error on attempt %d: %v", i, err)
+		}
+		if resp != nil {
+			t.Fatalf("expected WebSocket upgrade success, got HTTP response %d", resp.StatusCode)
+		}
+		conn.Close()
+	}
+}
+
+func TestWebSocketHandler_RateLimitBlocksExcess(t *testing.T) {
+	ratelimited := NewWebSocketHandler(nil, WithWebSocketRateLimit(1, time.Minute))
+	ts := httptest.NewServer(ratelimited)
+	defer ts.Close()
+
+	conn, resp, err := dialWS(t, ts.URL)
+	if err != nil {
+		t.Fatalf("unexpected dial error for first attempt: %v", err)
+	}
+	if resp != nil {
+		t.Fatalf("expected WebSocket upgrade success, got HTTP response %d", resp.StatusCode)
+	}
+	conn.Close()
+
+	_, resp2, err := dialWS(t, ts.URL)
+	if err == nil {
+		t.Fatal("expected rate limit dial error on second attempt")
+	}
+	if resp2 == nil {
+		t.Fatal("expected HTTP response on blocked upgrade")
+	}
+	if resp2.StatusCode != http.StatusTooManyRequests {
+		t.Fatalf("expected 429, got %d", resp2.StatusCode)
+	}
+}
+
 func TestWebSocketHandler_CSRFCheckPasses(t *testing.T) {
 	check := func(r *http.Request) error {
 		if r.Header.Get("X-CSRF") != "token" {

@@ -106,7 +106,7 @@ ws.sendAction('component-id', 'increment', {value: 1});
 - **Done** Implement CSRF protection for WebSocket upgrade (`WithWebSocketCSRFCheck`)
 - Rate limiting for WebSocket connections
 - Input validation for all WebSocket messages
-- Secure WebSocket (WSS) support
+- **Done** Secure WebSocket (WSS) support (`WithWebSocketRequireTLS`)
 - **Done** Origin validation (`WithWebSocketAllowedOrigins`)
 
 ## Performance Considerations

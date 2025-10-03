@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"net"
 	"net/http"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -38,10 +40,22 @@ func WithWebSocketRequireTLS(require bool) WebSocketOption {
 	}
 }
 
+// WithWebSocketRateLimit configures a simple per-client connection rate limit
+// for WebSocket upgrades. A max value <= 0 disables limiting. The window
+// defines the period for counting attempts; if zero, one minute is used.
+func WithWebSocketRateLimit(max int, window time.Duration) WebSocketOption {
+	return func(opts *websocketOptions) {
+		opts.rateLimitMax = max
+		opts.rateLimitWindow = window
+	}
+}
+
 type websocketOptions struct {
 	allowedOrigins []string
 	csrfCheck      func(*http.Request) error
 	requireTLS     bool
+	rateLimitMax   int
+	rateLimitWindow time.Duration
 }
 
 // WebSocketOption configures optional behaviour for the WebSocket handler.
@@ -95,6 +109,7 @@ type WebSocketHandler struct {
 	allowedOrigins []string
 	csrfCheck      func(*http.Request) error
 	requireTLS     bool
+	rateLimiter    *wsRateLimiter
 }
 
 // NewWebSocketHandler creates a new WebSocketHandler.
@@ -114,6 +129,7 @@ func NewWebSocketHandler(store Store, optFns ...WebSocketOption) *WebSocketHandl
 		allowedOrigins: append([]string(nil), options.allowedOrigins...),
 		csrfCheck:      options.csrfCheck,
 		requireTLS:     options.requireTLS,
+		rateLimiter:    newWSRateLimiter(options.rateLimitMax, options.rateLimitWindow),
 	}
 
 	defaultCheck := DefaultWebSocketUpgrader.CheckOrigin
@@ -169,6 +185,14 @@ func (h *WebSocketHandler) handleWebSocket(w http.ResponseWriter, r *http.Reques
 	if h.requireTLS && r.TLS == nil {
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		return
+	}
+
+	if h.rateLimiter != nil {
+		ip := clientIP(r)
+		if !h.rateLimiter.Allow(ip) {
+			http.Error(w, http.StatusText(http.StatusTooManyRequests), http.StatusTooManyRequests)
+			return
+		}
 	}
 
 	if h.csrfCheck != nil {
@@ -326,4 +350,64 @@ func (h *WebSocketHandler) sendError(conn *websocket.Conn, message string, code 
 	}
 
 	_ = conn.WriteJSON(errMsg)
+}
+
+type wsRateLimiter struct {
+	mu      sync.Mutex
+	max     int
+	window  time.Duration
+	entries map[string]*wsRateEntry
+}
+
+type wsRateEntry struct {
+	count       int
+	windowStart time.Time
+}
+
+func newWSRateLimiter(max int, window time.Duration) *wsRateLimiter {
+	if max <= 0 {
+		return nil
+	}
+	if window <= 0 {
+		window = time.Minute
+	}
+	return &wsRateLimiter{
+		max:     max,
+		window:  window,
+		entries: make(map[string]*wsRateEntry),
+	}
+}
+
+func (rl *wsRateLimiter) Allow(ip string) bool {
+	if rl == nil {
+		return true
+	}
+	if ip == "" {
+		ip = "unknown"
+	}
+
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+
+	now := time.Now()
+	entry := rl.entries[ip]
+	if entry == nil || now.Sub(entry.windowStart) >= rl.window {
+		rl.entries[ip] = &wsRateEntry{count: 1, windowStart: now}
+		return true
+	}
+
+	if entry.count >= rl.max {
+		return false
+	}
+
+	entry.count++
+	return true
+}
+
+func clientIP(r *http.Request) string {
+	host, _, err := net.SplitHostPort(strings.TrimSpace(r.RemoteAddr))
+	if err != nil {
+		return strings.TrimSpace(r.RemoteAddr)
+	}
+	return host
 }
