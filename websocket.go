@@ -30,9 +30,18 @@ func WithWebSocketCSRFCheck(check func(*http.Request) error) WebSocketOption {
 	}
 }
 
+// WithWebSocketRequireTLS enforces that WebSocket upgrades occur over HTTPS/WSS.
+// When enabled, plaintext HTTP upgrade attempts are rejected with HTTP 403.
+func WithWebSocketRequireTLS(require bool) WebSocketOption {
+	return func(opts *websocketOptions) {
+		opts.requireTLS = require
+	}
+}
+
 type websocketOptions struct {
 	allowedOrigins []string
 	csrfCheck      func(*http.Request) error
+	requireTLS     bool
 }
 
 // WebSocketOption configures optional behaviour for the WebSocket handler.
@@ -85,6 +94,7 @@ type WebSocketHandler struct {
 	constructors map[string]func() Component         // alias -> constructor
 	allowedOrigins []string
 	csrfCheck      func(*http.Request) error
+	requireTLS     bool
 }
 
 // NewWebSocketHandler creates a new WebSocketHandler.
@@ -103,6 +113,7 @@ func NewWebSocketHandler(store Store, optFns ...WebSocketOption) *WebSocketHandl
 		constructors:   make(map[string]func() Component),
 		allowedOrigins: append([]string(nil), options.allowedOrigins...),
 		csrfCheck:      options.csrfCheck,
+		requireTLS:     options.requireTLS,
 	}
 
 	defaultCheck := DefaultWebSocketUpgrader.CheckOrigin
@@ -155,6 +166,11 @@ func (h *WebSocketHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // handleWebSocket handles a WebSocket connection.
 func (h *WebSocketHandler) handleWebSocket(w http.ResponseWriter, r *http.Request) {
+	if h.requireTLS && r.TLS == nil {
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		return
+	}
+
 	if h.csrfCheck != nil {
 		if err := h.csrfCheck(r); err != nil {
 			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)

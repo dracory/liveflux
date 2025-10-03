@@ -2,6 +2,7 @@ package liveflux
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -18,6 +19,54 @@ import (
 type fakeWSComponent struct {
 	Base
 	Count int
+}
+
+func TestWebSocketHandler_RequireTLSRejectsPlain(t *testing.T) {
+	h := NewWebSocketHandler(nil, WithWebSocketRequireTLS(true))
+
+	ts := httptest.NewServer(h)
+	defer ts.Close()
+
+	_, resp, err := dialWS(t, ts.URL)
+	if err == nil {
+		t.Fatal("expected dial error for non-TLS upgrade")
+	}
+	if resp == nil {
+		t.Fatal("expected HTTP response on failed upgrade")
+	}
+	if resp.StatusCode != http.StatusForbidden {
+		t.Fatalf("expected 403, got %d", resp.StatusCode)
+	}
+}
+
+func TestWebSocketHandler_RequireTLSPermitsSecure(t *testing.T) {
+	store := NewMemoryStore()
+	h := NewWebSocketHandler(store, WithWebSocketRequireTLS(true))
+
+	comp := &fakeWSComponent{}
+	comp.SetAlias(comp.GetAlias())
+	comp.SetID(NewID())
+	if err := comp.Mount(context.Background(), map[string]string{}); err != nil {
+		t.Fatalf("mount error: %v", err)
+	}
+	store.Set(comp)
+
+	ts := httptest.NewTLSServer(h)
+	defer ts.Close()
+
+	dialer := *websocket.DefaultDialer
+	dialer.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+
+	conn, _, err := dialWSWithOptions(t, ts.URL, nil, &dialer)
+	if err != nil {
+		t.Fatalf("dial error: %v", err)
+	}
+	defer conn.Close()
+
+	msg := WebSocketMessage{Type: "action", ComponentID: comp.GetID(), Action: "inc"}
+	if err := conn.WriteJSON(msg); err != nil {
+		t.Fatalf("write: %v", err)
+	}
 }
 
 func TestWebSocketHandler_CSRFCheckPasses(t *testing.T) {
@@ -102,15 +151,27 @@ func (c *fakeWSComponent) HandleWS(ctx context.Context, msg *WebSocketMessage) (
 }
 
 func dialWS(t *testing.T, serverURL string) (*websocket.Conn, *http.Response, error) {
-	u, _ := url.Parse(serverURL)
-	u.Scheme = map[string]string{"http": "ws", "https": "wss"}[u.Scheme]
-	return websocket.DefaultDialer.Dial(u.String(), nil)
+	return dialWSWithOptions(t, serverURL, nil, nil)
 }
 
 func dialWSWithHeader(t *testing.T, serverURL string, header http.Header) (*websocket.Conn, *http.Response, error) {
+	return dialWSWithOptions(t, serverURL, header, nil)
+}
+
+func dialWSWithOptions(t *testing.T, serverURL string, header http.Header, dialer *websocket.Dialer) (*websocket.Conn, *http.Response, error) {
 	u, _ := url.Parse(serverURL)
-	u.Scheme = map[string]string{"http": "ws", "https": "wss"}[u.Scheme]
-	return websocket.DefaultDialer.Dial(u.String(), header)
+	switch u.Scheme {
+	case "http":
+		u.Scheme = "ws"
+	case "https":
+		u.Scheme = "wss"
+	}
+
+	if dialer == nil {
+		dialer = websocket.DefaultDialer
+	}
+
+	return dialer.Dial(u.String(), header)
 }
 
 func TestWebSocketHandler_ActionFlow(t *testing.T) {
