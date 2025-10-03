@@ -50,12 +50,22 @@ func WithWebSocketRateLimit(max int, window time.Duration) WebSocketOption {
 	}
 }
 
+// WithWebSocketMessageValidator sets a callback invoked for every WebSocket
+// message before it is dispatched to the component. Returning an error sends a
+// 400 response/error frame to the client and skips processing.
+func WithWebSocketMessageValidator(validator func(*WebSocketMessage) error) WebSocketOption {
+	return func(opts *websocketOptions) {
+		opts.messageValidator = validator
+	}
+}
+
 type websocketOptions struct {
 	allowedOrigins []string
 	csrfCheck      func(*http.Request) error
 	requireTLS     bool
 	rateLimitMax   int
 	rateLimitWindow time.Duration
+	messageValidator func(*WebSocketMessage) error
 }
 
 // WebSocketOption configures optional behaviour for the WebSocket handler.
@@ -110,6 +120,7 @@ type WebSocketHandler struct {
 	csrfCheck      func(*http.Request) error
 	requireTLS     bool
 	rateLimiter    *wsRateLimiter
+	messageValidator func(*WebSocketMessage) error
 }
 
 // NewWebSocketHandler creates a new WebSocketHandler.
@@ -130,6 +141,7 @@ func NewWebSocketHandler(store Store, optFns ...WebSocketOption) *WebSocketHandl
 		csrfCheck:      options.csrfCheck,
 		requireTLS:     options.requireTLS,
 		rateLimiter:    newWSRateLimiter(options.rateLimitMax, options.rateLimitWindow),
+		messageValidator: options.messageValidator,
 	}
 
 	defaultCheck := DefaultWebSocketUpgrader.CheckOrigin
@@ -226,6 +238,10 @@ func (h *WebSocketHandler) handleWebSocket(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	if !h.validateMessage(conn, &firstMsg) {
+		return
+	}
+
 	// Register and ensure cleanup
 	componentID := firstMsg.ComponentID
 	h.registerConnection(componentID, conn)
@@ -247,6 +263,10 @@ func (h *WebSocketHandler) handleWebSocket(w http.ResponseWriter, r *http.Reques
 		// Guard against accidental mismatched component IDs from the client
 		if msg.ComponentID == "" {
 			msg.ComponentID = componentID
+		}
+
+		if !h.validateMessage(conn, &msg) {
+			continue
 		}
 
 		// Handle the message in a goroutine
@@ -350,6 +370,17 @@ func (h *WebSocketHandler) sendError(conn *websocket.Conn, message string, code 
 	}
 
 	_ = conn.WriteJSON(errMsg)
+}
+
+func (h *WebSocketHandler) validateMessage(conn *websocket.Conn, msg *WebSocketMessage) bool {
+	if h.messageValidator == nil {
+		return true
+	}
+	if err := h.messageValidator(msg); err != nil {
+		h.sendError(conn, err.Error(), http.StatusBadRequest)
+		return false
+	}
+	return true
 }
 
 type wsRateLimiter struct {

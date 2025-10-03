@@ -21,6 +21,82 @@ type fakeWSComponent struct {
 	Count int
 }
 
+func TestWebSocketHandler_MessageValidatorPasses(t *testing.T) {
+	validator := func(msg *WebSocketMessage) error {
+		if msg.Action == "block" {
+			return errors.New("blocked")
+		}
+		return nil
+	}
+
+	store := NewMemoryStore()
+	h := NewWebSocketHandler(store, WithWebSocketMessageValidator(validator))
+
+	comp := &fakeWSComponent{}
+	comp.SetAlias(comp.GetAlias())
+	comp.SetID(NewID())
+	if err := comp.Mount(context.Background(), map[string]string{}); err != nil {
+		t.Fatalf("mount error: %v", err)
+	}
+	store.Set(comp)
+
+	ts := httptest.NewServer(h)
+	defer ts.Close()
+
+	conn, resp, err := dialWS(t, ts.URL)
+	if err != nil {
+		t.Fatalf("dial error: %v", err)
+	}
+	if resp != nil && resp.StatusCode != http.StatusSwitchingProtocols {
+		t.Fatalf("unexpected HTTP response on upgrade: %d", resp.StatusCode)
+	}
+	defer conn.Close()
+
+	msg := WebSocketMessage{Type: "action", ComponentID: comp.GetID(), Action: "inc"}
+	if err := conn.WriteJSON(msg); err != nil {
+		t.Fatalf("write: %v", err)
+	}
+}
+
+func TestWebSocketHandler_MessageValidatorBlocks(t *testing.T) {
+	validator := func(msg *WebSocketMessage) error {
+		if msg.Action == "block" {
+			return errors.New("blocked")
+		}
+		return nil
+	}
+
+	h := NewWebSocketHandler(nil, WithWebSocketMessageValidator(validator))
+	ts := httptest.NewServer(h)
+	defer ts.Close()
+
+	conn, resp, err := dialWS(t, ts.URL)
+	if err != nil {
+		t.Fatalf("dial error: %v", err)
+	}
+	if resp != nil && resp.StatusCode != http.StatusSwitchingProtocols {
+		t.Fatalf("unexpected HTTP response on upgrade: %d", resp.StatusCode)
+	}
+	defer conn.Close()
+
+	err = conn.WriteJSON(WebSocketMessage{Type: "action", ComponentID: "comp", Action: "block"})
+	if err != nil {
+		t.Fatalf("write block action: %v", err)
+	}
+
+	var failure struct {
+		Type    string `json:"type"`
+		Message string `json:"message"`
+		Code    int    `json:"code"`
+	}
+	if err := conn.ReadJSON(&failure); err != nil {
+		t.Fatalf("read error: %v", err)
+	}
+	if failure.Type != "error" || failure.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 error frame, got %#v", failure)
+	}
+}
+
 func TestWebSocketHandler_RequireTLSRejectsPlain(t *testing.T) {
 	h := NewWebSocketHandler(nil, WithWebSocketRequireTLS(true))
 
