@@ -21,8 +21,18 @@ var (
 	}
 )
 
+// WithWebSocketCSRFCheck configures a custom CSRF validation function that is
+// executed before upgrading the HTTP connection to a WebSocket. Returning a
+// non-nil error will reject the upgrade with HTTP 403.
+func WithWebSocketCSRFCheck(check func(*http.Request) error) WebSocketOption {
+	return func(opts *websocketOptions) {
+		opts.csrfCheck = check
+	}
+}
+
 type websocketOptions struct {
 	allowedOrigins []string
+	csrfCheck      func(*http.Request) error
 }
 
 // WebSocketOption configures optional behaviour for the WebSocket handler.
@@ -74,6 +84,7 @@ type WebSocketHandler struct {
 	clients      map[string]map[*websocket.Conn]bool // componentID -> connections
 	constructors map[string]func() Component         // alias -> constructor
 	allowedOrigins []string
+	csrfCheck      func(*http.Request) error
 }
 
 // NewWebSocketHandler creates a new WebSocketHandler.
@@ -91,6 +102,7 @@ func NewWebSocketHandler(store Store, optFns ...WebSocketOption) *WebSocketHandl
 		clients:        make(map[string]map[*websocket.Conn]bool),
 		constructors:   make(map[string]func() Component),
 		allowedOrigins: append([]string(nil), options.allowedOrigins...),
+		csrfCheck:      options.csrfCheck,
 	}
 
 	defaultCheck := DefaultWebSocketUpgrader.CheckOrigin
@@ -143,6 +155,13 @@ func (h *WebSocketHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // handleWebSocket handles a WebSocket connection.
 func (h *WebSocketHandler) handleWebSocket(w http.ResponseWriter, r *http.Request) {
+	if h.csrfCheck != nil {
+		if err := h.csrfCheck(r); err != nil {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
+	}
+
 	conn, err := h.upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		// The upgrader has already written an error response

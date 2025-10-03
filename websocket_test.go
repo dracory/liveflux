@@ -2,6 +2,7 @@ package liveflux
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -17,6 +18,61 @@ import (
 type fakeWSComponent struct {
 	Base
 	Count int
+}
+
+func TestWebSocketHandler_CSRFCheckPasses(t *testing.T) {
+	check := func(r *http.Request) error {
+		if r.Header.Get("X-CSRF") != "token" {
+			return errors.New("missing token")
+		}
+		return nil
+	}
+
+	store := NewMemoryStore()
+	h := NewWebSocketHandler(store, WithWebSocketCSRFCheck(check))
+
+	comp := &fakeWSComponent{}
+	comp.SetAlias(comp.GetAlias())
+	comp.SetID(NewID())
+	if err := comp.Mount(context.Background(), map[string]string{}); err != nil {
+		t.Fatalf("mount error: %v", err)
+	}
+	store.Set(comp)
+
+	ts := httptest.NewServer(h)
+	defer ts.Close()
+
+	headers := http.Header{}
+	headers.Set("X-CSRF", "token")
+	conn, _, err := dialWSWithHeader(t, ts.URL, headers)
+	if err != nil {
+		t.Fatalf("dial error: %v", err)
+	}
+	defer conn.Close()
+
+	msg := WebSocketMessage{Type: "action", ComponentID: comp.GetID(), Action: "inc"}
+	if err := conn.WriteJSON(msg); err != nil {
+		t.Fatalf("write: %v", err)
+	}
+}
+
+func TestWebSocketHandler_CSRFCheckBlocks(t *testing.T) {
+	check := func(*http.Request) error { return errors.New("denied") }
+	h := NewWebSocketHandler(nil, WithWebSocketCSRFCheck(check))
+
+	ts := httptest.NewServer(h)
+	defer ts.Close()
+
+	_, resp, err := dialWSWithHeader(t, ts.URL, nil)
+	if err == nil {
+		t.Fatal("expected dial error due to CSRF")
+	}
+	if resp == nil {
+		t.Fatal("expected HTTP response on failed upgrade")
+	}
+	if resp.StatusCode != http.StatusForbidden {
+		t.Fatalf("expected 403, got %d", resp.StatusCode)
+	}
 }
 
 func (c *fakeWSComponent) GetAlias() string { return "fake-ws" }
@@ -49,6 +105,12 @@ func dialWS(t *testing.T, serverURL string) (*websocket.Conn, *http.Response, er
 	u, _ := url.Parse(serverURL)
 	u.Scheme = map[string]string{"http": "ws", "https": "wss"}[u.Scheme]
 	return websocket.DefaultDialer.Dial(u.String(), nil)
+}
+
+func dialWSWithHeader(t *testing.T, serverURL string, header http.Header) (*websocket.Conn, *http.Response, error) {
+	u, _ := url.Parse(serverURL)
+	u.Scheme = map[string]string{"http": "ws", "https": "wss"}[u.Scheme]
+	return websocket.DefaultDialer.Dial(u.String(), header)
 }
 
 func TestWebSocketHandler_ActionFlow(t *testing.T) {
