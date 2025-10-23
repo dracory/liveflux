@@ -41,6 +41,18 @@ tasks:
     cmds:
       - go build -o bin/counter .
 
+  examples:crud:run:
+    desc: Run the crud example
+    dir: examples/crud
+    cmds:
+      - go run .
+
+  examples:crud:build:
+    desc: Build the crud example binary
+    dir: examples/crud
+    cmds:
+      - go build -o bin/crud .
+
   examples:tree:run:
     desc: Run the tree example
     dir: examples/tree
@@ -52,6 +64,18 @@ tasks:
     dir: examples/tree
     cmds:
       - go build -o bin/tree .
+
+  examples:websocket:run:
+    desc: Run the websocket example
+    dir: examples/websocket
+    cmds:
+      - go run .
+
+  examples:websocket:build:
+    desc: Build the websocket example binary
+    dir: examples/websocket
+    cmds:
+      - go build -o bin/websocket .
 
   # default:
   #   desc: Alias to run counter example
