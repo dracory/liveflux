@@ -1,4 +1,5 @@
 (function(){
+  // Initialize global namespace
   const g = window; g.__lw = g.__lw || {};
 
   // Event listeners registry: maps event names to arrays of listener functions

@@ -1,6 +1,7 @@
 (function(){
   const g = window;
   g.__lw = g.__lw || {};
+  
   // Default endpoint; can be overridden by integrators before or via JSWithEndpoint
   if (!g.__lw.endpoint) {
     g.__lw.endpoint = '/liveflux';
