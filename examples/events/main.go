@@ -124,7 +124,7 @@ func (pl *PostList) Render(ctx context.Context) hb.TagInterface {
 		postItems = append(postItems, hb.Li().Class("empty").Text("No posts yet..."))
 	}
 
-	// Add JavaScript to listen for post-created events and trigger server-side handler
+	// Add JavaScript to listen for post-created events and call the server action via $wire
 	script := hb.Script(`
 		(function(){
 			var root = document.currentScript.closest('[data-flux-root]');
@@ -132,45 +132,29 @@ func (pl *PostList) Render(ctx context.Context) hb.TagInterface {
 				console.error('[PostList] Could not find component root');
 				return;
 			}
-			
-			console.log('[PostList] Setting up event listener');
-			
-			// Use a function to set up the listener, called when $wire is ready
+
+			console.log('[PostList] Initializing post-created listener');
+
 			function setupListener(){
 				if(!root.$wire){
-					console.log('[PostList] $wire not ready yet, waiting...');
+					console.log('[PostList] $wire not ready yet, retrying...');
 					setTimeout(setupListener, 50);
 					return;
 				}
-				
-				console.log('[PostList] $wire is ready, registering listener');
-				
-				// Listen for post-created event
+
+				console.log('[PostList] $wire ready, registering post-created listener');
 				root.$wire.on('post-created', function(event){
-					console.log('[PostList] Received post-created event:', event);
-					// Add event data to hidden form fields
-					var form = root.querySelector('form[data-flux-action="add-post"]');
-					if(form){
-						// Set the title and timestamp from event data
-						var titleInput = form.querySelector('input[name="title"]');
-						var timestampInput = form.querySelector('input[name="timestamp"]');
-						if(titleInput && timestampInput && event.data){
-							titleInput.value = event.data.title || '';
-							timestampInput.value = event.data.timestamp || '';
-							console.log('[PostList] Submitting form with:', titleInput.value, timestampInput.value);
-							// Submit the form to trigger server-side handler
-							var submitEvent = new Event('submit', {bubbles: true, cancelable: true});
-							form.dispatchEvent(submitEvent);
-						} else {
-							console.error('[PostList] Form inputs not found');
-						}
-					} else {
-						console.error('[PostList] Form not found');
-					}
+					var data = event && event.data ? event.data : {};
+					var title = data.title || '';
+					var timestamp = data.timestamp || '';
+					console.log('[PostList] Event received, calling add-post with', title, timestamp);
+					root.$wire.call('add-post', {
+						title: title,
+						timestamp: timestamp,
+					});
 				});
 			}
-			
-			// Start trying to set up the listener
+
 			setupListener();
 		})();
 	`)
@@ -183,10 +167,6 @@ func (pl *PostList) Render(ctx context.Context) hb.TagInterface {
 				Attr("data-flux-action", "clear").
 				Class("btn btn-secondary").
 				Text("Clear All"),
-			hb.Form().Attr("data-flux-action", "add-post").Style("display:none;").Children([]hb.TagInterface{
-				hb.Input().Type("hidden").Name("title"),
-				hb.Input().Type("hidden").Name("timestamp"),
-			}),
 			script,
 		}),
 	)
@@ -205,6 +185,15 @@ func (nb *NotificationBanner) Mount(ctx context.Context, params map[string]strin
 }
 
 func (nb *NotificationBanner) Handle(ctx context.Context, action string, data url.Values) error {
+	log.Printf("[NotificationBanner] Handle action: %s", action)
+	switch action {
+	case "show":
+		nb.Message = data.Get("title")
+		nb.Timestamp = data.Get("timestamp")
+	case "clear":
+		nb.Message = ""
+		nb.Timestamp = ""
+	}
 	return nil
 }
 
@@ -226,17 +215,28 @@ func (nb *NotificationBanner) Render(ctx context.Context) hb.TagInterface {
 	script := hb.Script(`
 		(function(){
 			var root = document.currentScript.closest('[data-flux-root]');
-			if(!root || !root.$wire) return;
-			
-			root.$wire.on('post-created', function(event){
-				console.log('Notification received event:', event);
-				// Trigger a refresh by simulating a form submission
-				var form = root.querySelector('form');
-				if(form){
-					var submitEvent = new Event('submit', {bubbles: true, cancelable: true});
-					form.dispatchEvent(submitEvent);
+			if(!root) {
+				console.error('[NotificationBanner] Could not find component root');
+				return;
+			}
+
+			function setupListener(){
+				if(!root.$wire){
+					setTimeout(setupListener, 50);
+					return;
 				}
-			});
+
+				root.$wire.on('post-created', function(event){
+					var data = event && event.data ? event.data : {};
+					console.log('[NotificationBanner] Event received, calling show with', data);
+					root.$wire.call('show', {
+						title: data.title || '',
+						timestamp: data.timestamp || '',
+					});
+				});
+			}
+
+			setupListener();
 		})();
 	`)
 
@@ -244,7 +244,6 @@ func (nb *NotificationBanner) Render(ctx context.Context) hb.TagInterface {
 		hb.Div().Class("card notification-card").Children([]hb.TagInterface{
 			hb.H2().Text("Notifications"),
 			content,
-			hb.Form().Attr("data-flux-action", "refresh").Style("display:none;"),
 			script,
 		}),
 	)

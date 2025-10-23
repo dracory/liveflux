@@ -8,7 +8,7 @@
    * @param {string} componentAlias - The alias of the component.
    * @returns {Object} - The $wire proxy object.
    */
-  g.__lw.createWire = function(componentId, componentAlias){
+  g.__lw.createWire = function(componentId, componentAlias, rootEl){
     console.log('[Liveflux Wire] Creating $wire for component:', componentId, componentAlias);
     
     return {
@@ -58,6 +58,36 @@
         g.__lw.dispatch(eventName, eventData);
       },
 
+      /**
+       * Calls a server action for this component and updates its DOM.
+       * @param {string} action - The action name to call.
+       * @param {Object} data - Additional form data to send.
+       * @returns {Promise<any>} Resolves with the result from g.__lw.post
+       */
+      call: function(action, data){
+        action = action || 'submit';
+        const params = Object.assign({}, data || {}, {
+          liveflux_component_type: componentAlias,
+          liveflux_component_id: componentId,
+          liveflux_action: action
+        });
+
+        console.log('[Liveflux Wire] $wire.call', action, params);
+        return g.__lw.post(params).then(function(result){
+          const html = result.html || result;
+          const tmp = document.createElement('div');
+          tmp.innerHTML = html;
+          const newNode = tmp.firstElementChild;
+          if(newNode && rootEl){
+            rootEl.replaceWith(newNode);
+            rootEl = newNode;
+            g.__lw.executeScripts(newNode);
+            if(g.__lw.initWire) g.__lw.initWire();
+          }
+          return result;
+        });
+      },
+
       // Component metadata
       id: componentId,
       alias: componentAlias
@@ -86,7 +116,7 @@
       const componentAlias = comp.value;
 
       // Attach $wire to the root element for script access
-      root.$wire = g.__lw.createWire(componentId, componentAlias);
+      root.$wire = g.__lw.createWire(componentId, componentAlias, root);
       console.log('[Liveflux Wire] Attached $wire to component:', componentAlias, componentId);
     });
   };
