@@ -4,8 +4,8 @@ import "sync"
 
 // Store defines how component instances are persisted between requests.
 type Store interface {
-	Get(id string) (Component, bool)
-	Set(c Component)
+	Get(id string) (ComponentInterface, bool)
+	Set(c ComponentInterface)
 	Delete(id string)
 }
 
@@ -14,16 +14,16 @@ type Store interface {
 // implementation for multi-instance deployments.
 type MemoryStore struct {
 	mu sync.RWMutex
-	m  map[string]Component
+	m  map[string]ComponentInterface
 }
 
 // NewMemoryStore creates a MemoryStore.
 func NewMemoryStore() *MemoryStore {
-	return &MemoryStore{m: map[string]Component{}}
+	return &MemoryStore{m: map[string]ComponentInterface{}}
 }
 
 // Get returns a component by id.
-func (s *MemoryStore) Get(id string) (Component, bool) {
+func (s *MemoryStore) Get(id string) (ComponentInterface, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	c, ok := s.m[id]
@@ -31,7 +31,7 @@ func (s *MemoryStore) Get(id string) (Component, bool) {
 }
 
 // Set stores a component by its ID.
-func (s *MemoryStore) Set(c Component) {
+func (s *MemoryStore) Set(c ComponentInterface) {
 	if c == nil || c.GetID() == "" {
 		return
 	}

@@ -33,3 +33,4 @@ go.work.sum
 examples/tree/tmp/
 examples/websocket/tmp/
 examples/events/tmp/build-errors.log
+examples/crud/tmp/build-errors.log

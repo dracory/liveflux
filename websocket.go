@@ -60,11 +60,11 @@ func WithWebSocketMessageValidator(validator func(*WebSocketMessage) error) WebS
 }
 
 type websocketOptions struct {
-	allowedOrigins []string
-	csrfCheck      func(*http.Request) error
-	requireTLS     bool
-	rateLimitMax   int
-	rateLimitWindow time.Duration
+	allowedOrigins   []string
+	csrfCheck        func(*http.Request) error
+	requireTLS       bool
+	rateLimitMax     int
+	rateLimitWindow  time.Duration
 	messageValidator func(*WebSocketMessage) error
 }
 
@@ -103,7 +103,7 @@ type WebSocketMessage struct {
 
 // WebSocketComponent is the interface that components can implement to handle WebSocket messages.
 type WebSocketComponent interface {
-	Component
+	ComponentInterface
 	// HandleWS handles WebSocket messages for this component.
 	// It should return a response message or an error.
 	HandleWS(ctx context.Context, message *WebSocketMessage) (interface{}, error)
@@ -112,14 +112,14 @@ type WebSocketComponent interface {
 // WebSocketHandler handles WebSocket connections for LiveFlux.
 type WebSocketHandler struct {
 	*Handler
-	upgrader     websocket.Upgrader
-	mu           sync.RWMutex
-	clients      map[string]map[*websocket.Conn]bool // componentID -> connections
-	constructors map[string]func() Component         // alias -> constructor
-	allowedOrigins []string
-	csrfCheck      func(*http.Request) error
-	requireTLS     bool
-	rateLimiter    *wsRateLimiter
+	upgrader         websocket.Upgrader
+	mu               sync.RWMutex
+	clients          map[string]map[*websocket.Conn]bool  // componentID -> connections
+	constructors     map[string]func() ComponentInterface // alias -> constructor
+	allowedOrigins   []string
+	csrfCheck        func(*http.Request) error
+	requireTLS       bool
+	rateLimiter      *wsRateLimiter
 	messageValidator func(*WebSocketMessage) error
 }
 
@@ -133,14 +133,14 @@ func NewWebSocketHandler(store Store, optFns ...WebSocketOption) *WebSocketHandl
 	}
 
 	h := &WebSocketHandler{
-		Handler:        NewHandler(store),
-		upgrader:       DefaultWebSocketUpgrader,
-		clients:        make(map[string]map[*websocket.Conn]bool),
-		constructors:   make(map[string]func() Component),
-		allowedOrigins: append([]string(nil), options.allowedOrigins...),
-		csrfCheck:      options.csrfCheck,
-		requireTLS:     options.requireTLS,
-		rateLimiter:    newWSRateLimiter(options.rateLimitMax, options.rateLimitWindow),
+		Handler:          NewHandler(store),
+		upgrader:         DefaultWebSocketUpgrader,
+		clients:          make(map[string]map[*websocket.Conn]bool),
+		constructors:     make(map[string]func() ComponentInterface),
+		allowedOrigins:   append([]string(nil), options.allowedOrigins...),
+		csrfCheck:        options.csrfCheck,
+		requireTLS:       options.requireTLS,
+		rateLimiter:      newWSRateLimiter(options.rateLimitMax, options.rateLimitWindow),
 		messageValidator: options.messageValidator,
 	}
 
@@ -174,7 +174,7 @@ func (h *WebSocketHandler) checkOrigin(r *http.Request, defaultCheck func(*http.
 }
 
 // Handle registers a component constructor for the given alias.
-func (h *WebSocketHandler) Handle(alias string, constructor func() Component) {
+func (h *WebSocketHandler) Handle(alias string, constructor func() ComponentInterface) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	h.constructors[alias] = constructor

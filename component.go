@@ -1,64 +1,13 @@
 package liveflux
 
 import (
-	"context"
-	"net/url"
-
 	"github.com/dracory/hb"
 	"github.com/samber/lo"
 )
 
-// Component defines the contract for a server-driven UI component.
-//
-// Lifecycle:
-// - New(alias) via registry (framework sets the component's Alias via SetAlias(alias))
-// - SetID(...) during first mount (framework assigns a per-instance ID)
-// - Mount(ctx, params) on first initialization
-// - Handle(ctx, action, form) on user actions
-// - Render(ctx) returns the current HTML (hb.Tag)
-//
-// Name is assigned by the framework when the instance is created from the registry.
-// ID and SetID are used by the framework to track component instances and are
-// assigned on mount.
-// Mount should initialize default state. Handle should mutate state based on actions.
-// Render must be deterministic based on current state.
-//
-// Example usage:
-//
-//	type Counter struct { liveflux.Base; Count int }
-//	func (c *Counter) Mount(ctx context.Context, params map[string]string) error { c.Count = 0; return nil }
-//	func (c *Counter) Handle(ctx context.Context, action string, data url.Values) error { if action=="inc" { c.Count++ }; return nil }
-//	func (c *Counter) Render(ctx context.Context) hb.TagInterface { return hb.Div().Textf("%d", c.Count) }
-//	liveflux.RegisterByAlias("counter", func() liveflux.ComponentInterface { return &Counter{} })
-//
-// See handler.go for the HTTP entry point.
-type ComponentInterface interface {
-	// GetAlias returns the stable routing key (TYPE identifier) used by the client
-	// and registry to select which component to construct/route to.
-	// Component authors MUST implement this.
-	GetAlias() string
-
-	// SetAlias sets the component's alias (TYPE identifier). The framework sets this
-	// once during construction in the registry. Implementations should treat alias
-	// as immutable; Base enforces set-once semantics.
-	SetAlias(alias string)
-
-	// GetID returns the instance ID (per-mount INSTANCE identifier).
-	GetID() string
-
-	// SetID sets the instance ID (per-mount INSTANCE identifier). This is called by
-	// the framework during mount (see handler.go).
-	SetID(id string)
-
-	Mount(ctx context.Context, params map[string]string) error
-	Handle(ctx context.Context, action string, data url.Values) error
-	Render(ctx context.Context) hb.TagInterface
-}
-
-// Backward-compatible alias to avoid breaking existing references.
-type Component = ComponentInterface
-
-// Base provides minimal implementation for alias and ID handling.
+// Base provides minimal implementation for alias and ID handling
+// and is exported so downstream packages can embed `liveflux.Base`
+// for shared behavior.
 type Base struct {
 	// alias is the TYPE identifier (registry key). Set once by the framework.
 	alias string
@@ -157,16 +106,16 @@ func (b *Base) GetEventDispatcher() *EventDispatcher {
 
 // Dispatch queues an event to be sent to the client and other components.
 // Usage: component.Dispatch("post-created", map[string]interface{}{"title": "My Post"})
-func (b *Base) Dispatch(name string, data ...map[string]interface{}) {
+func (b *Base) Dispatch(name string, data ...map[string]any) {
 	b.GetEventDispatcher().Dispatch(name, data...)
 }
 
 // DispatchTo queues an event to be sent to a specific component type.
-func (b *Base) DispatchTo(componentAlias string, name string, data ...map[string]interface{}) {
+func (b *Base) DispatchTo(componentAlias string, name string, data ...map[string]any) {
 	b.GetEventDispatcher().DispatchTo(componentAlias, name, data...)
 }
 
 // DispatchSelf queues an event to be sent only to the current component.
-func (b *Base) DispatchSelf(name string, data ...map[string]interface{}) {
+func (b *Base) DispatchSelf(name string, data ...map[string]any) {
 	b.GetEventDispatcher().DispatchSelf(name, data...)
 }

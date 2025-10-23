@@ -15,7 +15,7 @@ func main() {
 
 	// Liveflux WebSocket endpoint
 	handler := liveflux.NewWebSocketHandler(nil)
-	handler.Handle("websocket-counter", func() liveflux.Component {
+	handler.Handle("websocket-counter", func() liveflux.ComponentInterface {
 		return &WebSocketCounter{}
 	})
 	mux.Handle("/liveflux", handler)
@@ -26,8 +26,8 @@ func main() {
 	// Resolve static directory to support running from repo root and examples/websocket
 	resolveStaticDir := func() string {
 		candidates := []string{
-			"./static",          // when running from repo root
-			"../../static",      // when running from examples/websocket
+			"./static",     // when running from repo root
+			"../../static", // when running from examples/websocket
 		}
 		for _, dir := range candidates {
 			if f, err := os.Stat(dir); err == nil && f.IsDir() {
@@ -42,8 +42,8 @@ func main() {
 	// Resolve core websocket client location (repo js/websocket.js)
 	resolveWSClient := func() string {
 		candidates := []string{
-			"./js/websocket.js",        // when running from repo root
-			"../../js/websocket.js",    // when running from examples/websocket
+			"./js/websocket.js",     // when running from repo root
+			"../../js/websocket.js", // when running from examples/websocket
 		}
 		for _, p := range candidates {
 			if f, err := os.Stat(p); err == nil && !f.IsDir() {

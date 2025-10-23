@@ -152,7 +152,7 @@ func (h *Handler) mount(ctx context.Context, w http.ResponseWriter, r *http.Requ
 
 func (h *Handler) handle(ctx context.Context, w http.ResponseWriter, r *http.Request, alias, id, action string) {
 	log.Printf("[Liveflux Handler] handle: alias=%s, id=%s, action=%s", alias, id, action)
-	
+
 	// Validate basic inputs
 	if !h.validateAliasAndID(w, alias, id) {
 		return
@@ -196,7 +196,7 @@ func (h *Handler) validateAliasAndID(w http.ResponseWriter, alias, id string) bo
 }
 
 // processAction invokes the component's Handle for the given action. Returns true if successful.
-func (h *Handler) processAction(ctx context.Context, w http.ResponseWriter, c Component, r *http.Request) bool {
+func (h *Handler) processAction(ctx context.Context, w http.ResponseWriter, c ComponentInterface, r *http.Request) bool {
 	if err := c.Handle(ctx, r.FormValue(FormAction), r.Form); err != nil {
 		log.Printf("liveflux: handle error: %v", err)
 		h.writeError(w, http.StatusBadRequest, "action error")
@@ -207,7 +207,7 @@ func (h *Handler) processAction(ctx context.Context, w http.ResponseWriter, c Co
 
 // maybeWriteRedirect sends redirect headers and a fallback HTML body if the component requested a redirect.
 // Returns true if a redirect response was written.
-func (h *Handler) maybeWriteRedirect(w http.ResponseWriter, c Component) bool {
+func (h *Handler) maybeWriteRedirect(w http.ResponseWriter, c ComponentInterface) bool {
 	redir, ok := c.(interface{ TakeRedirect() string })
 	if !ok {
 		return false
@@ -235,7 +235,7 @@ func (h *Handler) maybeWriteRedirect(w http.ResponseWriter, c Component) bool {
 }
 
 // writeRender renders component HTML and sends any queued events.
-func (h *Handler) writeRender(ctx context.Context, w http.ResponseWriter, c Component) {
+func (h *Handler) writeRender(ctx context.Context, w http.ResponseWriter, c ComponentInterface) {
 	// Check if component supports events
 	if ea, ok := c.(EventAware); ok {
 		dispatcher := ea.GetEventDispatcher()
