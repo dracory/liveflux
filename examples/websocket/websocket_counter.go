@@ -105,7 +105,8 @@ func (c *WebSocketCounter) inner(ctx context.Context) hb.TagInterface {
 
 	decrBtn := hb.Button().
 		Text("-").
-		Attr("data-flux-action", "decrement").
+		Type("button").
+		Attr(liveflux.DataFluxAction, "decrement").
 		Style("padding: 8px 16px; font-size: 1.2rem;")
 
 	if c.Count <= 0 {
@@ -115,14 +116,14 @@ func (c *WebSocketCounter) inner(ctx context.Context) hb.TagInterface {
 	buttons = buttons.Children([]hb.TagInterface{
 		decrBtn,
 		hb.Button().
-			Attr("data-flux-action", "increment").
+			Attr(liveflux.DataFluxAction, "increment").
 			Style("padding: 8px 16px; font-size: 1.2rem;").
 			Text("+"),
 	})
 
 	// Form for setting a specific value
 	form := hb.Form().
-		Attr("data-flux-action", "set").
+		Attr(liveflux.DataFluxAction, "set").
 		Style("margin-top: 20px; display: flex;")
 
 	input := hb.Input().
@@ -179,6 +180,6 @@ func (c *WebSocketCounter) Render(ctx context.Context) hb.TagInterface {
 }
 
 func init() {
-    // Register the component so liveflux.New(&WebSocketCounter{}) works
-    liveflux.Register(new(WebSocketCounter))
+	// Register the component so liveflux.New(&WebSocketCounter{}) works
+	liveflux.Register(new(WebSocketCounter))
 }

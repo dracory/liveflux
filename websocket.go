@@ -19,7 +19,9 @@ var (
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 		// Allow all origins - in production, you should set a proper origin policy
-		CheckOrigin: func(r *http.Request) bool { return true },
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
 	}
 )
 
@@ -106,7 +108,7 @@ type WebSocketComponent interface {
 	ComponentInterface
 	// HandleWS handles WebSocket messages for this component.
 	// It should return a response message or an error.
-	HandleWS(ctx context.Context, message *WebSocketMessage) (interface{}, error)
+	HandleWS(ctx context.Context, message *WebSocketMessage) (any, error)
 }
 
 // WebSocketHandler handles WebSocket connections for LiveFlux.
