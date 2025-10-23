@@ -11,6 +11,7 @@ Liveflux is a server-driven component system for Go. It uses [`github.com/dracor
 - **Server-first rendering**: Components run on the server, returning HTML for any client.
 - **Lightweight runtime**: Bundled JS handles mounts, actions, redirects, and optional WebSockets.
 - **Composable state**: Per-component state persists via pluggable stores (`MemoryStore` by default).
+- **Event-driven UX**: Dispatch server events and respond via Go or JavaScript listeners.
 - **Transport flexibility**: Use standard HTTP POST/GET or upgrade seamlessly to WebSockets.
 
 ## Quick start
@@ -60,6 +61,24 @@ Screenshots:
 
 Source: `examples/tree/`
 
+### Events (server-dispatched listeners)
+
+Run from repo root:
+
+```bash
+go run ./examples/events
+# or, with Task
+task examples:events:run
+```
+
+What it shows:
+
+- Post creation dispatches a `post-created` event with metadata.
+- `PostList` automatically registers `OnPostCreated` and updates its state.
+- Client runtime mirrors events to JS via `$wire.on()` or `Liveflux.on()`.
+
+Source: `examples/events/`
+
 ### WebSocket Counter (two instances)
 
 Run from repo root:
@@ -84,8 +103,10 @@ Start with the focused guides under `docs/`:
 - [Getting started](docs/getting_started.md)
 - [Components](docs/components.md)
 - [Architecture](docs/architecture.md)
+- [Events](docs/events.md)
 - [Handler & transport](docs/handler_and_transport.md)
 - [State management](docs/state_management.md)
+- [SSR](docs/ssr.md)
 - [WebSocket integration](docs/websocket.md)
 
 ## Package API
