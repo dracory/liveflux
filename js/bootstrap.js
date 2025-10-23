@@ -1,5 +1,8 @@
 (function(){
-  if(window.__lwInitDone) return; window.__lwInitDone = true;
+  if(window.__lwInitDone) return; 
+  
+  // Set init flag to prevent multiple initializations
+  window.__lwInitDone = true;
 
   /**
    * Bootstraps the Liveflux client:
@@ -24,7 +27,7 @@
       }, 0);
     }
     
-    // Dispatch livewire:init event for compatibility
+    // Dispatch livewire:init event for compatibility with Livewire
     document.dispatchEvent(new CustomEvent('livewire:init'));
   }
 

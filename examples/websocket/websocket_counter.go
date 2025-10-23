@@ -88,9 +88,9 @@ func (c *WebSocketCounter) HandleWS(ctx context.Context, msg *liveflux.WebSocket
 // inner builds the inner container that carries data-flux-component-id and WS hints.
 func (c *WebSocketCounter) inner(ctx context.Context) hb.TagInterface {
 	div := hb.Div().
-		Data("flux-component-id", c.GetID()).
-		Data("flux-ws", "1").
-		Data("flux-ws-url", "/liveflux").
+		Attr(liveflux.DataFluxComponentID, c.GetID()).
+		Attr(liveflux.DataFluxWS, "1").
+		Attr(liveflux.DataFluxWSURL, "/liveflux").
 		Style("padding: 20px; border: 1px solid #ddd; border-radius: 4px; max-width: 300px; margin: 20px auto;")
 
 	title := hb.H2().Text("WebSocket Counter")
