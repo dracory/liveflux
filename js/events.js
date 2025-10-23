@@ -127,15 +127,33 @@
         console.log('[Liveflux Events] Processing event:', event.name, 'with data:', data);
 
         // Check if event is targeted to a specific component
-        if(data.__target){
-          console.log('[Liveflux Events] Event targeted to:', data.__target);
-          // Only dispatch if this component matches the target
-          if(data.__target !== componentAlias){
-            console.log('[Liveflux Events] Skipping - target mismatch');
-            return;
+        if(data.__target || data.__target_id){
+          const targetAlias = data.__target;
+          const targetId = data.__target_id;
+
+          if(targetAlias){
+            console.log('[Liveflux Events] Event targeted to alias:', targetAlias);
+            if(targetAlias !== componentAlias){
+              console.log('[Liveflux Events] Skipping - alias mismatch');
+              return;
+            }
           }
+
+          if(targetId){
+            console.log('[Liveflux Events] Event targeted to id:', targetId);
+            if(targetId !== componentId){
+              console.log('[Liveflux Events] Skipping - id mismatch');
+              return;
+            }
+          }
+
           // Remove metadata before dispatching
-          delete data.__target;
+          if(targetAlias){
+            delete data.__target;
+          }
+          if(targetId){
+            delete data.__target_id;
+          }
         }
 
         // Check if event is self-only

@@ -23,7 +23,7 @@ func PlaceholderByAlias(alias string, params ...map[string]string) hb.TagInterfa
 		if k == "" {
 			continue
 		}
-		div = div.Attr(DataFluxParam+k, v)
+		div = div.Attr(DataFluxParam+"-"+k, v)
 	}
 
 	return div
