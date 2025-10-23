@@ -23,6 +23,8 @@ func TestJSConcatenationOrder(t *testing.T) {
 	// Build the expected concatenation of embedded client JS parts
 	expected := readJS(t, "util.js") + "\n" +
 		readJS(t, "network.js") + "\n" +
+		readJS(t, "events.js") + "\n" +
+		readJS(t, "wire.js") + "\n" +
 		readJS(t, "mount.js") + "\n" +
 		readJS(t, "handlers.js") + "\n" +
 		readJS(t, "bootstrap.js")

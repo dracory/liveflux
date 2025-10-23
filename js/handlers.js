@@ -34,11 +34,17 @@
     const btnParams = g.__lw.readParams(btn);
     if (btn.name) { btnParams[btn.name] = btn.value; }
     const params = Object.assign({}, fields, btnParams, { liveflux_component_type: comp.value, liveflux_component_id: id.value, liveflux_action: action });
-    g.__lw.post(params).then((html)=>{
+    g.__lw.post(params).then((result)=>{
+      const html = result.html || result;
       const tmp = document.createElement('div');
       tmp.innerHTML = html;
       const newNode = tmp.firstElementChild;
-      if(newNode){ root.replaceWith(newNode); g.__lw.executeScripts(newNode); }
+      if(newNode){ 
+        root.replaceWith(newNode); 
+        g.__lw.executeScripts(newNode);
+        // Re-initialize $wire for the new component
+        if(g.__lw.initWire) g.__lw.initWire();
+      }
     }).catch((err)=>{ console.error('action', err); });
   };
 
@@ -67,11 +73,17 @@
       Object.assign(fields, extra);
     }
     const params = Object.assign({}, fields, { liveflux_component_type: comp.value, liveflux_component_id: id.value, liveflux_action: action });
-    g.__lw.post(params).then((html)=>{
+    g.__lw.post(params).then((result)=>{
+      const html = result.html || result;
       const tmp = document.createElement('div');
       tmp.innerHTML = html;
       const newNode = tmp.firstElementChild;
-      if(newNode){ root.replaceWith(newNode); g.__lw.executeScripts(newNode); }
+      if(newNode){ 
+        root.replaceWith(newNode); 
+        g.__lw.executeScripts(newNode);
+        // Re-initialize $wire for the new component
+        if(g.__lw.initWire) g.__lw.initWire();
+      }
     }).catch((err)=>{ console.error('form submit', err); });
   };
 })();

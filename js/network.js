@@ -8,7 +8,7 @@
   /**
    * Performs a POST request to the Liveflux endpoint and returns HTML.
    * @param {Record<string, string>} params - Key/value pairs to send as form data.
-   * @returns {Promise<string>} Resolves with response text (HTML) or rejects on HTTP error.
+   * @returns {Promise<{html: string, response: Response}>} Resolves with response text (HTML) and response object.
    */
   g.__lw.post = async function(params){
     const body = new URLSearchParams(params);
@@ -34,6 +34,14 @@
       signal: controller ? controller.signal : undefined,
     }).finally(()=>{ if (timeoutId) clearTimeout(timeoutId); });
     if(!res.ok) throw new Error(''+res.status);
+    
+    // Process events from response
+    const componentId = params.liveflux_component_id || '';
+    const componentAlias = params.liveflux_component_type || '';
+    if(g.__lw.processEvents){
+      g.__lw.processEvents(res, componentId, componentAlias);
+    }
+    
     const redirect = res.headers.get(HDR_REDIRECT);
     if (redirect) {
       const after = res.headers.get(HDR_REDIRECT_AFTER);
@@ -44,8 +52,9 @@
         window.location.href = redirect;
       }
       // Return empty HTML (caller should ignore rendered body when redirecting)
-      return '';
+      return {html: '', response: res};
     }
-    return await res.text();
+    const html = await res.text();
+    return {html: html, response: res};
   };
 })();

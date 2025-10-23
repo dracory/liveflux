@@ -16,11 +16,17 @@
 
       params.liveflux_component_type = component;
       
-      g.__lw.post(params).then((html)=>{
+      g.__lw.post(params).then((result)=>{
+        const html = result.html || result;
         const tmp = document.createElement('div');
         tmp.innerHTML = html;
         const newNode = tmp.firstElementChild;
-        if(newNode){ el.replaceWith(newNode); g.__lw.executeScripts(newNode); }
+        if(newNode){ 
+          el.replaceWith(newNode); 
+          g.__lw.executeScripts(newNode);
+          // Initialize $wire for the newly mounted component
+          if(g.__lw.initWire) g.__lw.initWire();
+        }
       }).catch((err)=>{ console.error(component+' mount', err); });
     });
   };

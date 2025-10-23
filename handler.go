@@ -17,10 +17,11 @@ const (
 	FormAction    = "liveflux_action"
 )
 
-// Response header names for client-side redirect handling
+// Response header names for client-side redirect handling and events
 const (
 	RedirectHeader      = "X-Liveflux-Redirect"
 	RedirectAfterHeader = "X-Liveflux-Redirect-After"
+	EventsHeader        = "X-Liveflux-Events"
 )
 
 // Handler is an http.Handler that mounts/handles components and returns HTML.
@@ -136,11 +137,22 @@ func (h *Handler) mount(ctx context.Context, w http.ResponseWriter, r *http.Requ
 
 	h.Store.Set(c)
 
+	// Check if component supports events
+	if ea, ok := c.(EventAware); ok {
+		dispatcher := ea.GetEventDispatcher()
+		if dispatcher != nil && dispatcher.HasEvents() {
+			// Send events as a header
+			w.Header().Set(EventsHeader, dispatcher.EventsJSON())
+		}
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	_, _ = w.Write([]byte(c.Render(ctx).ToHTML()))
 }
 
 func (h *Handler) handle(ctx context.Context, w http.ResponseWriter, r *http.Request, alias, id, action string) {
+	log.Printf("[Liveflux Handler] handle: alias=%s, id=%s, action=%s", alias, id, action)
+	
 	// Validate basic inputs
 	if !h.validateAliasAndID(w, alias, id) {
 		return
@@ -222,8 +234,21 @@ func (h *Handler) maybeWriteRedirect(w http.ResponseWriter, c Component) bool {
 	return true
 }
 
-// writeRender renders component HTML.
+// writeRender renders component HTML and sends any queued events.
 func (h *Handler) writeRender(ctx context.Context, w http.ResponseWriter, c Component) {
+	// Check if component supports events
+	if ea, ok := c.(EventAware); ok {
+		dispatcher := ea.GetEventDispatcher()
+		if dispatcher != nil && dispatcher.HasEvents() {
+			eventsJSON := dispatcher.EventsJSON()
+			log.Printf("[Liveflux Events] Sending events in response: %s", eventsJSON)
+			// Send events as a header
+			w.Header().Set(EventsHeader, eventsJSON)
+		} else {
+			log.Printf("[Liveflux Events] No events to send for component %s", c.GetAlias())
+		}
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	_, _ = w.Write([]byte(c.Render(ctx).ToHTML()))
 }

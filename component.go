@@ -71,6 +71,9 @@ type Base struct {
 	redirect string
 	// redirectAfterSeconds optionally delays the redirect on the client.
 	redirectAfterSeconds int
+
+	// eventDispatcher manages event dispatching and listening for this component.
+	eventDispatcher *EventDispatcher
 }
 
 // GetAlias returns the component's alias.
@@ -142,4 +145,28 @@ func (b *Base) Root(content hb.TagInterface) hb.TagInterface {
 		root = root.Child(content)
 	}
 	return root
+}
+
+// GetEventDispatcher returns the component's event dispatcher, creating it if needed.
+func (b *Base) GetEventDispatcher() *EventDispatcher {
+	if b.eventDispatcher == nil {
+		b.eventDispatcher = NewEventDispatcher()
+	}
+	return b.eventDispatcher
+}
+
+// Dispatch queues an event to be sent to the client and other components.
+// Usage: component.Dispatch("post-created", map[string]interface{}{"title": "My Post"})
+func (b *Base) Dispatch(name string, data ...map[string]interface{}) {
+	b.GetEventDispatcher().Dispatch(name, data...)
+}
+
+// DispatchTo queues an event to be sent to a specific component type.
+func (b *Base) DispatchTo(componentAlias string, name string, data ...map[string]interface{}) {
+	b.GetEventDispatcher().DispatchTo(componentAlias, name, data...)
+}
+
+// DispatchSelf queues an event to be sent only to the current component.
+func (b *Base) DispatchSelf(name string, data ...map[string]interface{}) {
+	b.GetEventDispatcher().DispatchSelf(name, data...)
 }

@@ -22,6 +22,12 @@ var clientMountJS string
 //go:embed js/handlers.js
 var clientHandlersJS string
 
+//go:embed js/events.js
+var clientEventsJS string
+
+//go:embed js/wire.js
+var clientWireJS string
+
 //go:embed js/bootstrap.js
 var clientBootstrapJS string
 
@@ -32,6 +38,8 @@ var clientWebSocketJS string
 func baseJS(includeWS bool) string {
 	js := clientUtilJS + "\n" +
 		clientNetworkJS + "\n" +
+		clientEventsJS + "\n" +
+		clientWireJS + "\n" +
 		clientMountJS + "\n" +
 		clientHandlersJS + "\n" +
 		clientBootstrapJS
