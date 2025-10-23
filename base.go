@@ -125,5 +125,7 @@ func (b *Base) DispatchToAliasAndID(componentAlias string, componentID string, e
 // DispatchSelf queues an event to be sent only to the current component.
 // Usage: component.DispatchSelf("post-created", map[string]any{"id": 1, "title": "My Post"})
 func (b *Base) DispatchSelf(eventName string, data ...map[string]any) {
-	b.GetEventDispatcher().DispatchSelf(eventName, data...)
+	dataUpdated := lo.FirstOr(data, map[string]any{})
+	dataUpdated["__self"] = true
+	b.GetEventDispatcher().DispatchToAliasAndID(b.GetAlias(), b.GetID(), eventName, dataUpdated)
 }

@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"reflect"
-
-	"github.com/samber/lo"
 )
 
 // Event represents a dispatched event with a name and optional data payload.
@@ -69,20 +67,6 @@ func (ed *EventDispatcher) DispatchToAliasAndID(componentAlias string, component
 	// Add target alias and ID metadata
 	event.Data["__target"] = componentAlias
 	event.Data["__target_id"] = componentID
-	ed.events = append(ed.events, event)
-}
-
-// DispatchSelf queues an event to be sent only to the current component.
-// This is handled by the client-side runtime which filters events by component ID.
-func (ed *EventDispatcher) DispatchSelf(eventName string, data ...map[string]any) {
-	event := Event{Name: eventName}
-	eventData := lo.FirstOrEmpty(data)
-	if eventData == nil {
-		eventData = make(map[string]any)
-	}
-	// Add self-only metadata
-	eventData["__self"] = true
-	event.Data = eventData
 	ed.events = append(ed.events, event)
 }
 

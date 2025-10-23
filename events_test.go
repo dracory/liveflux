@@ -204,18 +204,3 @@ func TestEventDispatcher_DispatchToAliasAndID(t *testing.T) {
 		t.Errorf("expected count=2, got '%v'", events[0].Data["count"])
 	}
 }
-
-func TestEventDispatcher_DispatchSelf(t *testing.T) {
-	ed := NewEventDispatcher()
-
-	ed.DispatchSelf("internal-update")
-
-	events := ed.TakeEvents()
-	if len(events) != 1 {
-		t.Fatalf("expected 1 event, got %d", len(events))
-	}
-
-	if events[0].Data["__self"] != true {
-		t.Errorf("expected __self=true, got '%v'", events[0].Data["__self"])
-	}
-}
