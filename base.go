@@ -105,17 +105,25 @@ func (b *Base) GetEventDispatcher() *EventDispatcher {
 }
 
 // Dispatch queues an event to be sent to the client and other components.
-// Usage: component.Dispatch("post-created", map[string]interface{}{"title": "My Post"})
-func (b *Base) Dispatch(name string, data ...map[string]any) {
-	b.GetEventDispatcher().Dispatch(name, data...)
+// Usage: component.Dispatch("post-created", map[string]any{"id": 1, "title": "My Post"})
+func (b *Base) Dispatch(eventName string, data ...map[string]any) {
+	b.GetEventDispatcher().Dispatch(eventName, data...)
 }
 
-// DispatchTo queues an event to be sent to a specific component type.
-func (b *Base) DispatchTo(componentAlias string, name string, data ...map[string]any) {
-	b.GetEventDispatcher().DispatchTo(componentAlias, name, data...)
+// DispatchToAlias queues an event to be sent to a specific component alias.
+// Usage: component.DispatchToAlias("users.list", "post-created", map[string]any{"id": 1, "title": "My Post"})
+func (b *Base) DispatchToAlias(componentAlias string, eventName string, data ...map[string]any) {
+	b.GetEventDispatcher().DispatchToAlias(componentAlias, eventName, data...)
+}
+
+// DispatchToAliasAndID queues an event to be sent to a specific component alias and ID.
+// Usage: component.DispatchToAliasAndID("users.list", someID, "post-updated", map[string]any{"id": 1})
+func (b *Base) DispatchToAliasAndID(componentAlias string, componentID string, eventName string, data ...map[string]any) {
+	b.GetEventDispatcher().DispatchToAliasAndID(componentAlias, componentID, eventName, data...)
 }
 
 // DispatchSelf queues an event to be sent only to the current component.
-func (b *Base) DispatchSelf(name string, data ...map[string]any) {
-	b.GetEventDispatcher().DispatchSelf(name, data...)
+// Usage: component.DispatchSelf("post-created", map[string]any{"id": 1, "title": "My Post"})
+func (b *Base) DispatchSelf(eventName string, data ...map[string]any) {
+	b.GetEventDispatcher().DispatchSelf(eventName, data...)
 }

@@ -2,6 +2,7 @@ package liveflux
 
 const (
 	DataFluxAction      = "data-flux-action"
+	DataFluxDispatchTo  = "data-flux-dispatch-to"
 	DataFluxComponent   = "data-flux-component"
 	DataFluxComponentID = "data-flux-component-id"
 	DataFluxID          = "data-flux-id"

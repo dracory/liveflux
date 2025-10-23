@@ -9,23 +9,22 @@ import (
 )
 
 const crudCreateModalScript = `(function() {
-    window.crudCreateModal = {
-        open: function() {
-            const modal = document.getElementById('crud-create-modal');
-            if (modal) modal.style.display = 'flex';
-        },
-        close: function() {
-            const modal = document.getElementById('crud-create-modal');
-            if (modal) modal.style.display = 'none';
-        }
-    };
+    // window.crudCreateModal = {
+    //     open: function() {
+    //         const modal = document.getElementById('crud-create-modal');
+    //         if (modal) modal.style.display = 'flex';
+    //     },
+    // };
 })();`
 
 type CreateUserModal struct {
 	liveflux.Base
+	Open bool
 }
 
-func (c *CreateUserModal) GetAlias() string { return "users.create_modal" }
+func (c *CreateUserModal) GetAlias() string {
+	return "users.create_modal"
+}
 
 func (c *CreateUserModal) Mount(ctx context.Context, params map[string]string) error {
 	return nil
@@ -37,13 +36,20 @@ func (c *CreateUserModal) Handle(ctx context.Context, action string, form url.Va
 		email := form.Get("email")
 		role := form.Get("role")
 		user := repo.Create(name, email, role)
-		c.DispatchTo("users.list", "user-created", map[string]interface{}{
+		c.DispatchToAlias("users.list", "user-created", map[string]any{
 			"id":    user.ID,
 			"name":  user.Name,
 			"email": user.Email,
 			"role":  user.Role,
 			"flash": "Added " + user.Name,
 		})
+		c.Open = false
+	}
+	if action == "open" {
+		c.Open = true
+	}
+	if action == "close" {
+		c.Open = false
 	}
 	return nil
 }
@@ -54,7 +60,8 @@ func (c *CreateUserModal) Render(ctx context.Context) hb.TagInterface {
 	closeButton := hb.Button().
 		Type("button").
 		Class("btn-close").
-		Attr("onclick", "window.crudCreateModal && window.crudCreateModal.close();")
+		Attr(liveflux.DataFluxAction, "close")
+
 	header := hb.Div().Class("crud-modal__header").
 		Child(headerTitle).
 		Child(closeButton)
@@ -112,12 +119,13 @@ func (c *CreateUserModal) Render(ctx context.Context) hb.TagInterface {
 	cancelBtn := hb.Button().
 		Type("button").
 		Class("btn btn-secondary").
-		Attr("onclick", "window.crudCreateModal && window.crudCreateModal.close();").
+		Attr(liveflux.DataFluxAction, "close").
 		Text("Cancel")
+
 	submitBtn := hb.Button().
 		Type("submit").
 		Class("btn btn-primary").
-		Data("flux-action", "create").
+		Attr(liveflux.DataFluxAction, "create").
 		Text("Create")
 	footer := hb.Div().Class("crud-modal__footer").
 		Child(cancelBtn).
@@ -134,7 +142,13 @@ func (c *CreateUserModal) Render(ctx context.Context) hb.TagInterface {
 		Child(form)
 
 	// Modal
-	modal := hb.Div().ID("crud-create-modal").Class("crud-modal").
+	modal := hb.Div().ID("crud-create-modal").Class("crud-modal")
+	if c.Open {
+		modal = modal.Attr("style", "display: flex;")
+	} else {
+		modal = modal.Attr("style", "display: none;")
+	}
+	modal = modal.
 		Child(card).
 		Child(hb.Script(crudCreateModalScript))
 

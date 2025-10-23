@@ -42,7 +42,7 @@ func (c *DeleteUserModal) Handle(ctx context.Context, action string, form url.Va
 	if action == "delete" {
 		id, _ := strconv.Atoi(form.Get("id"))
 		if user, ok := repo.Delete(id); ok {
-			c.DispatchTo("users.list", "user-deleted", map[string]interface{}{
+			c.DispatchToAlias("users.list", "user-deleted", map[string]interface{}{
 				"id":    user.ID,
 				"name":  user.Name,
 				"email": user.Email,

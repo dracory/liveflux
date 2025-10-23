@@ -163,10 +163,10 @@ func TestRegisterEventListeners(t *testing.T) {
 	}
 }
 
-func TestEventDispatcher_DispatchTo(t *testing.T) {
+func TestEventDispatcher_DispatchToAlias(t *testing.T) {
 	ed := NewEventDispatcher()
 
-	ed.DispatchTo("dashboard", "refresh", map[string]interface{}{"count": 5})
+	ed.DispatchToAlias("dashboard", "refresh", map[string]any{"count": 5})
 
 	events := ed.TakeEvents()
 	if len(events) != 1 {
@@ -179,6 +179,29 @@ func TestEventDispatcher_DispatchTo(t *testing.T) {
 
 	if events[0].Data["count"] != 5 {
 		t.Errorf("expected count=5, got '%v'", events[0].Data["count"])
+	}
+}
+
+func TestEventDispatcher_DispatchToAliasAndID(t *testing.T) {
+	ed := NewEventDispatcher()
+
+	ed.DispatchToAliasAndID("dashboard", "component-123", "refresh", map[string]any{"count": 2})
+
+	events := ed.TakeEvents()
+	if len(events) != 1 {
+		t.Fatalf("expected 1 event, got %d", len(events))
+	}
+
+	if events[0].Data["__target"] != "dashboard" {
+		t.Errorf("expected __target='dashboard', got '%v'", events[0].Data["__target"])
+	}
+
+	if events[0].Data["__target_id"] != "component-123" {
+		t.Errorf("expected __target_id='component-123', got '%v'", events[0].Data["__target_id"])
+	}
+
+	if events[0].Data["count"] != 2 {
+		t.Errorf("expected count=2, got '%v'", events[0].Data["count"])
 	}
 }
 

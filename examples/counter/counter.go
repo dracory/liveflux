@@ -47,15 +47,15 @@ func (c *Counter) Render(ctx context.Context) hb.TagInterface {
 		Text(strconv.Itoa(c.Count))
 
 	buttonIncrement := hb.Button().
-		Data("flux-action", "inc").
+		Attr(liveflux.DataFluxAction, "inc").
 		Text("+1")
 
 	buttonDecrement := hb.Button().
-		Data("flux-action", "dec").
+		Attr(liveflux.DataFluxAction, "dec").
 		Text("-1")
 
 	buttonReset := hb.Button().
-		Data("flux-action", "reset").
+		Attr(liveflux.DataFluxAction, "reset").
 		Text("Reset")
 
 	content := hb.Div().

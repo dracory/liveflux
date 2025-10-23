@@ -34,6 +34,8 @@ func (c *UserList) Handle(ctx context.Context, action string, form url.Values) e
 		c.Query = ""
 	case "dismiss_flash":
 		c.Flash = ""
+	case "create_modal_open":
+		c.DispatchToAlias("users.create_modal", "open")
 	}
 	return nil
 }
@@ -57,13 +59,19 @@ func (c *UserList) Render(ctx context.Context) hb.TagInterface {
 		ID("crud-search").Name("search").Placeholder("Search...").Value(c.Query)
 
 	filterBtn := hb.Button().Type("submit").Class("btn btn-primary").
-		Data("flux-action", "filter").Text("Search")
+		Attr(liveflux.DataFluxAction, "filter").Text("Search")
 
 	clearBtn := hb.Button().Type("button").Class("btn btn-outline-secondary").
-		Attr("onclick", "document.getElementById('crud-search').value='';window.__lw && window.__lw.clickSubmit && window.__lw.clickSubmit(this);").Data("flux-action", "clear").Text("Clear")
+		Attr("onclick", "document.getElementById('crud-search').value='';window.__lw && window.__lw.clickSubmit && window.__lw.clickSubmit(this);").
+		Attr(liveflux.DataFluxAction, "clear").
+		Text("Clear")
 
-	createBtn := hb.Button().Type("button").
-		Class("btn btn-success").Attr("onclick", "window.crudCreateModal && window.crudCreateModal.open();").Text("Add User")
+	createBtn := hb.Button().
+		Type("button").
+		Class("btn btn-success").
+		Attr(liveflux.DataFluxAction, "create_modal_open").
+		//Attr("onclick", "window.crudCreateModal && window.crudCreateModal.open();").
+		Text("Add User")
 
 	form := hb.Form().Class("mb-3").
 		Method("post").
@@ -95,10 +103,14 @@ func (c *UserList) Render(ctx context.Context) hb.TagInterface {
 		body = body.Child(
 			hb.Div().Class("alert alert-success d-flex align-items-center justify-content-between").
 				Child(hb.Span().Text(c.Flash)).
-				Child(hb.Button().Type("button").Class("btn-close").Attr("aria-label", "Close").Data("flux-action", "dismiss_flash")),
+				Child(hb.Button().
+					Type("button").Class("btn-close").Attr("aria-label", "Close").
+					Attr(liveflux.DataFluxAction, "dismiss_flash")),
 		)
 	}
-	body = body.Child(form).Child(table)
+	body = body.
+		Child(form).
+		Child(table)
 
 	return c.Root(body)
 }

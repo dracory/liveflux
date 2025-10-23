@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/dracory/liveflux"
 )
@@ -42,7 +44,9 @@ func main() {
 	})
 
 	addr := ":8080"
-	log.Printf("Liveflux CRUD example listening on %s", addr)
+	fmt.Printf("Server running at http://localhost%s\n", addr)
+	fmt.Println("Open your browser and create posts to see CRUD in action!")
+	fmt.Println("Current time: " + time.Now().Format("2006-01-02 15:04:05"))
 	if err := http.ListenAndServe(addr, mux); err != nil {
 		log.Fatal(err)
 	}

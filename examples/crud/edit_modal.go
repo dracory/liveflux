@@ -49,7 +49,7 @@ func (c *EditUserModal) Handle(ctx context.Context, action string, form url.Valu
 		email := form.Get("email")
 		role := form.Get("role")
 		if user, ok := repo.Update(id, name, email, role); ok {
-			c.DispatchTo("users.list", "user-updated", map[string]interface{}{
+			c.DispatchToAlias("users.list", "user-updated", map[string]interface{}{
 				"id":    user.ID,
 				"name":  user.Name,
 				"email": user.Email,

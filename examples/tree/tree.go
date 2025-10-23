@@ -279,8 +279,8 @@ func (t *Tree) renderNodes(nodes []*Node, depth int) hb.TagInterface {
 								).
 								// Delete action via data attributes
 								Child(hb.Button().Type("button").Class("btn btn-outline-danger").
-									Data("flux-action", "delete").
-									Data("flux-param-node_id", strconv.Itoa(n.ID)).
+									Attr(liveflux.DataFluxAction, "delete").
+									Attr(liveflux.DataFluxParam+"-node_id", strconv.Itoa(n.ID)).
 									Child(hb.I().Class("bi bi-trash")).
 									Child(hb.Span().Class("ms-1 d-none d-sm-inline").Text("Delete")),
 								),
