@@ -48,7 +48,15 @@ func (c *EditUserModal) Handle(ctx context.Context, action string, form url.Valu
 		name := form.Get("name")
 		email := form.Get("email")
 		role := form.Get("role")
-		repo.Update(id, name, email, role)
+		if user, ok := repo.Update(id, name, email, role); ok {
+			c.DispatchTo("users.list", "user-updated", map[string]interface{}{
+				"id":    user.ID,
+				"name":  user.Name,
+				"email": user.Email,
+				"role":  user.Role,
+				"flash": "Updated " + user.Name,
+			})
+		}
 	}
 	return nil
 }

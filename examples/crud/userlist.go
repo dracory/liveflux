@@ -10,26 +10,6 @@ import (
 	"github.com/dracory/liveflux"
 )
 
-const userListRefreshScript = `(function(){
-  window.crudRefreshUsers = function(message){
-    var form = document.querySelector('[data-crud-userlist-form]');
-    if(!form){ return; }
-    var flashInput = form.querySelector('input[name="flash"]');
-    if(!flashInput){
-      flashInput = document.createElement('input');
-      flashInput.type = 'hidden';
-      flashInput.name = 'flash';
-      form.appendChild(flashInput);
-    }
-    flashInput.value = message || '';
-    var submitBtn = form.querySelector('[data-flux-action="refresh"]');
-    if(!submitBtn){ return; }
-    window.__lw && window.__lw.clickSubmit
-      ? window.__lw.clickSubmit(submitBtn)
-      : submitBtn.click();
-  };
-})();`
-
 type UserList struct {
 	liveflux.Base
 	Query string
@@ -42,6 +22,7 @@ func (c *UserList) Mount(ctx context.Context, params map[string]string) error {
 	if q, ok := params["q"]; ok && c.Query == "" {
 		c.Query = strings.TrimSpace(q)
 	}
+	liveflux.RegisterEventListeners(c, c.GetEventDispatcher())
 	return nil
 }
 
@@ -51,9 +32,6 @@ func (c *UserList) Handle(ctx context.Context, action string, form url.Values) e
 		c.Query = strings.TrimSpace(form.Get("search"))
 	case "clear":
 		c.Query = ""
-	case "refresh":
-		c.Query = strings.TrimSpace(form.Get("search"))
-		c.Flash = strings.TrimSpace(form.Get("flash"))
 	case "dismiss_flash":
 		c.Flash = ""
 	}
@@ -87,12 +65,8 @@ func (c *UserList) Render(ctx context.Context) hb.TagInterface {
 	createBtn := hb.Button().Type("button").
 		Class("btn btn-success").Attr("onclick", "window.crudCreateModal && window.crudCreateModal.open();").Text("Add User")
 
-	refreshBtn := hb.Button().Type("button").Class("d-none").
-		Data("flux-action", "refresh")
-
 	form := hb.Form().Class("mb-3").
 		Method("post").
-		Attr("data-crud-userlist-form", "1").
 		Child(
 			hb.Div().Class("input-group").
 				Child(searchInput).
@@ -100,8 +74,7 @@ func (c *UserList) Render(ctx context.Context) hb.TagInterface {
 					hb.Div().Class("input-group-append").
 						Child(filterBtn).
 						Child(clearBtn).
-						Child(createBtn).
-						Child(refreshBtn),
+						Child(createBtn),
 				),
 		)
 
@@ -117,12 +90,17 @@ func (c *UserList) Render(ctx context.Context) hb.TagInterface {
 			c.renderUsers(users),
 		))
 
-	return c.Root(
-		hb.Div().
-			Child(form).
-			Child(table).
-			Child(hb.Script(userListRefreshScript)),
-	)
+	body := hb.Div()
+	if c.Flash != "" {
+		body = body.Child(
+			hb.Div().Class("alert alert-success d-flex align-items-center justify-content-between").
+				Child(hb.Span().Text(c.Flash)).
+				Child(hb.Button().Type("button").Class("btn-close").Attr("aria-label", "Close").Data("flux-action", "dismiss_flash")),
+		)
+	}
+	body = body.Child(form).Child(table)
+
+	return c.Root(body)
 }
 
 func (c *UserList) renderUsers(users []User) hb.TagInterface {
@@ -160,4 +138,27 @@ func (c *UserList) renderUsers(users []User) hb.TagInterface {
 		tbody.Child(row)
 	}
 	return tbody
+}
+
+func (c *UserList) OnUserCreated(ctx context.Context, event liveflux.Event) error {
+	c.applyUserEvent(event)
+	return nil
+}
+
+func (c *UserList) OnUserUpdated(ctx context.Context, event liveflux.Event) error {
+	c.applyUserEvent(event)
+	return nil
+}
+
+func (c *UserList) OnUserDeleted(ctx context.Context, event liveflux.Event) error {
+	c.applyUserEvent(event)
+	return nil
+}
+
+func (c *UserList) applyUserEvent(event liveflux.Event) {
+	if flash, ok := event.Data["flash"].(string); ok {
+		c.Flash = flash
+	} else {
+		c.Flash = ""
+	}
 }

@@ -36,7 +36,14 @@ func (c *CreateUserModal) Handle(ctx context.Context, action string, form url.Va
 		name := form.Get("name")
 		email := form.Get("email")
 		role := form.Get("role")
-		repo.Create(name, email, role)
+		user := repo.Create(name, email, role)
+		c.DispatchTo("users.list", "user-created", map[string]interface{}{
+			"id":    user.ID,
+			"name":  user.Name,
+			"email": user.Email,
+			"role":  user.Role,
+			"flash": "Added " + user.Name,
+		})
 	}
 	return nil
 }

@@ -41,7 +41,15 @@ func (c *DeleteUserModal) Mount(ctx context.Context, params map[string]string) e
 func (c *DeleteUserModal) Handle(ctx context.Context, action string, form url.Values) error {
 	if action == "delete" {
 		id, _ := strconv.Atoi(form.Get("id"))
-		repo.Delete(id)
+		if user, ok := repo.Delete(id); ok {
+			c.DispatchTo("users.list", "user-deleted", map[string]interface{}{
+				"id":    user.ID,
+				"name":  user.Name,
+				"email": user.Email,
+				"role":  user.Role,
+				"flash": "Removed " + user.Name,
+			})
+		}
 	}
 	return nil
 }
