@@ -4,13 +4,18 @@
  */
 (function(){
   const g = window;
+
+  function findComponent(alias, id){
+    return document.querySelector('[data-flux-root][data-flux-component="' + alias + '"][data-flux-component-id="' + id + '"]');
+  }
   
   // Expose Liveflux global object for external scripts
   if(!window.Liveflux){
     window.Liveflux = {
-      on: g.__lw.on,
       dispatch: g.__lw.dispatch,
-      dispatchToAliasAndId: g.__lw.dispatchToAliasAndId
+      dispatchToAliasAndId: g.__lw.dispatchToAliasAndId,
+      findComponent: findComponent,
+      on: g.__lw.on,
     };
   }
   

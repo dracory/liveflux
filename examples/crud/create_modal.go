@@ -61,16 +61,11 @@ func (c *CreateUserModal) initScript() hb.TagInterface {
 	return hb.Script(`(function(){
 const expectedAlias = '` + alias + `';
 const expectedId = '` + id + `';
-const root = document.querySelector('[data-flux-root][data-flux-component="' + expectedAlias + '"][data-flux-component-id="' + expectedId + '"]');
-if(!root){
-	console.error('Modal create script: matching root not found for', expectedAlias, expectedId);
-	return;
-}
 
-function setup(){
+function setup(root){
 	if(!root.$wire){
-	console.warn('Modal create script: $wire not yet available on root');
-	return;
+		console.warn('Modal create script: $wire not yet available on root');
+		return;
 	}
 	// Listen for events
 	root.$wire.on('open', function(){ root.$wire.call('open'); });
@@ -78,7 +73,12 @@ function setup(){
 }
 
 function init() {
-	if(root.$wire){ setup(); }
+	const root = liveflux.findComponent(expectedAlias, expectedId);
+	if(!root){
+		console.error('Modal create script: matching root not found for', expectedAlias, expectedId);
+		return;
+	}
+	if(root.$wire){ setup(root); }
 	else { document.addEventListener('livewire:init', setup, { once: true }); }
 }
 
