@@ -88,9 +88,11 @@ func (b *Base) TakeRedirectDelaySeconds() int {
 // This avoids repeating boilerplate in every component's Render method.
 func (b *Base) Root(content hb.TagInterface) hb.TagInterface {
 	root := hb.Div().
-		Attr("data-flux-root", "1").
+		Attr(DataFluxRoot, "1").
+		Attr(DataFluxComponent, b.GetAlias()).
+		Attr(DataFluxComponentID, b.GetID()).
 		Child(hb.Input().Type("hidden").Name(FormComponent).Value(b.GetAlias())).
-		Child(hb.Input().Type("hidden").Name(FormID).Value(b.GetID()))
+		Child(hb.Input().Type("hidden").Name(FormComponentID).Value(b.GetID()))
 
 	if content != nil {
 		root = root.Child(content)

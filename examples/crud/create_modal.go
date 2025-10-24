@@ -9,47 +9,6 @@ import (
 	"github.com/dracory/liveflux"
 )
 
-const crudCreateModalScript = `(function() {
-    var root = document.currentScript.closest('[data-flux-root]');
-    if(!root) {
-        console.error('Modal script: Could not find data-flux-root');
-        return;
-    }
-    
-    function setupListeners(){
-        if(!root.$wire) {
-            console.error('Modal script: $wire not available on root');
-            return;
-        }
-        
-        console.log('Modal script: Setting up event listeners');
-        
-        // Listen for 'open' event
-        root.$wire.on('open', function(event){
-            console.log('Modal received open event');
-            // Trigger server-side action to open modal
-            root.$wire.call('open');
-        });
-        
-        // Listen for 'close' event  
-        root.$wire.on('close', function(event){
-            console.log('Modal received close event');
-            root.$wire.call('close');
-        });
-    }
-    
-    // Wait for $wire to be available
-    if(root.$wire){
-        setupListeners();
-    } else {
-        // Wait for livewire:init event
-        document.addEventListener('livewire:init', function(){
-            console.log('Modal script: livewire:init received, setting up listeners');
-            setupListeners();
-        });
-    }
-})();`
-
 type CreateUserModal struct {
 	liveflux.Base
 	Open bool
@@ -94,6 +53,38 @@ func (c *CreateUserModal) Handle(ctx context.Context, action string, form url.Va
 		c.Open = false
 	}
 	return nil
+}
+
+func (c *CreateUserModal) initScript() hb.TagInterface {
+	alias := c.GetAlias()
+	id := c.GetID()
+	return hb.Script(`(function(){
+const expectedAlias = '` + alias + `';
+const expectedId = '` + id + `';
+const root = document.querySelector('[data-flux-root][data-flux-component="' + expectedAlias + '"][data-flux-component-id="' + expectedId + '"]');
+if(!root){
+	console.error('Modal create script: matching root not found for', expectedAlias, expectedId);
+	return;
+}
+
+function setup(){
+	if(!root.$wire){
+	console.warn('Modal create script: $wire not yet available on root');
+	return;
+	}
+	// Listen for events
+	root.$wire.on('open', function(){ root.$wire.call('open'); });
+	root.$wire.on('close', function(){ root.$wire.call('close'); });
+}
+
+function init() {
+	if(root.$wire){ setup(); }
+	else { document.addEventListener('livewire:init', setup, { once: true }); }
+}
+
+// wait for other components to initialize
+setTimeout(init, 100);
+    })();`)
 }
 
 func (c *CreateUserModal) Render(ctx context.Context) hb.TagInterface {
@@ -192,7 +183,7 @@ func (c *CreateUserModal) Render(ctx context.Context) hb.TagInterface {
 	}
 	modal = modal.
 		Child(card).
-		Child(hb.Script(crudCreateModalScript))
+		Child(c.initScript())
 
 	return c.Root(modal)
 }

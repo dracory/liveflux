@@ -12,9 +12,9 @@ import (
 
 // Form field names used by the handler
 const (
-	FormComponent = "liveflux_component_type"
-	FormID        = "liveflux_component_id"
-	FormAction    = "liveflux_action"
+	FormComponent   = "liveflux_component_type"
+	FormComponentID = "liveflux_component_id"
+	FormAction      = "liveflux_action"
 )
 
 // Response header names for client-side redirect handling and events
@@ -78,7 +78,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	alias := r.FormValue(FormComponent)
-	id := r.FormValue(FormID)
+	id := r.FormValue(FormComponentID)
 	action := r.FormValue(FormAction)
 
 	ctx := r.Context()
@@ -118,7 +118,7 @@ func (h *Handler) mount(ctx context.Context, w http.ResponseWriter, r *http.Requ
 	params := map[string]string{}
 	for key := range r.Form {
 		// Skip canonical field names
-		if key == FormComponent || key == FormID || key == FormAction {
+		if key == FormComponent || key == FormComponentID || key == FormAction {
 			continue
 		}
 		params[key] = r.Form.Get(key)

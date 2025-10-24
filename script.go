@@ -64,7 +64,7 @@ func JS(opts ...ClientOptions) string {
 	}
 
 	// Note: WebSocketURL is optional. If not provided, the WS client will
-    // fall back to using Endpoint on the client side.
+	// fall back to using Endpoint on the client side.
 
 	if o.Headers == nil {
 		o.Headers = map[string]string{}

@@ -27,7 +27,8 @@ func TestJSConcatenationOrder(t *testing.T) {
 		readJS(t, "wire.js") + "\n" +
 		readJS(t, "mount.js") + "\n" +
 		readJS(t, "handlers.js") + "\n" +
-		readJS(t, "bootstrap.js")
+		readJS(t, "bootstrap.js") + "\n" +
+		readJS(t, "api.js")
 
 	got := JS()
 	// JS() now prepends a single-line config snippet ending with a newline.
