@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/url"
 
@@ -11,7 +12,8 @@ import (
 
 type CreateUserModal struct {
 	liveflux.Base
-	Open bool
+	Open        bool
+	CreatedEvent map[string]any
 }
 
 func (c *CreateUserModal) GetAlias() string {
@@ -42,6 +44,13 @@ func (c *CreateUserModal) Handle(ctx context.Context, action string, form url.Va
 			"role":  user.Role,
 			"flash": "Added " + user.Name,
 		})
+		c.CreatedEvent = map[string]any{
+			"id":    user.ID,
+			"name":  user.Name,
+			"email": user.Email,
+			"role":  user.Role,
+			"flash": "Added " + user.Name,
+		}
 		c.Open = false
 	}
 	if action == "open" {
@@ -61,29 +70,13 @@ func (c *CreateUserModal) initScript() hb.TagInterface {
 	return hb.Script(`(function(){
 const expectedAlias = '` + alias + `';
 const expectedId = '` + id + `';
-
-function setup(root){
-	if(!root.$wire){
-		console.warn('Modal create script: $wire not yet available on root');
-		return;
-	}
-	// Listen for events
-	root.$wire.on('open', function(){ root.$wire.call('open'); });
-	root.$wire.on('close', function(){ root.$wire.call('close'); });
-}
-
-function init() {
-	const root = liveflux.findComponent(expectedAlias, expectedId);
-	if(!root){
-		console.error('Modal create script: matching root not found for', expectedAlias, expectedId);
-		return;
-	}
-	if(root.$wire){ setup(root); }
-	else { document.addEventListener('livewire:init', setup, { once: true }); }
-}
-
-// wait for other components to initialize
-setTimeout(init, 100);
+// Use the subscribe helper to wire events -> server methods with a small delay
+setTimeout(function(){
+    if(window.liveflux && window.liveflux.subscribe){
+        window.liveflux.subscribe(expectedAlias, expectedId, 'open', 'open', 0);
+        window.liveflux.subscribe(expectedAlias, expectedId, 'close', 'close', 0);
+    }
+}, 100);
     })();`)
 }
 
@@ -184,6 +177,25 @@ func (c *CreateUserModal) Render(ctx context.Context) hb.TagInterface {
 	modal = modal.
 		Child(card).
 		Child(c.initScript())
+
+	// If a user was just created, emit a browser event so other components can refresh immediately
+	if c.CreatedEvent != nil {
+		payload := c.CreatedEvent
+		script := hb.NewScript(fmt.Sprintf(`(function(){
+  var data = { id: %d, name: '%s', email: '%s', role: '%s', flash: '%s' };
+  if(window.liveflux && window.liveflux.dispatch){ window.liveflux.dispatch('user-created', data); }
+  else { window.dispatchEvent(new CustomEvent('user-created', { detail: data })); }
+})();`,
+			payload["id"].(int),
+			jsString(payload["name"].(string)),
+			jsString(payload["email"].(string)),
+			jsString(payload["role"].(string)),
+			jsString(payload["flash"].(string)),
+		))
+		modal = modal.Child(script)
+		// clear after render so it doesn't emit again
+		c.CreatedEvent = nil
+	}
 
 	return c.Root(modal)
 }

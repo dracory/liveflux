@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"strconv"
 
@@ -34,6 +35,7 @@ const crudEditModalScript = `(function() {
 
 type EditUserModal struct {
 	liveflux.Base
+	UpdatedEvent map[string]any
 }
 
 func (c *EditUserModal) GetAlias() string { return "users.edit_modal" }
@@ -56,6 +58,14 @@ func (c *EditUserModal) Handle(ctx context.Context, action string, form url.Valu
 				"role":  user.Role,
 				"flash": "Updated " + user.Name,
 			})
+			// prepare client-side browser event payload
+			c.UpdatedEvent = map[string]any{
+				"id":    user.ID,
+				"name":  user.Name,
+				"email": user.Email,
+				"role":  user.Role,
+				"flash": "Updated " + user.Name,
+			}
 		}
 	}
 	return nil
@@ -158,6 +168,24 @@ func (c *EditUserModal) Render(ctx context.Context) hb.TagInterface {
 	modal := hb.Div().ID("crud-edit-modal").Class("crud-modal").
 		Child(card).
 		Child(hb.Script(crudEditModalScript))
+
+	// If a user was just updated, emit a browser event so lists can refresh immediately
+	if c.UpdatedEvent != nil {
+		p := c.UpdatedEvent
+		script := hb.NewScript(fmt.Sprintf(`(function(){
+  var data = { id: %d, name: '%s', email: '%s', role: '%s', flash: '%s' };
+  if(window.liveflux && window.liveflux.dispatch){ window.liveflux.dispatch('user-updated', data); }
+  else { window.dispatchEvent(new CustomEvent('user-updated', { detail: data })); }
+})();`,
+			p["id"].(int),
+			jsString(p["name"].(string)),
+			jsString(p["email"].(string)),
+			jsString(p["role"].(string)),
+			jsString(p["flash"].(string)),
+		))
+		modal = modal.Child(script)
+		c.UpdatedEvent = nil
+	}
 
 	return c.Root(modal)
 }

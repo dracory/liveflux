@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"strconv"
 
@@ -30,6 +31,7 @@ const crudDeleteModalScript = `(function() {
 
 type DeleteUserModal struct {
 	liveflux.Base
+	DeletedEvent map[string]any
 }
 
 func (c *DeleteUserModal) GetAlias() string { return "users.delete_modal" }
@@ -49,6 +51,14 @@ func (c *DeleteUserModal) Handle(ctx context.Context, action string, form url.Va
 				"role":  user.Role,
 				"flash": "Removed " + user.Name,
 			})
+			// prepare client-side browser event payload
+			c.DeletedEvent = map[string]any{
+				"id":    user.ID,
+				"name":  user.Name,
+				"email": user.Email,
+				"role":  user.Role,
+				"flash": "Removed " + user.Name,
+			}
 		}
 	}
 	return nil
@@ -116,6 +126,24 @@ func (c *DeleteUserModal) Render(ctx context.Context) hb.TagInterface {
 	modal := hb.Div().ID("crud-delete-modal").Class("crud-modal").
 		Child(card).
 		Child(hb.Script(crudDeleteModalScript))
+
+	// If a user was just deleted, emit a browser event so lists can refresh immediately
+	if c.DeletedEvent != nil {
+		p := c.DeletedEvent
+		script := hb.NewScript(fmt.Sprintf(`(function(){
+  var data = { id: %d, name: '%s', email: '%s', role: '%s', flash: '%s' };
+  if(window.liveflux && window.liveflux.dispatch){ window.liveflux.dispatch('user-deleted', data); }
+  else { window.dispatchEvent(new CustomEvent('user-deleted', { detail: data })); }
+})();`,
+			p["id"].(int),
+			jsString(p["name"].(string)),
+			jsString(p["email"].(string)),
+			jsString(p["role"].(string)),
+			jsString(p["flash"].(string)),
+		))
+		modal = modal.Child(script)
+		c.DeletedEvent = nil
+	}
 
 	return c.Root(modal)
 }

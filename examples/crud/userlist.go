@@ -118,23 +118,23 @@ func (c *UserList) Render(ctx context.Context) hb.TagInterface {
 	body = body.
 		Child(form).
 		Child(table).
+		Child(hb.NewScript(`
+      (function(){
+        var alias = '`+c.GetAlias()+`';
+        var id = '`+c.GetID()+`';
+        setTimeout(function(){
+          ['user-created','user-updated','user-deleted'].forEach(function(evt){
+            window.liveflux.subscribe(alias, id, evt, 'dismiss_flash', 150);
+          });
+        }, 150);
+      })();
+    `)).
 		ChildIf(c.ModalCreateOpen, hb.NewScript(`
-			(function(){
-				function openModal(){
-					console.log("Calling Create Modal Component: alias: `+c.ModalCreateUser.GetAlias()+` id: `+c.ModalCreateUser.GetID()+` event: open");
-					window.liveflux.dispatchToAliasAndId("`+c.ModalCreateUser.GetAlias()+`", "`+c.ModalCreateUser.GetID()+`", "open");
-				}
-				
-				// Wait for Liveflux initialization
-				if(window.__lwInitDone){
-					// Already initialized, dispatch immediately
-					setTimeout(openModal, 0);
-				} else {
-					// Wait for initialization
-					document.addEventListener('livewire:init', openModal);
-				}
-			})();
-		`))
+      (function(){
+        console.log("Calling Create Modal Component: alias: `+c.ModalCreateUser.GetAlias()+` id: `+c.ModalCreateUser.GetID()+` event: open");
+        window.liveflux.dispatchToAliasAndId("`+c.ModalCreateUser.GetAlias()+`", "`+c.ModalCreateUser.GetID()+`", "open");
+      })();
+    `))
 
 	return c.Root(body)
 }

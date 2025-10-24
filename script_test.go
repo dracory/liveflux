@@ -20,15 +20,17 @@ func readJS(t *testing.T, rel string) string {
 }
 
 func TestJSConcatenationOrder(t *testing.T) {
-	// Build the expected concatenation of embedded client JS parts
-	expected := readJS(t, "util.js") + "\n" +
-		readJS(t, "network.js") + "\n" +
-		readJS(t, "events.js") + "\n" +
-		readJS(t, "wire.js") + "\n" +
-		readJS(t, "mount.js") + "\n" +
-		readJS(t, "handlers.js") + "\n" +
-		readJS(t, "bootstrap.js") + "\n" +
-		readJS(t, "api.js")
+    // Build the expected concatenation of embedded client JS parts (new module set)
+    expected := strings.TrimSpace(readJS(t, "liveflux_namespace_create.js")) + "\n" +
+        strings.TrimSpace(readJS(t, "liveflux_util.js")) + "\n" +
+        strings.TrimSpace(readJS(t, "liveflux_events.js")) + "\n" +
+        strings.TrimSpace(readJS(t, "liveflux_network.js")) + "\n" +
+        strings.TrimSpace(readJS(t, "liveflux_wire.js")) + "\n" +
+        strings.TrimSpace(readJS(t, "liveflux_mount.js")) + "\n" +
+        strings.TrimSpace(readJS(t, "liveflux_handlers.js")) + "\n" +
+        strings.TrimSpace(readJS(t, "liveflux_bootstrap.js")) + "\n" +
+        strings.TrimSpace(readJS(t, "liveflux_find.js")) + "\n" +
+        strings.TrimSpace(readJS(t, "liveflux_dispatch.js"))
 
 	got := JS()
 	// JS() now prepends a single-line config snippet ending with a newline.

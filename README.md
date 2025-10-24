@@ -79,6 +79,28 @@ What it shows:
 
 Source: `examples/events/`
 
+### CRUD (modals + list with events)
+
+Run from repo root:
+
+```bash
+go run ./examples/crud
+# or, with Task
+task examples:crud:run
+```
+
+Screenshots:
+
+![User List](examples/crud/screenshot_user_list.png)
+
+![Create User](examples/crud/screenshot_user_create.png)
+
+![Update User](examples/crud/screenshot_user_update.png)
+
+![Delete User](examples/crud/screenshot_user_delete.png)
+
+Source: `examples/crud/`
+
 ### WebSocket Counter (two instances)
 
 Run from repo root:

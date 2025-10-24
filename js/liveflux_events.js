@@ -69,13 +69,27 @@
     };
   }
 
+  function subscribe(componentAlias, componentId, eventName, targetMethod, timeoutMs){
+    var delay = typeof timeoutMs === 'number' ? timeoutMs : 0;
+    setTimeout(function(){
+      var root = (g.liveflux && g.liveflux.findComponent) ? g.liveflux.findComponent(componentAlias, componentId) : null;
+      if(!root) return;
+      function ready(){
+        if(!root.$wire){ setTimeout(ready, 50); return; }
+        root.$wire.on(eventName, function(){ root.$wire.call(targetMethod); });
+      }
+      ready();
+    }, delay);
+  }
+
   // Expose as module
   g.liveflux.events = {
-    on, dispatch, processEvents, onComponent
+    on, dispatch, processEvents, onComponent, subscribe
   };
   // Convenience top-level
   if(!g.liveflux.on) g.liveflux.on = on;
   if(!g.liveflux.dispatch) g.liveflux.dispatch = dispatch;
+  if(!g.liveflux.subscribe) g.liveflux.subscribe = subscribe;
 
   // Back-compat bridges
   g.__lw.on = on;

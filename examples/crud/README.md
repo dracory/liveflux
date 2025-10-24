@@ -22,6 +22,16 @@ Then open http://localhost:8080
 
 ![CRUD](./screenshot.png)
 
+## More screenshots
+
+![User List](./screenshot_user_list.png)
+
+![Create User](./screenshot_user_create.png)
+
+![Update User](./screenshot_user_update.png)
+
+![Delete User](./screenshot_user_delete.png)
+
 ## What it does
 - Renders a server-side CRUD using `liveflux.SSR`
 - Mounts the JS runtime via `liveflux.Script()`
