@@ -25,6 +25,9 @@ var clientHandlersJS string
 //go:embed js/events.js
 var clientEventsJS string
 
+//go:embed js/api.js
+var clientApiJS string
+
 //go:embed js/wire.js
 var clientWireJS string
 
@@ -42,7 +45,8 @@ func baseJS(includeWS bool) string {
 		clientWireJS + "\n" +
 		clientMountJS + "\n" +
 		clientHandlersJS + "\n" +
-		clientBootstrapJS
+		clientBootstrapJS + "\n" +
+		clientApiJS
 	if includeWS {
 		js += "\n" + clientWebSocketJS
 	}

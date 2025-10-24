@@ -1,6 +1,8 @@
 package liveflux
 
 import (
+	"log"
+
 	"github.com/dracory/hb"
 	"github.com/samber/lo"
 )
@@ -119,6 +121,7 @@ func (b *Base) DispatchToAlias(componentAlias string, eventName string, data ...
 // DispatchToAliasAndID queues an event to be sent to a specific component alias and ID.
 // Usage: component.DispatchToAliasAndID("users.list", someID, "post-updated", map[string]any{"id": 1})
 func (b *Base) DispatchToAliasAndID(componentAlias string, componentID string, eventName string, data ...map[string]any) {
+	log.Println("Dispatching to alias and ID:", componentAlias, componentID, eventName, data)
 	b.GetEventDispatcher().DispatchToAliasAndID(componentAlias, componentID, eventName, data...)
 }
 

@@ -12,8 +12,12 @@ import (
 
 type UserList struct {
 	liveflux.Base
-	Query string
-	Flash string
+	Query           string
+	Flash           string
+	ModalCreateUser *CreateUserModal
+	ModalEditUser   *EditUserModal
+	ModalDeleteUser *DeleteUserModal
+	ModalCreateOpen bool
 }
 
 func (c *UserList) GetAlias() string { return "users.list" }
@@ -35,7 +39,7 @@ func (c *UserList) Handle(ctx context.Context, action string, form url.Values) e
 	case "dismiss_flash":
 		c.Flash = ""
 	case "create_modal_open":
-		c.DispatchToAlias("users.create_modal", "open")
+		c.ModalCreateOpen = true
 	}
 	return nil
 }
@@ -69,6 +73,9 @@ func (c *UserList) Render(ctx context.Context) hb.TagInterface {
 	createBtn := hb.Button().
 		Type("button").
 		Class("btn btn-success").
+		// Attr(liveflux.DataFluxDispatchAlias, c.ModalCreateUser.GetAlias()).
+		// Attr(liveflux.DataFluxDispatchID, c.ModalCreateUser.GetID()).
+		// Attr(liveflux.DataFluxDispatchEvent, "open").
 		Attr(liveflux.DataFluxAction, "create_modal_open").
 		//Attr("onclick", "window.crudCreateModal && window.crudCreateModal.open();").
 		Text("Add User")
@@ -110,7 +117,24 @@ func (c *UserList) Render(ctx context.Context) hb.TagInterface {
 	}
 	body = body.
 		Child(form).
-		Child(table)
+		Child(table).
+		ChildIf(c.ModalCreateOpen, hb.NewScript(`
+			(function(){
+				function openModal(){
+					console.log("Calling Create Modal Component: alias: `+c.ModalCreateUser.GetAlias()+` id: `+c.ModalCreateUser.GetID()+` event: open");
+					window.liveflux.dispatchToAliasAndId("`+c.ModalCreateUser.GetAlias()+`", "`+c.ModalCreateUser.GetID()+`", "open");
+				}
+				
+				// Wait for Liveflux initialization
+				if(window.__lwInitDone){
+					// Already initialized, dispatch immediately
+					setTimeout(openModal, 0);
+				} else {
+					// Wait for initialization
+					document.addEventListener('livewire:init', openModal);
+				}
+			})();
+		`))
 
 	return c.Root(body)
 }

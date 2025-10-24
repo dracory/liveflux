@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/url"
 
 	"github.com/dracory/hb"
@@ -9,12 +10,44 @@ import (
 )
 
 const crudCreateModalScript = `(function() {
-    // window.crudCreateModal = {
-    //     open: function() {
-    //         const modal = document.getElementById('crud-create-modal');
-    //         if (modal) modal.style.display = 'flex';
-    //     },
-    // };
+    var root = document.currentScript.closest('[data-flux-root]');
+    if(!root) {
+        console.error('Modal script: Could not find data-flux-root');
+        return;
+    }
+    
+    function setupListeners(){
+        if(!root.$wire) {
+            console.error('Modal script: $wire not available on root');
+            return;
+        }
+        
+        console.log('Modal script: Setting up event listeners');
+        
+        // Listen for 'open' event
+        root.$wire.on('open', function(event){
+            console.log('Modal received open event');
+            // Trigger server-side action to open modal
+            root.$wire.call('open');
+        });
+        
+        // Listen for 'close' event  
+        root.$wire.on('close', function(event){
+            console.log('Modal received close event');
+            root.$wire.call('close');
+        });
+    }
+    
+    // Wait for $wire to be available
+    if(root.$wire){
+        setupListeners();
+    } else {
+        // Wait for livewire:init event
+        document.addEventListener('livewire:init', function(){
+            console.log('Modal script: livewire:init received, setting up listeners');
+            setupListeners();
+        });
+    }
 })();`
 
 type CreateUserModal struct {
@@ -27,6 +60,13 @@ func (c *CreateUserModal) GetAlias() string {
 }
 
 func (c *CreateUserModal) Mount(ctx context.Context, params map[string]string) error {
+	liveflux.RegisterEventListeners(c, c.GetEventDispatcher())
+	return nil
+}
+
+func (c *CreateUserModal) OnOpen(ctx context.Context, event liveflux.Event) error {
+	log.Println("OnOpen event received")
+	c.Open = true
 	return nil
 }
 
@@ -46,9 +86,11 @@ func (c *CreateUserModal) Handle(ctx context.Context, action string, form url.Va
 		c.Open = false
 	}
 	if action == "open" {
+		log.Println("Opening modal")
 		c.Open = true
 	}
 	if action == "close" {
+		log.Println("Closing modal")
 		c.Open = false
 	}
 	return nil

@@ -15,10 +15,16 @@ func main() {
 	mux.Handle("/liveflux", liveflux.NewHandler(nil))
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		list := liveflux.SSR(&UserList{}).ToHTML()
-		create := liveflux.SSR(&CreateUserModal{}).ToHTML()
-		edit := liveflux.SSR(&EditUserModal{}).ToHTML()
-		deleteHTML := liveflux.SSR(&DeleteUserModal{}).ToHTML()
+		modalCreate := &CreateUserModal{}
+		modalEdit := &EditUserModal{}
+		modalDelete := &DeleteUserModal{}
+
+		list := liveflux.SSR(&UserList{
+			ModalCreateUser: modalCreate,
+		}).ToHTML()
+		create := liveflux.SSR(modalCreate).ToHTML()
+		edit := liveflux.SSR(modalEdit).ToHTML()
+		deleteHTML := liveflux.SSR(modalDelete).ToHTML()
 
 		html := `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">` +
 			`<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">` +
