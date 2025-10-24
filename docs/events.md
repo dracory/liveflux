@@ -357,9 +357,53 @@ go run ./examples/events
 - `$wire.dispatchSelf(eventName, data)` - Dispatch self-only event
 - `$wire.dispatchTo(alias, eventName, data)` - Dispatch to specific component
 
-**Liveflux Object (global):**
+**Liveflux / liveflux Object (global):**
 - `Liveflux.on(eventName, callback)` - Listen globally
 - `Liveflux.dispatch(eventName, data)` - Dispatch globally
+- `Liveflux.dispatchTo(component, eventName, data)` - Dispatch targeted to a specific mounted component element
+- `Liveflux.dispatchToAlias(alias, eventName, data)` - Dispatch to all components with the given alias
+- `Liveflux.dispatchToAliasAndId(alias, id, eventName, data)` - Dispatch targeted to alias/id
+- `Liveflux.findComponent(alias, id)` - Find a mounted component root element
+
+#### Liveflux.on usage
+
+- **Basic listen/dispatch**
+
+```javascript
+// Register a global listener
+const off = Liveflux.on('user:created', (e) => {
+  // e.name -> 'user:created'
+  // e.data / e.detail -> payload
+  console.log('user created', e.data);
+});
+
+// Dispatch globally
+Liveflux.dispatch('user:created', { id: 42, name: 'Ada' });
+```
+
+- **Cleanup**
+
+```javascript
+const un = Liveflux.on('cart:updated', (e) => console.log(e.data));
+// later
+un();
+```
+
+- **Target a specific component (alias/id)**
+
+```javascript
+// Only listeners for that component will receive it (when processed from server)
+Liveflux.dispatchToAliasAndId('user-list', 'abc123', 'refresh', { reason: 'filter-change' });
+```
+
+- **DOM CustomEvent integration**
+
+```javascript
+// Every dispatch also emits a DOM CustomEvent with the same name
+document.addEventListener('user:created', (ev) => {
+  console.log('DOM listener', ev.detail);
+});
+```
 
 **Browser Events:**
 - `livewire:init` - Fired when Liveflux initializes

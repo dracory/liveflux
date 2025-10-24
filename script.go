@@ -3,6 +3,7 @@ package liveflux
 import (
 	_ "embed"
 	"encoding/json"
+	"strings"
 
 	"github.com/dracory/hb"
 	"github.com/samber/lo"
@@ -25,9 +26,6 @@ var clientHandlersJS string
 //go:embed js/events.js
 var clientEventsJS string
 
-//go:embed js/api.js
-var clientApiJS string
-
 //go:embed js/wire.js
 var clientWireJS string
 
@@ -37,20 +35,39 @@ var clientBootstrapJS string
 //go:embed js/websocket.js
 var clientWebSocketJS string
 
+//go:embed js/liveflux_find.js
+var livefluxFindJS string
+
+//go:embed js/liveflux_dispatch.js
+var livefluxDispatchJS string
+
+//go:embed js/liveflux_namespace_create.js
+var livefluxNamespaceCreateJS string
+
 // baseJS concatenates embedded client modules.
 func baseJS(includeWS bool) string {
-	js := clientUtilJS + "\n" +
-		clientNetworkJS + "\n" +
-		clientEventsJS + "\n" +
-		clientWireJS + "\n" +
-		clientMountJS + "\n" +
-		clientHandlersJS + "\n" +
-		clientBootstrapJS + "\n" +
-		clientApiJS
-	if includeWS {
-		js += "\n" + clientWebSocketJS
+	js := []string{
+		livefluxNamespaceCreateJS,
+		clientUtilJS,
+		clientNetworkJS,
+		clientEventsJS,
+		clientWireJS,
+		clientMountJS,
+		clientHandlersJS,
+		clientBootstrapJS,
+		livefluxFindJS,
+		livefluxDispatchJS,
 	}
-	return js
+
+	if includeWS {
+		js = append(js, clientWebSocketJS)
+	}
+
+	jsTrimmed := lo.Map(js, func(item string, index int) string {
+		return strings.TrimSpace(item)
+	})
+
+	return strings.Join(jsTrimmed, "\n")
 }
 
 // JS returns the Liveflux client script. Optional ClientOptions configure the client

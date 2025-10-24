@@ -89,31 +89,6 @@
   };
 
   /**
-   * Dispatches an event targeted to a specific component alias and optional ID.
-   * @param {string} componentAlias - Alias of the target component.
-   * @param {string} componentId - ID of the target component instance.
-   * @param {string} eventName - Event name to dispatch.
-   * @param {Object} [data] - Optional payload for the event.
-   * @returns {void}
-   */
-  g.__lw.dispatchToAliasAndId = function(componentAlias, componentId, eventName, data){
-    if(!eventName){
-      console.warn('[Liveflux Events] dispatchToAliasAndId called without event name');
-      return;
-    }
-
-    const payload = Object.assign({}, data || {});
-    if(componentAlias){
-      payload.__target = componentAlias;
-    }
-    if(componentId){
-      payload.__target_id = componentId;
-    }
-
-    g.__lw.dispatch(eventName, payload);
-  };
-
-  /**
    * Processes events from the server response header.
    * @param {Response} response - The fetch response object.
    * @param {string} componentId - The ID of the component that triggered the request.
