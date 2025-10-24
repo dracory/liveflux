@@ -75,7 +75,7 @@ What it shows:
 
 - Post creation dispatches a `post-created` event with metadata.
 - `PostList` automatically registers `OnPostCreated` and updates its state.
-- Client runtime mirrors events to JS via `$wire.on()` or `Liveflux.on()`.
+- Client runtime mirrors events to JS via `$wire.on()` or `liveflux.on()`.
 
 Source: `examples/events/`
 

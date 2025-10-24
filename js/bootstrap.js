@@ -1,4 +1,7 @@
 (function(){
+  /**
+   * DEPRECATED: Use liveflux_bootstrap.js. This file remains for backward compatibility and will be removed.
+   */
   if(window.__lwInitDone) return; 
   
   // Set init flag to prevent multiple initializations

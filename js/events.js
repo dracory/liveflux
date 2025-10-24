@@ -1,4 +1,7 @@
 (function(){
+  /**
+   * DEPRECATED: Use liveflux_events.js. This file remains for backward compatibility and will be removed.
+   */
   // Initialize global namespace
   const g = window; g.__lw = g.__lw || {};
 

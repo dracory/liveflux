@@ -50,7 +50,7 @@ func (nb *NotificationBanner) Render(ctx context.Context) hb.TagInterface {
 
     script := hb.Script(`
         (function(){
-            var root = document.currentScript.closest('[data-flux-root]');
+            var root = liveflux.findComponent('` + nb.GetAlias() + `', '` + nb.GetID() + `');
             if(!root) {
                 console.error('[NotificationBanner] Could not find component root');
                 return;

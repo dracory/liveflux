@@ -66,7 +66,7 @@ func (c *UserList) Render(ctx context.Context) hb.TagInterface {
 		Attr(liveflux.DataFluxAction, "filter").Text("Search")
 
 	clearBtn := hb.Button().Type("button").Class("btn btn-outline-secondary").
-		Attr("onclick", "document.getElementById('crud-search').value='';window.__lw && window.__lw.clickSubmit && window.__lw.clickSubmit(this);").
+		Attr("onclick", "document.getElementById('crud-search').value='';(this.form || this.closest('form')).requestSubmit();").
 		Attr(liveflux.DataFluxAction, "clear").
 		Text("Clear")
 

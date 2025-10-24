@@ -161,7 +161,7 @@ root.$wire.dispatchTo('dashboard', 'refresh');
 
 **Global dispatch:**
 ```javascript
-Liveflux.dispatch('post-created', { title: 'My Post' });
+liveflux.dispatch('post-created', { title: 'My Post' });
 ```
 
 ### Global Listeners
@@ -170,7 +170,7 @@ Listen for events from any component:
 
 ```javascript
 document.addEventListener('livewire:init', function(){
-    Liveflux.on('post-created', function(event){
+    liveflux.on('post-created', function(event){
         console.log('Post created:', event.data);
     });
 });
@@ -179,7 +179,7 @@ document.addEventListener('livewire:init', function(){
 Remove listeners with the cleanup function:
 
 ```javascript
-var cleanup = Liveflux.on('post-created', function(event){
+var cleanup = liveflux.on('post-created', function(event){
     console.log('Post created');
 });
 
@@ -357,34 +357,34 @@ go run ./examples/events
 - `$wire.dispatchSelf(eventName, data)` - Dispatch self-only event
 - `$wire.dispatchTo(alias, eventName, data)` - Dispatch to specific component
 
-**Liveflux / liveflux Object (global):**
-- `Liveflux.on(eventName, callback)` - Listen globally
-- `Liveflux.dispatch(eventName, data)` - Dispatch globally
-- `Liveflux.dispatchTo(component, eventName, data)` - Dispatch targeted to a specific mounted component element
-- `Liveflux.dispatchToAlias(alias, eventName, data)` - Dispatch to all components with the given alias
-- `Liveflux.dispatchToAliasAndId(alias, id, eventName, data)` - Dispatch targeted to alias/id
-- `Liveflux.findComponent(alias, id)` - Find a mounted component root element
+**liveflux Object (global):**
+- `liveflux.on(eventName, callback)` - Listen globally
+- `liveflux.dispatch(eventName, data)` - Dispatch globally
+- `liveflux.dispatchTo(component, eventName, data)` - Dispatch targeted to a specific mounted component element
+- `liveflux.dispatchToAlias(alias, eventName, data)` - Dispatch to all components with the given alias
+- `liveflux.dispatchToAliasAndId(alias, id, eventName, data)` - Dispatch targeted to alias/id
+- `liveflux.findComponent(alias, id)` - Find a mounted component root element
 
-#### Liveflux.on usage
+#### liveflux.on usage
 
 - **Basic listen/dispatch**
 
 ```javascript
 // Register a global listener
-const off = Liveflux.on('user:created', (e) => {
+const off = liveflux.on('user:created', (e) => {
   // e.name -> 'user:created'
   // e.data / e.detail -> payload
   console.log('user created', e.data);
 });
 
 // Dispatch globally
-Liveflux.dispatch('user:created', { id: 42, name: 'Ada' });
+liveflux.dispatch('user:created', { id: 42, name: 'Ada' });
 ```
 
 - **Cleanup**
 
 ```javascript
-const un = Liveflux.on('cart:updated', (e) => console.log(e.data));
+const un = liveflux.on('cart:updated', (e) => console.log(e.data));
 // later
 un();
 ```
@@ -393,7 +393,7 @@ un();
 
 ```javascript
 // Only listeners for that component will receive it (when processed from server)
-Liveflux.dispatchToAliasAndId('user-list', 'abc123', 'refresh', { reason: 'filter-change' });
+liveflux.dispatchToAliasAndId('user-list', 'abc123', 'refresh', { reason: 'filter-change' });
 ```
 
 - **DOM CustomEvent integration**

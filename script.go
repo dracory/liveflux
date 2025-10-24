@@ -11,29 +11,29 @@ import (
 
 // Embed split client-side JS parts. Order matters for concatenation.
 //
-//go:embed js/util.js
-var clientUtilJS string
+//go:embed js/liveflux_util.js
+var livefluxUtilJS string
 
-//go:embed js/network.js
-var clientNetworkJS string
+//go:embed js/liveflux_network.js
+var livefluxNetworkJS string
 
-//go:embed js/mount.js
-var clientMountJS string
+//go:embed js/liveflux_mount.js
+var livefluxMountJS string
 
-//go:embed js/handlers.js
-var clientHandlersJS string
+//go:embed js/liveflux_handlers.js
+var livefluxHandlersJS string
 
-//go:embed js/events.js
-var clientEventsJS string
+//go:embed js/liveflux_events.js
+var livefluxEventsJS string
 
-//go:embed js/wire.js
-var clientWireJS string
+//go:embed js/liveflux_wire.js
+var livefluxWireJS string
 
-//go:embed js/bootstrap.js
-var clientBootstrapJS string
+//go:embed js/liveflux_bootstrap.js
+var livefluxBootstrapJS string
 
-//go:embed js/websocket.js
-var clientWebSocketJS string
+//go:embed js/liveflux_websocket.js
+var livefluxWebSocketJS string
 
 //go:embed js/liveflux_find.js
 var livefluxFindJS string
@@ -48,19 +48,19 @@ var livefluxNamespaceCreateJS string
 func baseJS(includeWS bool) string {
 	js := []string{
 		livefluxNamespaceCreateJS,
-		clientUtilJS,
-		clientNetworkJS,
-		clientEventsJS,
-		clientWireJS,
-		clientMountJS,
-		clientHandlersJS,
-		clientBootstrapJS,
+		livefluxUtilJS,
+		livefluxEventsJS,
+		livefluxNetworkJS,
+		livefluxWireJS,
+		livefluxMountJS,
+		livefluxHandlersJS,
+		livefluxBootstrapJS,
 		livefluxFindJS,
 		livefluxDispatchJS,
 	}
 
 	if includeWS {
-		js = append(js, clientWebSocketJS)
+		js = append(js, livefluxWebSocketJS)
 	}
 
 	jsTrimmed := lo.Map(js, func(item string, index int) string {
@@ -71,7 +71,7 @@ func baseJS(includeWS bool) string {
 }
 
 // JS returns the Liveflux client script. Optional ClientOptions configure the client
-// (merged into window.__lw before the runtime). Include once per page.
+// (merged into window.liveflux before the runtime; window.__lw bridged for compat). Include once per page.
 func JS(opts ...ClientOptions) string {
 	// Pick first options or zero value, then apply sensible defaults.
 	o := lo.FirstOr(opts, ClientOptions{})
@@ -96,7 +96,7 @@ func JS(opts ...ClientOptions) string {
 
 	b, _ := json.Marshal(o)
 
-	cfg := "(function(){var o=" + string(b) + ";window.__lw=Object.assign({},window.__lw||{},o);})();\n"
+	cfg := "(function(){var o=" + string(b) + ";window.liveflux=Object.assign({},window.liveflux||{},o);window.__lw=Object.assign({},window.__lw||{},o);})();\n"
 
 	return cfg + baseJS(o.UseWebSocket)
 }

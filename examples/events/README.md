@@ -85,7 +85,7 @@ Then open http://localhost:8084 in your browser.
 
 - **Go**: Use `On{EventName}` method naming convention
 - **JavaScript**: Use `$wire.on(eventName, callback)` in component scripts
-- **Global**: Use `Liveflux.on(eventName, callback)` or `document.addEventListener(eventName, callback)`
+- **Global**: Use `liveflux.on(eventName, callback)` or `document.addEventListener(eventName, callback)`
 
 ### Alpine.js Integration
 
@@ -102,7 +102,7 @@ This implementation closely mirrors Livewire's event system:
 - ✅ `$this->dispatch()` → `component.Dispatch()`
 - ✅ `#[On('event')]` → `OnEventName()` method
 - ✅ `$wire.on()` → `$wire.on()`
-- ✅ `Livewire.on()` → `Liveflux.on()`
+- ✅ `Livewire.on()` → `liveflux.on()`
 - ✅ `dispatch()->to()` → `DispatchTo()`
 - ✅ `dispatchSelf()` → `DispatchSelf()`
 - ✅ Alpine integration via browser events

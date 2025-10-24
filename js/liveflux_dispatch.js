@@ -5,8 +5,8 @@
  * Notes:
  * - This file is loaded in the browser and is not used in the Go code.
  * - It is used to add dispatch methods to the liveflux namespace.
- * - It depends om liveflux_namespace_create.js.
- * - It depends om liveflux_find.js.
+ * - It depends on liveflux_namespace_create.js.
+ * - It depends on liveflux_find.js.
  * 
  * Dev notes:
  * - The functions are sorted alphabetically.
@@ -19,23 +19,26 @@
    * @returns {void}
    */
   function dispatch(eventName, data){
-    window.__lw.dispatch(eventName, data);
+    if(window.liveflux && window.liveflux.events && window.liveflux.events.dispatch){
+      window.liveflux.events.dispatch(eventName, data);
+    }
   }
 
   /**
    * Dispatches an event targeted to a specific component.
    * @param {HTMLElement} component - The component element to dispatch the event to.
+   * @param {string} eventName - Event name to dispatch.
    * @param {Object} data - Optional data to pass with the event.
    * @returns {void}
    */
-  function dispatchTo(component, data){
+  function dispatchTo(component, eventName, data){
     if(!component){
       console.warn('[Liveflux Events] dispatchTo called without component');
       return;
     }
 
-    if(!data){
-      console.warn('[Liveflux Events] dispatchTo called without data');
+    if(!eventName){
+      console.warn('[Liveflux Events] dispatchTo called without event name');
       return;
     }
     
@@ -60,7 +63,9 @@
       payload.__target_id = componentId;
     }
 
-    window.__lw.dispatch(eventName, payload);
+    if(window.liveflux && window.liveflux.events && window.liveflux.events.dispatch){
+      window.liveflux.events.dispatch(eventName, payload);
+    }
   }
 
   /**
@@ -92,7 +97,9 @@
       if(componentAlias){
         payload.__target = componentAlias;
       }
-      g.__lw.dispatch(eventName, payload);
+      if(window.liveflux && window.liveflux.events && window.liveflux.events.dispatch){
+        window.liveflux.events.dispatch(eventName, payload);
+      }
     });
   }
 
@@ -120,7 +127,7 @@
       return;
     }
 
-    const component = findComponent(componentAlias, componentId);
+    const component = window.liveflux && window.liveflux.findComponent ? window.liveflux.findComponent(componentAlias, componentId) : null;
     if(!component){
       console.warn('[Liveflux Events] dispatchToAliasAndId called without component');
       return;
@@ -134,17 +141,9 @@
       payload.__target_id = componentId;
     }
 
-    window.__lw.dispatch(eventName, payload);
-  }
-
-  /**
-   * Finds a component by alias and ID.
-   * @param {string} componentAlias - Alias of the target component.
-   * @param {string} componentId - ID of the target component instance.
-   * @returns {HTMLElement|null} - The component element if found, otherwise null.
-   */
-  function findComponent(componentAlias, componentId){
-    return document.querySelector('[data-flux-root][data-flux-component="' + componentAlias + '"][data-flux-component-id="' + componentId + '"]');
+    if(window.liveflux && window.liveflux.events && window.liveflux.events.dispatch){
+      window.liveflux.events.dispatch(eventName, payload);
+    }
   }
 
   /**
@@ -154,7 +153,10 @@
    * @returns {Function} - A cleanup function to remove the listener.
    */
   function on(eventName, callback){
-    return window.__lw.on(eventName, callback);
+    if(window.liveflux && window.liveflux.events && window.liveflux.events.on){
+      return window.liveflux.events.on(eventName, callback);
+    }
+    return function(){};
   }
   
   // Check if liveflux namespace exists
