@@ -60,8 +60,4 @@
 
   // Expose on liveflux
   g.liveflux.post = post;
-
-  // Back-compat bridge (__lw -> liveflux)
-  g.__lw = g.__lw || {};
-  g.__lw.post = post;
 })();

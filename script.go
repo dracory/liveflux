@@ -71,7 +71,7 @@ func baseJS(includeWS bool) string {
 }
 
 // JS returns the Liveflux client script. Optional ClientOptions configure the client
-// (merged into window.liveflux before the runtime; window.__lw bridged for compat). Include once per page.
+// (merged into window.liveflux before the runtime). Include once per page.
 func JS(opts ...ClientOptions) string {
 	// Pick first options or zero value, then apply sensible defaults.
 	o := lo.FirstOr(opts, ClientOptions{})
@@ -96,7 +96,7 @@ func JS(opts ...ClientOptions) string {
 
 	b, _ := json.Marshal(o)
 
-	cfg := "(function(){var o=" + string(b) + ";window.liveflux=Object.assign({},window.liveflux||{},o);window.__lw=Object.assign({},window.__lw||{},o);})();\n"
+	cfg := "(function(){var o=" + string(b) + ";window.liveflux=Object.assign({},window.liveflux||{},o);})();\n"
 
 	return cfg + baseJS(o.UseWebSocket)
 }

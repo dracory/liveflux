@@ -1,23 +1,27 @@
 (function(){
-  const g = window; g.liveflux = g.liveflux || {}; g.__lw = g.__lw || {};
+  const g = window; g.liveflux = g.liveflux || {};
 
   function createWire(componentId, componentAlias, rootEl){
     return {
       on: function(eventName, callback){
-        return g.liveflux.events && g.liveflux.events.onComponent
-          ? g.liveflux.events.onComponent(componentId, eventName, callback)
-          : (g.__lw.onComponent ? g.__lw.onComponent(componentId, eventName, callback) : function(){});
+        if(g.liveflux.events && typeof g.liveflux.events.onComponent === 'function'){
+          return g.liveflux.events.onComponent(componentId, eventName, callback);
+        }
+        return function(){};
       },
       dispatch: function(eventName, data){
-        (g.liveflux.dispatch || (g.liveflux.events && g.liveflux.events.dispatch) || g.__lw.dispatch || function(){ })(eventName, data);
+        const dispatchFn = g.liveflux.dispatch || (g.liveflux.events && g.liveflux.events.dispatch);
+        if(typeof dispatchFn === 'function') dispatchFn(eventName, data);
       },
       dispatchSelf: function(eventName, data){
         const d = Object.assign({}, data||{}, { __self: true });
-        (g.liveflux.dispatch || (g.liveflux.events && g.liveflux.events.dispatch) || g.__lw.dispatch || function(){ })(eventName, d);
+        const dispatchFn = g.liveflux.dispatch || (g.liveflux.events && g.liveflux.events.dispatch);
+        if(typeof dispatchFn === 'function') dispatchFn(eventName, d);
       },
       dispatchTo: function(targetAlias, eventName, data){
         const d = Object.assign({}, data||{}, { __target: targetAlias });
-        (g.liveflux.dispatch || (g.liveflux.events && g.liveflux.events.dispatch) || g.__lw.dispatch || function(){ })(eventName, d);
+        const dispatchFn = g.liveflux.dispatch || (g.liveflux.events && g.liveflux.events.dispatch);
+        if(typeof dispatchFn === 'function') dispatchFn(eventName, d);
       },
       call: function(action, data){
         action = action || 'submit';
@@ -58,7 +62,4 @@
   g.liveflux.createWire = createWire;
   g.liveflux.initWire = initWire;
 
-  // Back-compat
-  g.__lw.createWire = createWire;
-  g.__lw.initWire = initWire;
 })();

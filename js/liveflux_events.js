@@ -1,5 +1,5 @@
 (function(){
-  const g = window; g.liveflux = g.liveflux || {}; g.__lw = g.__lw || {};
+  const g = window; g.liveflux = g.liveflux || {};
 
   // Internal registries
   const eventListeners = {};
@@ -91,9 +91,4 @@
   if(!g.liveflux.dispatch) g.liveflux.dispatch = dispatch;
   if(!g.liveflux.subscribe) g.liveflux.subscribe = subscribe;
 
-  // Back-compat bridges
-  g.__lw.on = on;
-  g.__lw.dispatch = dispatch;
-  g.__lw.processEvents = processEvents;
-  g.__lw.onComponent = onComponent;
 })();

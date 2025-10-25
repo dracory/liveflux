@@ -1,8 +1,8 @@
 (function(){
-  if(window.__lwInitDone) return;
-  window.__lwInitDone = true;
+  if(window.__livefluxInitDone) return;
+  window.__livefluxInitDone = true;
 
-  const g = window; g.liveflux = g.liveflux || {}; g.__lw = g.__lw || {};
+  const g = window; g.liveflux = g.liveflux || {};
 
   function init(){
     document.addEventListener('click', g.liveflux.handleActionClick);

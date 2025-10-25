@@ -1,5 +1,5 @@
 (function(){
-  const g = window; g.liveflux = g.liveflux || {}; g.__lw = g.__lw || {};
+  const g = window; g.liveflux = g.liveflux || {};
 
   function mountPlaceholders(){
     document.querySelectorAll('[data-flux-mount="1"], [flux-mount="1"]').forEach((el)=>{
@@ -22,5 +22,4 @@
   }
 
   g.liveflux.mountPlaceholders = mountPlaceholders;
-  g.__lw.mountPlaceholders = mountPlaceholders;
 })();

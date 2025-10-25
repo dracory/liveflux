@@ -1,5 +1,5 @@
 (function(){
-  const g = window; g.liveflux = g.liveflux || {}; g.__lw = g.__lw || {};
+  const g = window; g.liveflux = g.liveflux || {};
 
   // Default endpoint if not set
   if (!g.liveflux.endpoint) { g.liveflux.endpoint = '/liveflux'; }
@@ -52,9 +52,4 @@
   g.liveflux.serializeElement = serializeElement;
   g.liveflux.readParams = readParams;
 
-  // Back-compat bridges
-  g.__lw.executeScripts = executeScripts;
-  g.__lw.serializeElement = serializeElement;
-  g.__lw.readParams = readParams;
-  if (!g.__lw.endpoint) g.__lw.endpoint = g.liveflux.endpoint;
 })();

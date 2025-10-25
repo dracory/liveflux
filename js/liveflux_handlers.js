@@ -1,5 +1,5 @@
 (function(){
-  const g = window; g.liveflux = g.liveflux || {}; g.__lw = g.__lw || {};
+  const g = window; g.liveflux = g.liveflux || {};
 
   function handleActionClick(e){
     const btn = e.target.closest('[data-flux-action], [flux-action]');
@@ -79,8 +79,4 @@
   // Expose
   g.liveflux.handleActionClick = handleActionClick;
   g.liveflux.handleFormSubmit = handleFormSubmit;
-
-  // Back-compat
-  g.__lw.handleActionClick = handleActionClick;
-  g.__lw.handleFormSubmit = handleFormSubmit;
 })();

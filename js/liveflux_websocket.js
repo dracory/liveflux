@@ -1,5 +1,5 @@
 (function(){
-  const g = window; g.liveflux = g.liveflux || {}; g.__lw = g.__lw || {};
+  const g = window; g.liveflux = g.liveflux || {};
 
   class LiveFluxWS {
     constructor(url, options = {}){
