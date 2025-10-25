@@ -101,36 +101,37 @@ func (c *UserList) Render(ctx context.Context) hb.TagInterface {
 			c.renderUsers(users),
 		))
 
-	body := hb.Div()
-	if c.Flash != "" {
-		body = body.Child(
-			hb.Div().Class("alert alert-success d-flex align-items-center justify-content-between").
-				Child(hb.Span().Text(c.Flash)).
-				Child(hb.Button().
-					Type("button").Class("btn-close").Attr("aria-label", "Close").
-					Attr(liveflux.DataFluxAction, "dismiss_flash")),
-		)
-	}
-	body = body.
-		Child(form).
-		Child(table).
-		Child(hb.NewScript(`
+	scriptSubscribe := `
       (function(){
-        var alias = '`+c.GetAlias()+`';
-        var id = '`+c.GetID()+`';
+        var alias = '` + c.GetAlias() + `';
+        var id = '` + c.GetID() + `';
         setTimeout(function(){
           ['user-created','user-updated','user-deleted'].forEach(function(evt){
             window.liveflux.subscribe(alias, id, evt, 'dismiss_flash', 150);
           });
         }, 150);
       })();
-    `)).
-		ChildIf(c.ModalCreateOpen, hb.NewScript(`
+    `
+
+	scriptModalOpenDispatch := `
       (function(){
-        console.log("Calling Create Modal Component: alias: `+c.ModalCreateUser.GetAlias()+` id: `+c.ModalCreateUser.GetID()+` event: open");
-        window.liveflux.dispatchToAliasAndId("`+c.ModalCreateUser.GetAlias()+`", "`+c.ModalCreateUser.GetID()+`", "open");
+        console.log("Calling Create Modal Component: alias: ` + c.ModalCreateUser.GetAlias() + ` id: ` + c.ModalCreateUser.GetID() + ` event: open");
+        window.liveflux.dispatchToAliasAndId("` + c.ModalCreateUser.GetAlias() + `", "` + c.ModalCreateUser.GetID() + `", "open");
       })();
-    `))
+    `
+
+	body := hb.Div().
+		ChildIf(c.Flash != "",
+			hb.Div().Class("alert alert-success d-flex align-items-center justify-content-between").
+				Child(hb.Span().Text(c.Flash)).
+				Child(hb.Button().
+					Type("button").Class("btn-close").Attr("aria-label", "Close").
+					Attr(liveflux.DataFluxAction, "dismiss_flash")),
+		).
+		Child(form).
+		Child(table).
+		Child(hb.NewScript(scriptSubscribe)).
+		ChildIf(c.ModalCreateOpen, hb.NewScript(scriptModalOpenDispatch))
 
 	return c.Root(body)
 }

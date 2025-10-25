@@ -10,9 +10,15 @@ import (
 	"github.com/dracory/liveflux"
 )
 
+const (
+	FormFieldName  = "name"
+	FormFieldEmail = "email"
+	FormFieldRole  = "role"
+)
+
 type CreateUserModal struct {
 	liveflux.Base
-	Open        bool
+	IsModalOpen  bool
 	CreatedEvent map[string]any
 }
 
@@ -25,59 +31,69 @@ func (c *CreateUserModal) Mount(ctx context.Context, params map[string]string) e
 	return nil
 }
 
-func (c *CreateUserModal) OnOpen(ctx context.Context, event liveflux.Event) error {
-	log.Println("OnOpen event received")
-	c.Open = true
+func (c *CreateUserModal) Handle(ctx context.Context, action string, form url.Values) error {
+	if action == "create" {
+		c.onCreate(form.Get(FormFieldName), form.Get(FormFieldEmail), form.Get(FormFieldRole))
+	}
+	if action == "open" {
+		c.onOpen()
+	}
+	if action == "close" {
+		c.onClose()
+	}
 	return nil
 }
 
-func (c *CreateUserModal) Handle(ctx context.Context, action string, form url.Values) error {
-	if action == "create" {
-		name := form.Get("name")
-		email := form.Get("email")
-		role := form.Get("role")
-		user := repo.Create(name, email, role)
-		c.DispatchToAlias("users.list", "user-created", map[string]any{
-			"id":    user.ID,
-			"name":  user.Name,
-			"email": user.Email,
-			"role":  user.Role,
-			"flash": "Added " + user.Name,
-		})
-		c.CreatedEvent = map[string]any{
-			"id":    user.ID,
-			"name":  user.Name,
-			"email": user.Email,
-			"role":  user.Role,
-			"flash": "Added " + user.Name,
-		}
-		c.Open = false
+func (c *CreateUserModal) onOpen() {
+	log.Println("Opening modal...")
+	c.IsModalOpen = true
+}
+
+func (c *CreateUserModal) onClose() {
+	log.Println("Closing modal...")
+	c.IsModalOpen = false
+}
+
+func (c *CreateUserModal) onCreate(name string, email string, role string) {
+	user := repo.Create(name, email, role)
+	log.Printf("Created user %s (%s)", user.Name, user.Email)
+
+	// emit server event (not used, just for example)
+	c.DispatchToAlias("users.list", "user-created", map[string]any{
+		"id":    user.ID,
+		"name":  user.Name,
+		"email": user.Email,
+		"role":  user.Role,
+		"flash": "Added " + user.Name,
+	})
+
+	// prepare client-side browser event payload
+	c.CreatedEvent = map[string]any{
+		"id":    user.ID,
+		"name":  user.Name,
+		"email": user.Email,
+		"role":  user.Role,
+		"flash": "Added " + user.Name,
 	}
-	if action == "open" {
-		log.Println("Opening modal")
-		c.Open = true
-	}
-	if action == "close" {
-		log.Println("Closing modal")
-		c.Open = false
-	}
-	return nil
+
+	c.IsModalOpen = false
 }
 
 func (c *CreateUserModal) initScript() hb.TagInterface {
 	alias := c.GetAlias()
 	id := c.GetID()
-	return hb.Script(`(function(){
-const expectedAlias = '` + alias + `';
-const expectedId = '` + id + `';
-// Use the subscribe helper to wire events -> server methods with a small delay
-setTimeout(function(){
-    if(window.liveflux && window.liveflux.subscribe){
-        window.liveflux.subscribe(expectedAlias, expectedId, 'open', 'open', 0);
-        window.liveflux.subscribe(expectedAlias, expectedId, 'close', 'close', 0);
-    }
-}, 100);
-    })();`)
+	scriptSubscribe := `
+      (function(){
+        var alias = '` + alias + `';
+        var id = '` + id + `';
+        setTimeout(function(){
+          ['open','close'].forEach(function(evt){
+            window.liveflux.subscribe(alias, id, evt, 'open', 0);
+          });
+        }, 100);
+      })();
+    `
+	return hb.Script(scriptSubscribe)
 }
 
 func (c *CreateUserModal) Render(ctx context.Context) hb.TagInterface {
@@ -97,7 +113,7 @@ func (c *CreateUserModal) Render(ctx context.Context) hb.TagInterface {
 	nameInput := hb.Input().
 		Type("text").
 		Class("form-control").
-		Name("name").
+		Name(FormFieldName).
 		Required(true)
 	nameField := hb.Div().Class("mb-3").
 		Child(nameLabel).
@@ -107,7 +123,7 @@ func (c *CreateUserModal) Render(ctx context.Context) hb.TagInterface {
 	emailInput := hb.Input().
 		Type("email").
 		Class("form-control").
-		Name("email").
+		Name(FormFieldEmail).
 		Required(true)
 	emailField := hb.Div().Class("mb-3").
 		Child(emailLabel).
@@ -117,7 +133,7 @@ func (c *CreateUserModal) Render(ctx context.Context) hb.TagInterface {
 	roleInput := hb.Input().
 		Type("text").
 		Class("form-control").
-		Name("role").
+		Name(FormFieldRole).
 		Required(true)
 	roleField := hb.Div().Class("mb-3").
 		Child(roleLabel).
@@ -169,7 +185,7 @@ func (c *CreateUserModal) Render(ctx context.Context) hb.TagInterface {
 
 	// Modal
 	modal := hb.Div().ID("crud-create-modal").Class("crud-modal")
-	if c.Open {
+	if c.IsModalOpen {
 		modal = modal.Attr("style", "display: flex;")
 	} else {
 		modal = modal.Attr("style", "display: none;")
