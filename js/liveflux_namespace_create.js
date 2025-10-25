@@ -8,6 +8,11 @@
  * @namespace liveflux
  */
 (function(){
+    if (window.liveflux){
+        console.log('[Liveflux] Namespace already exists');
+        return;
+    }
+    
     // Inject constants when building the js from Go code
     // so that they are consistent with the Go code
     // !!! Do not modify the following lines !!!
