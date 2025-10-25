@@ -47,10 +47,10 @@ func TestJSConcatenationOrder(t *testing.T) {
 	}
 }
 
-func TestJSIncludesConstants(t *testing.T) {
+func TestJSIncludesConfigVariables(t *testing.T) {
 	out := JS()
 
-	constants := map[string]string{
+	configVariables := map[string]string{
 		"dataFluxAction":      DataFluxAction,
 		"dataFluxDispatchTo":  DataFluxDispatchTo,
 		"dataFluxComponent":   DataFluxComponent,
@@ -62,12 +62,29 @@ func TestJSIncludesConstants(t *testing.T) {
 		"dataFluxSubmit":      DataFluxSubmit,
 		"dataFluxWS":          DataFluxWS,
 		"dataFluxWSURL":       DataFluxWSURL,
+		"endpoint":            DefaultEndpoint,
+		"redirectHeader":      RedirectHeader,
+		"redirectAfterHeader": RedirectAfterHeader,
+		"credentials":         "",
 	}
 
-	for key, val := range constants {
+	for key, val := range configVariables {
 		needle := `"` + key + `":"` + val + `"`
 		if !strings.Contains(out, needle) {
-			t.Fatalf("JS() config missing constant %q (%s)", key, val)
+			t.Fatalf("JS() config missing variable %q (%s)", key, val)
+		}
+	}
+
+	extraChecks := map[string]string{
+		"useWebSocket": "false",
+		"headers":      "{}",
+		"timeoutMs":    "0",
+	}
+
+	for key, val := range extraChecks {
+		needle := `"` + key + `":` + val
+		if !strings.Contains(out, needle) {
+			t.Fatalf("JS() config missing variable %q (%s)", key, val)
 		}
 	}
 }
