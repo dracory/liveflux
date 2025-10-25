@@ -118,16 +118,25 @@
   }
 
   function subscribe(componentAlias, componentId, eventName, targetMethod, timeoutMs){
+    // if root is not found, do nothing
+    var root = (liveflux.findComponent) ? liveflux.findComponent(componentAlias, componentId) : null;
+    if(!root){ return; }
+      
     var delay = typeof timeoutMs === 'number' ? timeoutMs : 0;
-    setTimeout(function(){
-      var root = (window.liveflux && window.liveflux.findComponent) ? window.liveflux.findComponent(componentAlias, componentId) : null;
-      if(!root) return;
-      function ready(){
-        if(!root.$wire){ setTimeout(ready, 50); return; }
-        root.$wire.on(eventName, function(){ root.$wire.call(targetMethod); });
+    var key = [componentAlias || '', componentId || '', eventName || '', targetMethod || ''].join('::');
+
+    function bind(){
+      var registry = liveflux.__componentSubscriptions || (liveflux.__componentSubscriptions = {});
+      var existing = registry[key];
+      if(existing && typeof existing.cleanup === 'function'){
+        existing.cleanup();
       }
-      ready();
-    }, delay);
+
+      var cleanup = root.$wire.on(eventName, function(){ root.$wire.call(targetMethod); });
+      registry[key] = { cleanup: cleanup };
+    }
+
+    setTimeout(bind, delay);
   }
 
   // Expose as module

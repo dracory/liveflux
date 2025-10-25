@@ -36,6 +36,22 @@ func TestEventDispatcher_Dispatch(t *testing.T) {
 	}
 }
 
+func TestEventDispatcher_EventsJSONDrainsQueue(t *testing.T) {
+	ed := NewEventDispatcher()
+
+	ed.Dispatch("sample", map[string]interface{}{"key": "value"})
+
+	first := ed.EventsJSON()
+	if first == "[]" {
+		t.Fatalf("expected first EventsJSON call to contain data, got %s", first)
+	}
+
+	second := ed.EventsJSON()
+	if second != "[]" {
+		t.Fatalf("expected second EventsJSON call to be empty, got %s", second)
+	}
+}
+
 func TestEventDispatcher_On(t *testing.T) {
 	ed := NewEventDispatcher()
 	called := false

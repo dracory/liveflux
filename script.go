@@ -117,6 +117,7 @@ func JS(opts ...ClientOptions) string {
 		return `console.error("Liveflux: failed to marshal config");`
 	}
 
+	// Creating window.liveflux namespace and merging config
 	cfg := "(function(){var o=" + string(b) + ";window.liveflux=Object.assign({},window.liveflux||{},o);})();\n"
 
 	return cfg + baseJS(o.UseWebSocket)

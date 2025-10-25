@@ -105,10 +105,11 @@ func (ed *EventDispatcher) HasEvents() bool {
 
 // EventsJSON returns the queued events as a JSON string.
 func (ed *EventDispatcher) EventsJSON() string {
-	if len(ed.events) == 0 {
+	events := ed.TakeEvents()
+	if len(events) == 0 {
 		return "[]"
 	}
-	data, err := json.Marshal(ed.events)
+	data, err := json.Marshal(events)
 	if err != nil {
 		return "[]"
 	}
