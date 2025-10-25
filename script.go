@@ -3,6 +3,7 @@ package liveflux
 import (
 	_ "embed"
 	"encoding/json"
+	"strconv"
 	"strings"
 
 	"github.com/dracory/hb"
@@ -44,10 +45,34 @@ var livefluxDispatchJS string
 //go:embed js/liveflux_namespace_create.js
 var livefluxNamespaceCreateJS string
 
+func injectNamespaceConstants(js, endpoint string) string {
+	livefluxNamespaceConstantsReplacer := strings.NewReplacer(
+		"{{ DataFluxAction }}", DataFluxAction,
+		"{{ DataFluxDispatchTo }}", DataFluxDispatchTo,
+		"{{ DataFluxComponent }}", DataFluxComponent,
+		"{{ DataFluxComponentID }}", DataFluxComponentID,
+		"{{ DataFluxID }}", DataFluxID,
+		"{{ DataFluxMount }}", DataFluxMount,
+		"{{ DataFluxParam }}", DataFluxParam,
+		"{{ DataFluxRoot }}", DataFluxRoot,
+		"{{ DataFluxSubmit }}", DataFluxSubmit,
+		"{{ DataFluxWS }}", DataFluxWS,
+		"{{ DataFluxWSURL }}", DataFluxWSURL,
+	)
+	injected := livefluxNamespaceConstantsReplacer.Replace(js)
+	return strings.ReplaceAll(injected, "{{ Endpoint }}", escapeJSString(endpoint))
+}
+
+func escapeJSString(s string) string {
+	quoted := strconv.Quote(s)
+	return quoted[1 : len(quoted)-1]
+}
+
 // baseJS concatenates embedded client modules.
-func baseJS(includeWS bool) string {
+func baseJS(includeWS bool, endpoint string) string {
+	livefluxNamespaceCreateInjectedJS := injectNamespaceConstants(livefluxNamespaceCreateJS, endpoint)
 	js := []string{
-		livefluxNamespaceCreateJS,
+		livefluxNamespaceCreateInjectedJS,
 		livefluxUtilJS,
 		livefluxEventsJS,
 		livefluxNetworkJS,
@@ -77,7 +102,7 @@ func JS(opts ...ClientOptions) string {
 	o := lo.FirstOr(opts, ClientOptions{})
 
 	if o.Endpoint == "" {
-		o.Endpoint = "/liveflux"
+		o.Endpoint = DefaultEndpoint
 	}
 
 	// Note: WebSocketURL is optional. If not provided, the WS client will
@@ -98,7 +123,7 @@ func JS(opts ...ClientOptions) string {
 
 	cfg := "(function(){var o=" + string(b) + ";window.liveflux=Object.assign({},window.liveflux||{},o);})();\n"
 
-	return cfg + baseJS(o.UseWebSocket)
+	return cfg + baseJS(o.UseWebSocket, o.Endpoint)
 }
 
 // Script returns an hb.Script tag containing the client JS with optional configuration.
