@@ -73,11 +73,7 @@ func (c *UserList) Render(ctx context.Context) hb.TagInterface {
 	createBtn := hb.Button().
 		Type("button").
 		Class("btn btn-success").
-		// Attr(liveflux.DataFluxDispatchAlias, c.ModalCreateUser.GetAlias()).
-		// Attr(liveflux.DataFluxDispatchID, c.ModalCreateUser.GetID()).
-		// Attr(liveflux.DataFluxDispatchEvent, "open").
 		Attr(liveflux.DataFluxAction, "create_modal_open").
-		//Attr("onclick", "window.crudCreateModal && window.crudCreateModal.open();").
 		Text("Add User")
 
 	form := hb.Form().Class("mb-3").
