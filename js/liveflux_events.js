@@ -1,5 +1,8 @@
 (function(){
-  const g = window; g.liveflux = g.liveflux || {};
+  if(!window.liveflux){
+    console.log('[Liveflux Events] liveflux namespace not found');
+    return;
+  }
 
   // Internal registries
   const eventListeners = {};
@@ -72,7 +75,7 @@
   function subscribe(componentAlias, componentId, eventName, targetMethod, timeoutMs){
     var delay = typeof timeoutMs === 'number' ? timeoutMs : 0;
     setTimeout(function(){
-      var root = (g.liveflux && g.liveflux.findComponent) ? g.liveflux.findComponent(componentAlias, componentId) : null;
+      var root = (window.liveflux && window.liveflux.findComponent) ? window.liveflux.findComponent(componentAlias, componentId) : null;
       if(!root) return;
       function ready(){
         if(!root.$wire){ setTimeout(ready, 50); return; }
@@ -83,12 +86,12 @@
   }
 
   // Expose as module
-  g.liveflux.events = {
+  window.liveflux.events = {
     on, dispatch, processEvents, onComponent, subscribe
   };
   // Convenience top-level
-  if(!g.liveflux.on) g.liveflux.on = on;
-  if(!g.liveflux.dispatch) g.liveflux.dispatch = dispatch;
-  if(!g.liveflux.subscribe) g.liveflux.subscribe = subscribe;
+  if(!window.liveflux.on) window.liveflux.on = on;
+  if(!window.liveflux.dispatch) window.liveflux.dispatch = dispatch;
+  if(!window.liveflux.subscribe) window.liveflux.subscribe = subscribe;
 
 })();

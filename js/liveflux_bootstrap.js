@@ -1,17 +1,21 @@
 (function(){
   if(window.__livefluxInitDone) return;
+
+  if(!window.liveflux){
+    console.log('[Liveflux Bootstrap] liveflux namespace not found');
+    return;
+  }
+
   window.__livefluxInitDone = true;
 
-  const g = window; g.liveflux = g.liveflux || {};
-
   function init(){
-    document.addEventListener('click', g.liveflux.handleActionClick);
-    document.addEventListener('submit', g.liveflux.handleFormSubmit);
+    document.addEventListener('click', window.liveflux.handleActionClick);
+    document.addEventListener('submit', window.liveflux.handleFormSubmit);
 
-    g.liveflux.mountPlaceholders();
+    window.liveflux.mountPlaceholders();
 
-    if(g.liveflux.initWire){
-      setTimeout(function(){ g.liveflux.initWire(); }, 0);
+    if(window.liveflux.initWire){
+      setTimeout(function(){ window.liveflux.initWire(); }, 0);
     }
 
     // Compatibility event
@@ -25,5 +29,5 @@
   }
 
   // Expose for manual re-init if needed
-  g.liveflux.bootstrapInit = init;
+  window.liveflux.bootstrapInit = init;
 })();

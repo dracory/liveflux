@@ -9,11 +9,10 @@
  */
 (function(){
     function livefluxNamespaceCreate(){
-        console.log('[Liveflux] Creating namespace...');
-        
-        // Expose liveflux namespace (lowercase) for convenience
+        // Ensure liveflux namespace exists before other modules execute
         if(!window.liveflux){
             window.liveflux = {};
+            console.log('[Liveflux] Namespace created');
         }
     }
     

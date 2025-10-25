@@ -1,5 +1,8 @@
 (function(){
-  const g = window; g.liveflux = g.liveflux || {};
+  if(!window.liveflux){
+    console.log('[Liveflux Handlers] liveflux namespace not found');
+    return;
+  }
 
   function handleActionClick(e){
     const btn = e.target.closest('[data-flux-action], [flux-action]');
@@ -19,8 +22,8 @@
 
     e.preventDefault();
 
-    const fields = assocForm ? g.liveflux.serializeElement(assocForm) : g.liveflux.serializeElement(root);
-    const btnParams = g.liveflux.readParams(btn);
+    const fields = assocForm ? window.liveflux.serializeElement(assocForm) : window.liveflux.serializeElement(root);
+    const btnParams = window.liveflux.readParams(btn);
     if (btn.name) { btnParams[btn.name] = btn.value; }
 
     const params = Object.assign({}, fields, btnParams, {
@@ -29,15 +32,15 @@
       liveflux_action: action
     });
 
-    g.liveflux.post(params).then((result)=>{
+    window.liveflux.post(params).then((result)=>{
       const html = result.html || result;
       const tmp = document.createElement('div');
       tmp.innerHTML = html;
       const newNode = tmp.firstElementChild;
       if(newNode){
         root.replaceWith(newNode);
-        g.liveflux.executeScripts(newNode);
-        if(g.liveflux.initWire) g.liveflux.initWire();
+        window.liveflux.executeScripts(newNode);
+        if(window.liveflux.initWire) window.liveflux.initWire();
       }
     }).catch((err)=>{ console.error('action', err); });
   }
@@ -55,28 +58,28 @@
     const submitter = e.submitter || root.querySelector('[data-flux-action], [flux-action]');
     const action = (submitter && (submitter.getAttribute('data-flux-action') || submitter.getAttribute('flux-action'))) || form.getAttribute('data-flux-action') || form.getAttribute('flux-action') || 'submit';
 
-    const fields = g.liveflux.serializeElement(form);
+    const fields = window.liveflux.serializeElement(form);
     if (submitter) {
-      const extra = g.liveflux.readParams(submitter);
+      const extra = window.liveflux.readParams(submitter);
       if (submitter.name) { extra[submitter.name] = submitter.value; }
       Object.assign(fields, extra);
     }
 
     const params = Object.assign({}, fields, { liveflux_component_type: comp.value, liveflux_component_id: id.value, liveflux_action: action });
-    g.liveflux.post(params).then((result)=>{
+    window.liveflux.post(params).then((result)=>{
       const html = result.html || result;
       const tmp = document.createElement('div');
       tmp.innerHTML = html;
       const newNode = tmp.firstElementChild;
       if(newNode){
         root.replaceWith(newNode);
-        g.liveflux.executeScripts(newNode);
-        if(g.liveflux.initWire) g.liveflux.initWire();
+        window.liveflux.executeScripts(newNode);
+        if(window.liveflux.initWire) window.liveflux.initWire();
       }
     }).catch((err)=>{ console.error('form submit', err); });
   }
 
   // Expose
-  g.liveflux.handleActionClick = handleActionClick;
-  g.liveflux.handleFormSubmit = handleFormSubmit;
+  window.liveflux.handleActionClick = handleActionClick;
+  window.liveflux.handleFormSubmit = handleFormSubmit;
 })();

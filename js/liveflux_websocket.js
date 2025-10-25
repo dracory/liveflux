@@ -1,5 +1,8 @@
 (function(){
-  const g = window; g.liveflux = g.liveflux || {};
+  if(!window.liveflux){
+    console.log('[Liveflux WebSocket] liveflux namespace not found');
+    return;
+  }
 
   class LiveFluxWS {
     constructor(url, options = {}){
@@ -32,7 +35,7 @@
       if(this.componentID){ this.send({ type:'init', componentID: this.componentID }); }
     }
     handleMessage(event){
-      try { const message = JSON.parse(event.data); this.onMessage(message); if(message.type==='update') this.handleUpdate(message); if(message.type==='redirect') g.location.href = message.url; } catch(e){ console.error('[LFWS] message error', e); }
+      try { const message = JSON.parse(event.data); this.onMessage(message); if(message.type==='update') this.handleUpdate(message); if(message.type==='redirect') window.location.href = message.url; } catch(e){ console.error('[LFWS] message error', e); }
     }
     handleClose(event){
       this.connected = false; this.onClose(event);
@@ -79,10 +82,10 @@
     const wsElements = document.querySelectorAll('[data-flux-ws]');
     wsElements.forEach(el => {
       const url = el.dataset.fluxWsUrl || (()=>{
-        const protocol = g.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const cfg = g.liveflux || {};
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const cfg = window.liveflux || {};
         const wsPath = cfg.wsEndpoint || cfg.endpoint || '/liveflux';
-        return `${protocol}//${g.location.host}${wsPath.startsWith('/') ? wsPath : ('/' + wsPath)}`;
+        return `${protocol}//${window.location.host}${wsPath.startsWith('/') ? wsPath : ('/' + wsPath)}`;
       })();
       const componentID = el.dataset.fluxComponentId || null;
       const client = new LiveFluxWS(url, {
@@ -98,8 +101,8 @@
   }
 
   // Expose
-  g.liveflux.LiveFluxWS = LiveFluxWS;
-  try { g.LiveFluxWS = LiveFluxWS; } catch(_){}
+  window.liveflux.LiveFluxWS = LiveFluxWS;
+  try { window.LiveFluxWS = LiveFluxWS; } catch(_){}
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', autoInit); else autoInit();
 })();

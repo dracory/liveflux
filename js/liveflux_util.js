@@ -1,8 +1,11 @@
 (function(){
-  const g = window; g.liveflux = g.liveflux || {};
+  if(!window.liveflux){
+    console.log('[Liveflux Util] liveflux namespace not found');
+    return;
+  }
 
   // Default endpoint if not set
-  if (!g.liveflux.endpoint) { g.liveflux.endpoint = '/liveflux'; }
+  if (!window.liveflux.endpoint) { window.liveflux.endpoint = '/liveflux'; }
 
   function executeScripts(root){
     if(!root) return;
@@ -48,8 +51,8 @@
   }
 
   // Expose on liveflux
-  g.liveflux.executeScripts = executeScripts;
-  g.liveflux.serializeElement = serializeElement;
-  g.liveflux.readParams = readParams;
+  window.liveflux.executeScripts = executeScripts;
+  window.liveflux.serializeElement = serializeElement;
+  window.liveflux.readParams = readParams;
 
 })();

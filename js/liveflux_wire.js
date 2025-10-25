@@ -1,26 +1,29 @@
 (function(){
-  const g = window; g.liveflux = g.liveflux || {};
+  if(!window.liveflux){
+    console.log('[Liveflux Wire] liveflux namespace not found');
+    return;
+  }
 
   function createWire(componentId, componentAlias, rootEl){
     return {
       on: function(eventName, callback){
-        if(g.liveflux.events && typeof g.liveflux.events.onComponent === 'function'){
-          return g.liveflux.events.onComponent(componentId, eventName, callback);
+        if(window.liveflux.events && typeof window.liveflux.events.onComponent === 'function'){
+          return window.liveflux.events.onComponent(componentId, eventName, callback);
         }
         return function(){};
       },
       dispatch: function(eventName, data){
-        const dispatchFn = g.liveflux.dispatch || (g.liveflux.events && g.liveflux.events.dispatch);
+        const dispatchFn = window.liveflux.dispatch || (window.liveflux.events && window.liveflux.events.dispatch);
         if(typeof dispatchFn === 'function') dispatchFn(eventName, data);
       },
       dispatchSelf: function(eventName, data){
         const d = Object.assign({}, data||{}, { __self: true });
-        const dispatchFn = g.liveflux.dispatch || (g.liveflux.events && g.liveflux.events.dispatch);
+        const dispatchFn = window.liveflux.dispatch || (window.liveflux.events && window.liveflux.events.dispatch);
         if(typeof dispatchFn === 'function') dispatchFn(eventName, d);
       },
       dispatchTo: function(targetAlias, eventName, data){
         const d = Object.assign({}, data||{}, { __target: targetAlias });
-        const dispatchFn = g.liveflux.dispatch || (g.liveflux.events && g.liveflux.events.dispatch);
+        const dispatchFn = window.liveflux.dispatch || (window.liveflux.events && window.liveflux.events.dispatch);
         if(typeof dispatchFn === 'function') dispatchFn(eventName, d);
       },
       call: function(action, data){
@@ -30,7 +33,7 @@
           liveflux_component_id: componentId,
           liveflux_action: action
         });
-        return g.liveflux.post(params).then(function(result){
+        return window.liveflux.post(params).then(function(result){
           const html = result.html || result;
           const tmp = document.createElement('div');
           tmp.innerHTML = html;
@@ -38,8 +41,8 @@
           if(newNode && rootEl){
             rootEl.replaceWith(newNode);
             rootEl = newNode;
-            g.liveflux.executeScripts(newNode);
-            if(g.liveflux.initWire) g.liveflux.initWire();
+            window.liveflux.executeScripts(newNode);
+            if(window.liveflux.initWire) window.liveflux.initWire();
           }
           return result;
         });
@@ -59,7 +62,7 @@
     });
   }
 
-  g.liveflux.createWire = createWire;
-  g.liveflux.initWire = initWire;
+  window.liveflux.createWire = createWire;
+  window.liveflux.initWire = initWire;
 
 })();
