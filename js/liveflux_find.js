@@ -11,6 +11,12 @@
  * - The functions are sorted alphabetically.
  */
 (function(){
+  // Check if liveflux namespace exists
+  if(!window.liveflux){
+    console.log('[Liveflux Find] liveflux namespace not found');
+    return;
+  }
+
   /**
    * Finds a component by alias and ID.
    * @param {string} componentAlias - Alias of the target component.
@@ -19,11 +25,6 @@
    */
   function findComponent(componentAlias, componentId){
     return document.querySelector('[data-flux-root][data-flux-component="' + componentAlias + '"][data-flux-component-id="' + componentId + '"]');
-  }
-  
-  // Check if liveflux namespace exists
-  if(!window.liveflux){
-    console.log('[Liveflux Find] liveflux namespace not found');
   }
   
   // Add functions to liveflux namespace
