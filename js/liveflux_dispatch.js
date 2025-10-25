@@ -25,18 +25,6 @@
   } = liveflux;
 
   /**
-   * Dispatches an event to all listeners and as a browser event.
-   * @param {string} eventName - The name of the event to dispatch.
-   * @param {Object} data - Optional data to pass with the event.
-   * @returns {void}
-   */
-  function dispatch(eventName, data){
-    if(window.liveflux && window.liveflux.events && window.liveflux.events.dispatch){
-      window.liveflux.events.dispatch(eventName, data);
-    }
-  }
-
-  /**
    * Dispatches an event targeted to a specific component.
    * @param {HTMLElement} component - The component element to dispatch the event to.
    * @param {string} eventName - Event name to dispatch.
@@ -66,6 +54,8 @@
       console.warn('[Liveflux Events] dispatchTo called without component id');
       return;
     }
+
+    console.log('[Liveflux Events] dispatchTo called with component alias:', componentAlias, 'component id:', componentId, 'event name:',eventName, 'data:', data);
     
     const payload = Object.assign({}, data || {});
     if(componentAlias){
@@ -173,7 +163,9 @@
   
   // Check if liveflux namespace exists
   // Add functions to liveflux namespace
-  liveflux.dispatch = dispatch;
+  if(!liveflux.dispatch && liveflux.events && typeof liveflux.events.dispatch === 'function'){
+    liveflux.dispatch = liveflux.events.dispatch;
+  }
   liveflux.dispatchTo = dispatchTo;
   liveflux.dispatchToAlias = dispatchToAlias;
   liveflux.dispatchToAliasAndId = dispatchToAliasAndId;

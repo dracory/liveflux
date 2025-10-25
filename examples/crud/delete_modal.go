@@ -106,7 +106,7 @@ func (c *DeleteUserModal) Render(ctx context.Context) hb.TagInterface {
 	deleteBtn := hb.Button().
 		Type("submit").
 		Class("btn btn-danger").
-		Data("flux-action", "delete").
+		Attr(liveflux.DataFluxAction, "delete").
 		Text("Delete")
 	footer := hb.Div().Class("crud-modal__footer").
 		Child(cancelBtn).
@@ -131,15 +131,10 @@ func (c *DeleteUserModal) Render(ctx context.Context) hb.TagInterface {
 	if c.DeletedEvent != nil {
 		p := c.DeletedEvent
 		script := hb.NewScript(fmt.Sprintf(`(function(){
-  var data = { id: %d, name: '%s', email: '%s', role: '%s', flash: '%s' };
-  if(window.liveflux && window.liveflux.dispatch){ window.liveflux.dispatch('user-deleted', data); }
-  else { window.dispatchEvent(new CustomEvent('user-deleted', { detail: data })); }
+  var data = { id: %d};
+  liveflux.dispatch('user-deleted', data);
 })();`,
 			p["id"].(int),
-			jsString(p["name"].(string)),
-			jsString(p["email"].(string)),
-			jsString(p["role"].(string)),
-			jsString(p["flash"].(string)),
 		))
 		modal = modal.Child(script)
 		c.DeletedEvent = nil

@@ -4,6 +4,8 @@
     return;
   }
 
+  const liveflux = window.liveflux;
+
   // Internal registries
   const eventListeners = {};
   const componentEventListeners = {};
@@ -17,18 +19,29 @@
     };
   }
 
+  /**
+   * Dispatches an event to all listeners and as a browser event.
+   * @param {string} eventName - The name of the event to dispatch.
+   * @param {Object} data - Optional data to pass with the event.
+   * @returns {void}
+   */
   function dispatch(eventName, data){
     const payload = data || {};
+
     // global listeners
     if(eventListeners[eventName]){
       eventListeners[eventName].forEach(cb=>{ try{ cb({ name:eventName, data:payload, detail:payload }); }catch(e){ console.error(e); } });
     }
+    
+    console.log('[Liveflux Events] dispatch called with event name:', eventName, 'data:', payload);
+    
     // component listeners
     for(const cid in componentEventListeners){
       const map = componentEventListeners[cid] || {};
       const listeners = map[eventName] || [];
       listeners.forEach(cb=>{ try{ cb({ name:eventName, data:payload, detail:payload }); }catch(e){ console.error(e); } });
     }
+    
     // DOM CustomEvent
     try {
       document.dispatchEvent(new CustomEvent(eventName, { detail: payload, bubbles:true, cancelable:true }));
@@ -45,18 +58,50 @@
         if(!ev || !ev.name) return;
         const data = ev.data || {};
         // handle targeting
-        if(data.__target || data.__target_id){
-          if(data.__target && data.__target !== componentAlias) return;
-          if(data.__target_id && data.__target_id !== componentId) return;
-          delete data.__target; delete data.__target_id;
+        let payload = data;
+        const targetAlias = payload.__target;
+        const targetId = payload.__target_id;
+
+        if(targetAlias || targetId){
+          payload = Object.assign({}, payload);
+          delete payload.__target;
+          delete payload.__target_id;
+
+          let handled = false;
+          if(targetAlias && targetId && typeof liveflux.dispatchToAliasAndId === 'function'){
+            try { liveflux.dispatchToAliasAndId(targetAlias, targetId, ev.name, payload); handled = true; }
+            catch(e){ console.error('[Liveflux Events] dispatchToAliasAndId error', e); }
+          }
+          if(!handled && targetAlias && typeof liveflux.dispatchToAlias === 'function'){
+            try { liveflux.dispatchToAlias(targetAlias, ev.name, payload); handled = true; }
+            catch(e){ console.error('[Liveflux Events] dispatchToAlias error', e); }
+          }
+          if(!handled && targetId && typeof liveflux.findComponent === 'function' && typeof liveflux.dispatchTo === 'function'){
+            const lookupAlias = targetAlias || componentAlias;
+            try {
+              const targetRoot = lookupAlias ? liveflux.findComponent(lookupAlias, targetId) : null;
+              if(targetRoot){
+                liveflux.dispatchTo(targetRoot, ev.name, payload);
+                handled = true;
+              }
+            } catch(e){ console.error('[Liveflux Events] dispatchTo target error', e); }
+          }
+
+          if(handled){
+            return;
+          }
         }
-        if(data.__self){
-          if(componentEventListeners[componentId] && componentEventListeners[componentId][ev.name]){
-            componentEventListeners[componentId][ev.name].forEach(cb=>{ try{ cb({ name:ev.name, data:data, detail:data }); }catch(e){ console.error(e); } });
+
+        if(payload.__self){
+          const listeners = componentEventListeners[componentId] && componentEventListeners[componentId][ev.name];
+          if(listeners && listeners.length){
+            const selfPayload = Object.assign({}, payload);
+            delete selfPayload.__self;
+            listeners.forEach(cb=>{ try{ cb({ name:ev.name, data:selfPayload, detail:selfPayload }); }catch(e){ console.error(e); } });
           }
           return;
         }
-        dispatch(ev.name, data);
+        dispatch(ev.name, payload);
       });
     } catch(e){ console.error('[Liveflux Events] parse error', e); }
   }
@@ -90,8 +135,8 @@
     on, dispatch, processEvents, onComponent, subscribe
   };
   // Convenience top-level
-  if(!window.liveflux.on) window.liveflux.on = on;
-  if(!window.liveflux.dispatch) window.liveflux.dispatch = dispatch;
-  if(!window.liveflux.subscribe) window.liveflux.subscribe = subscribe;
+  window.liveflux.on = on;
+  window.liveflux.dispatch = dispatch;
+  window.liveflux.subscribe = subscribe;
 
 })();

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/dracory/hb"
 	"github.com/dracory/liveflux"
 )
 
@@ -21,32 +22,44 @@ func main() {
 
 		list := liveflux.SSR(&UserList{
 			ModalCreateUser: modalCreate,
-		}).ToHTML()
-		create := liveflux.SSR(modalCreate).ToHTML()
-		edit := liveflux.SSR(modalEdit).ToHTML()
-		deleteHTML := liveflux.SSR(modalDelete).ToHTML()
+		})
+		create := liveflux.SSR(modalCreate)
+		edit := liveflux.SSR(modalEdit)
+		deleteHTML := liveflux.SSR(modalDelete)
 
-		html := `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">` +
-			`<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">` +
-			`<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">` +
-			`<title>Liveflux CRUD</title>` +
-			`<style>` +
-			`body{background-color:#f8f9fa;}` +
-			`.crud-modal{display:none;position:fixed;inset:0;padding:1.5rem;background:rgba(33,37,41,.55);z-index:1050;align-items:center;justify-content:center;}` +
-			`.crud-modal__card{background:#fff;border-radius:.9rem;box-shadow:0 2rem 4rem rgba(15,23,42,.3);overflow:hidden;max-width:520px;width:100%;}` +
-			`.crud-modal__header{padding:1rem 1.5rem;border-bottom:1px solid rgba(0,0,0,.1);display:flex;align-items:center;justify-content:space-between;gap:1rem;}` +
-			`.crud-modal__body{padding:1.5rem;display:flex;flex-direction:column;gap:1rem;}` +
-			`.crud-modal__footer{padding:0 1.5rem 1.5rem 1.5rem;display:flex;gap:.75rem;justify-content:flex-end;}` +
-			`.crud-badge{font-size:.75rem;letter-spacing:.04em;text-transform:uppercase;}` +
-			`</style></head><body>`
+		page := hb.Webpage().
+			SetTitle("Liveflux CRUD").
+			SetCharset("utf-8").
+			Style(`
+				body{background-color:#f8f9fa;}
+				.crud-modal{display:none;position:fixed;inset:0;padding:1.5rem;background:rgba(33,37,41,.55);z-index:1050;align-items:center;justify-content:center;}
+				.crud-modal__card{background:#fff;border-radius:.9rem;box-shadow:0 2rem 4rem rgba(15,23,42,.3);overflow:hidden;max-width:520px;width:100%;}
+				.crud-modal__header{padding:1rem 1.5rem;border-bottom:1px solid rgba(0,0,0,.1);display:flex;align-items:center;justify-content:space-between;gap:1rem;}
+				.crud-modal__body{padding:1.5rem;display:flex;flex-direction:column;gap:1rem;}
+				.crud-modal__footer{padding:0 1.5rem 1.5rem 1.5rem;display:flex;gap:.75rem;justify-content:flex-end;}
+				.crud-badge{font-size:.75rem;letter-spacing:.04em;text-transform:uppercase;}
+			`).
+			Child(
+				hb.Div().Class("container").
+					Children([]hb.TagInterface{
+						hb.H1().Text("Team Directory"),
+						hb.P().Text("Manage a simple in-memory list of teammates with Liveflux."),
+						list,
+						create,
+						edit,
+						deleteHTML,
+					}),
+			).
+			StyleURLs([]string{
+				"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css",
+				"https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css",
+			}).
+			ScriptURLs([]string{
+				"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js",
+			}).
+			Script(liveflux.JS())
 
-		html += `<div class="container py-4"><div class="mb-4 text-center"><h1 class="fw-semibold">Team Directory</h1>` +
-			`<p class="text-muted mb-0">Manage a simple in-memory list of teammates with Liveflux.</p></div>`
-		html += list + create + edit + deleteHTML + `</div>`
-		html += liveflux.Script().ToHTML()
-		html += `</body></html>`
-
-		_, _ = w.Write([]byte(html))
+		_, _ = w.Write([]byte(page.ToHTML()))
 	})
 
 	addr := ":8080"
