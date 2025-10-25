@@ -4,6 +4,19 @@
     return;
   }
 
+  const liveflux = window.liveflux;
+  const {
+    dataFluxAction,
+    dataFluxComponentID,
+    dataFluxWS,
+    dataFluxWSURL,
+  } = liveflux;
+
+  const actionSelector = `[${dataFluxAction}]`;
+  const actionSelectorWithFallback = `${actionSelector}`;
+  const componentIdSelector = (id) => `[${dataFluxComponentID}="${id}"]`;
+  const wsSelector = `[${dataFluxWS}]`;
+
   class LiveFluxWS {
     constructor(url, options = {}){
       this.url = url;
@@ -50,24 +63,24 @@
     setupFormHandling(){
       this.rootEl.addEventListener('submit', (e)=>{
         const form = e.target.closest('form'); if(!form) return;
-        const componentID = form.dataset.fluxComponentId || this.componentID;
-        const action = form.dataset.fluxAction || 'submit';
+        const componentID = form.getAttribute(dataFluxComponentID) || form.dataset.fluxComponentId || this.componentID;
+        const action = form.getAttribute(dataFluxAction) || form.dataset.fluxAction || 'submit';
         if(this.connected && componentID){ e.preventDefault(); const fd = new FormData(form); const data = {}; for(const [k,v] of fd.entries()) data[k]=v; this.sendAction(componentID, action, data); }
       });
       this.rootEl.addEventListener('click', (e)=>{
-        const el = e.target.closest('[data-flux-action]'); if(!el || !this.connected) return;
+        const el = e.target.closest(actionSelectorWithFallback); if(!el || !this.connected) return;
         if(el.tagName === 'FORM') return;
-        const componentID = el.dataset.fluxComponentId || this.componentID; const action = el.dataset.fluxAction; if(!componentID||!action) return; e.preventDefault();
+        const componentID = el.getAttribute(dataFluxComponentID) || el.dataset.fluxComponentId || this.componentID; const action = el.getAttribute(dataFluxAction) || el.dataset.fluxAction; if(!componentID||!action) return; e.preventDefault();
         const data = {}; for(const [key, value] of Object.entries(el.dataset)){ if(key.startsWith('fluxData')){ const k = key.replace(/^fluxData([A-Z])/, (_, p1) => p1.toLowerCase()); data[k]=value; } }
         this.sendAction(componentID, action, data);
       });
     }
     handleUpdate(message){
-      const element = document.querySelector(`[data-flux-component-id="${message.componentID}"]`);
+      const element = document.querySelector(componentIdSelector(message.componentID));
       if(element && message.data && message.data.html){
         element.outerHTML = message.data.html;
         if(this.connected){
-          const refreshed = document.querySelector(`[data-flux-component-id="${message.componentID}"]`);
+          const refreshed = document.querySelector(componentIdSelector(message.componentID));
           if(refreshed){
             const status = refreshed.querySelector('.status'); if(status) status.textContent = 'Connected';
             this.rootEl = refreshed; this.setupFormHandling();
@@ -79,15 +92,16 @@
   }
 
   function autoInit(){
-    const wsElements = document.querySelectorAll('[data-flux-ws]');
+    const wsElements = document.querySelectorAll(wsSelector);
     wsElements.forEach(el => {
-      const url = el.dataset.fluxWsUrl || (()=>{
+      const urlAttr = el.getAttribute(dataFluxWSURL) || el.dataset.fluxWsUrl;
+      const url = urlAttr || (()=>{
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const cfg = window.liveflux || {};
         const wsPath = cfg.wsEndpoint || cfg.endpoint || '/liveflux';
         return `${protocol}//${window.location.host}${wsPath.startsWith('/') ? wsPath : ('/' + wsPath)}`;
       })();
-      const componentID = el.dataset.fluxComponentId || null;
+      const componentID = el.getAttribute(dataFluxComponentID) || el.dataset.fluxComponentId || null;
       const client = new LiveFluxWS(url, {
         componentID,
         rootEl: el,

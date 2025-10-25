@@ -17,6 +17,9 @@
     return;
   }
 
+  const liveflux = window.liveflux;
+  const { dataFluxRoot, dataFluxComponent, dataFluxComponentID } = liveflux;
+
   /**
    * Finds a component by alias and ID.
    * @param {string} componentAlias - Alias of the target component.
@@ -24,9 +27,9 @@
    * @returns {HTMLElement|null} - The component element if found, otherwise null.
    */
   function findComponent(componentAlias, componentId){
-    return document.querySelector('[data-flux-root][data-flux-component="' + componentAlias + '"][data-flux-component-id="' + componentId + '"]');
+    return document.querySelector(`[${dataFluxRoot}][${dataFluxComponent}="${componentAlias}"][${dataFluxComponentID}="${componentId}"]`);
   }
   
   // Add functions to liveflux namespace
-  window.liveflux.findComponent = findComponent;
+  liveflux.findComponent = findComponent;
 })();

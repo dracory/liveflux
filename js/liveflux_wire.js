@@ -4,26 +4,31 @@
     return;
   }
 
+  const liveflux = window.liveflux;
+  const { dataFluxRoot, dataFluxComponentID } = liveflux;
+  const rootSelector = `[${dataFluxRoot}]`;
+  const rootSelectorWithFallback = `${rootSelector}, [flux-root]`;
+
   function createWire(componentId, componentAlias, rootEl){
     return {
       on: function(eventName, callback){
-        if(window.liveflux.events && typeof window.liveflux.events.onComponent === 'function'){
-          return window.liveflux.events.onComponent(componentId, eventName, callback);
+        if(liveflux.events && typeof liveflux.events.onComponent === 'function'){
+          return liveflux.events.onComponent(componentId, eventName, callback);
         }
         return function(){};
       },
       dispatch: function(eventName, data){
-        const dispatchFn = window.liveflux.dispatch || (window.liveflux.events && window.liveflux.events.dispatch);
+        const dispatchFn = liveflux.dispatch || (liveflux.events && liveflux.events.dispatch);
         if(typeof dispatchFn === 'function') dispatchFn(eventName, data);
       },
       dispatchSelf: function(eventName, data){
         const d = Object.assign({}, data||{}, { __self: true });
-        const dispatchFn = window.liveflux.dispatch || (window.liveflux.events && window.liveflux.events.dispatch);
+        const dispatchFn = liveflux.dispatch || (liveflux.events && liveflux.events.dispatch);
         if(typeof dispatchFn === 'function') dispatchFn(eventName, d);
       },
       dispatchTo: function(targetAlias, eventName, data){
         const d = Object.assign({}, data||{}, { __target: targetAlias });
-        const dispatchFn = window.liveflux.dispatch || (window.liveflux.events && window.liveflux.events.dispatch);
+        const dispatchFn = liveflux.dispatch || (liveflux.events && liveflux.events.dispatch);
         if(typeof dispatchFn === 'function') dispatchFn(eventName, d);
       },
       call: function(action, data){
@@ -33,7 +38,7 @@
           liveflux_component_id: componentId,
           liveflux_action: action
         });
-        return window.liveflux.post(params).then(function(result){
+        return liveflux.post(params).then(function(result){
           const html = result.html || result;
           const tmp = document.createElement('div');
           tmp.innerHTML = html;
@@ -41,8 +46,8 @@
           if(newNode && rootEl){
             rootEl.replaceWith(newNode);
             rootEl = newNode;
-            window.liveflux.executeScripts(newNode);
-            if(window.liveflux.initWire) window.liveflux.initWire();
+            liveflux.executeScripts(newNode);
+            if(liveflux.initWire) liveflux.initWire();
           }
           return result;
         });
@@ -53,7 +58,7 @@
   }
 
   function initWire(){
-    const roots = document.querySelectorAll('[data-flux-root], [flux-root]');
+    const roots = document.querySelectorAll(rootSelectorWithFallback);
     roots.forEach(function(root){
       const comp = root.querySelector('input[name="liveflux_component_type"]');
       const id = root.querySelector('input[name="liveflux_component_id"]');
@@ -62,7 +67,7 @@
     });
   }
 
-  window.liveflux.createWire = createWire;
-  window.liveflux.initWire = initWire;
+  liveflux.createWire = createWire;
+  liveflux.initWire = initWire;
 
 })();

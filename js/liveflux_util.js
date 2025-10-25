@@ -4,8 +4,9 @@
     return;
   }
 
-  // Default endpoint if not set
-  if (!window.liveflux.endpoint) { window.liveflux.endpoint = '/liveflux'; }
+  const liveflux = window.liveflux;
+  const { dataFluxParam } = liveflux;
+  const dataParamPrefix = `${dataFluxParam}-`;
 
   function executeScripts(root){
     if(!root) return;
@@ -41,8 +42,8 @@
     const out = {}; if(!el || !el.attributes) return out;
     for(const attr of el.attributes){
       if(!attr.name) continue;
-      if(attr.name.startsWith('data-flux-param-')){
-        out[attr.name.substring('data-flux-param-'.length)] = attr.value;
+      if(attr.name.startsWith(dataParamPrefix)){
+        out[attr.name.substring(dataParamPrefix.length)] = attr.value;
       } else if (attr.name.startsWith('flux-param-')){
         out[attr.name.substring('flux-param-'.length)] = attr.value;
       }
@@ -51,8 +52,8 @@
   }
 
   // Expose on liveflux
-  window.liveflux.executeScripts = executeScripts;
-  window.liveflux.serializeElement = serializeElement;
-  window.liveflux.readParams = readParams;
+  liveflux.executeScripts = executeScripts;
+  liveflux.serializeElement = serializeElement;
+  liveflux.readParams = readParams;
 
 })();

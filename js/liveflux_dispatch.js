@@ -12,6 +12,18 @@
  * - The functions are sorted alphabetically.
  */
 (function(){
+  if(!window.liveflux){
+    console.log('[Liveflux Dispatch] liveflux namespace not found');
+    return;
+  }
+
+  const liveflux = window.liveflux;
+  const {
+    dataFluxComponent,
+    dataFluxComponentID,
+    dataFluxRoot,
+  } = liveflux;
+
   /**
    * Dispatches an event to all listeners and as a browser event.
    * @param {string} eventName - The name of the event to dispatch.
@@ -42,8 +54,8 @@
       return;
     }
     
-    const componentAlias = component.getAttribute('data-flux-component');
-    const componentId = component.getAttribute('data-flux-component-id');
+    const componentAlias = component.getAttribute(dataFluxComponent);
+    const componentId = component.getAttribute(dataFluxComponentID);
 
     if(!componentAlias){
       console.warn('[Liveflux Events] dispatchTo called without component alias');
@@ -86,7 +98,7 @@
       return;
     }
 
-    const components = document.querySelectorAll('[data-flux-root][data-flux-component="' + componentAlias + '"]');
+    const components = document.querySelectorAll(`[${dataFluxRoot}][${dataFluxComponent}="${componentAlias}"]`);
     if(components.length === 0){
       console.warn('[Liveflux Events] dispatchToAlias called without component');
       return;
@@ -127,7 +139,7 @@
       return;
     }
 
-    const component = window.liveflux && window.liveflux.findComponent ? window.liveflux.findComponent(componentAlias, componentId) : null;
+    const component = liveflux.findComponent ? liveflux.findComponent(componentAlias, componentId) : null;
     if(!component){
       console.warn('[Liveflux Events] dispatchToAliasAndId called without component');
       return;
@@ -141,8 +153,8 @@
       payload.__target_id = componentId;
     }
 
-    if(window.liveflux && window.liveflux.events && window.liveflux.events.dispatch){
-      window.liveflux.events.dispatch(eventName, payload);
+    if(liveflux.events && liveflux.events.dispatch){
+      liveflux.events.dispatch(eventName, payload);
     }
   }
 
@@ -160,14 +172,10 @@
   }
   
   // Check if liveflux namespace exists
-  if(!window.liveflux){
-    console.log('[Liveflux Dispatch] liveflux namespace not found');
-  }
-  
   // Add functions to liveflux namespace
-  window.liveflux.dispatch = dispatch;
-  window.liveflux.dispatchTo = dispatchTo;
-  window.liveflux.dispatchToAlias = dispatchToAlias;
-  window.liveflux.dispatchToAliasAndId = dispatchToAliasAndId;
-  window.liveflux.on = on;
+  liveflux.dispatch = dispatch;
+  liveflux.dispatchTo = dispatchTo;
+  liveflux.dispatchToAlias = dispatchToAlias;
+  liveflux.dispatchToAliasAndId = dispatchToAliasAndId;
+  liveflux.on = on;
 })();
