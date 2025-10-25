@@ -20,9 +20,7 @@ func readJS(t *testing.T, rel string) string {
 }
 
 func TestJSConcatenationOrder(t *testing.T) {
-	endpoint := DefaultEndpoint
 	modules := []string{
-		strings.TrimSpace(injectNamespaceConstants(readJS(t, "liveflux_namespace_create.js"), endpoint)),
 		strings.TrimSpace(readJS(t, "liveflux_util.js")),
 		strings.TrimSpace(readJS(t, "liveflux_events.js")),
 		strings.TrimSpace(readJS(t, "liveflux_network.js")),
@@ -49,67 +47,27 @@ func TestJSConcatenationOrder(t *testing.T) {
 	}
 }
 
-func TestInjectNamespaceConstants(t *testing.T) {
-	endpoint := "/custom"
-	js := injectNamespaceConstants(livefluxNamespaceCreateJS, endpoint)
+func TestJSIncludesConstants(t *testing.T) {
+	out := JS()
 
-	constants := []string{
-		DataFluxAction,
-		DataFluxDispatchTo,
-		DataFluxComponent,
-		DataFluxComponentID,
-		DataFluxID,
-		DataFluxMount,
-		DataFluxParam,
-		DataFluxRoot,
-		DataFluxSubmit,
-		DataFluxWS,
-		DataFluxWSURL,
+	constants := map[string]string{
+		"dataFluxAction":      DataFluxAction,
+		"dataFluxDispatchTo":  DataFluxDispatchTo,
+		"dataFluxComponent":   DataFluxComponent,
+		"dataFluxComponentID": DataFluxComponentID,
+		"dataFluxID":          DataFluxID,
+		"dataFluxMount":       DataFluxMount,
+		"dataFluxParam":       DataFluxParam,
+		"dataFluxRoot":        DataFluxRoot,
+		"dataFluxSubmit":      DataFluxSubmit,
+		"dataFluxWS":          DataFluxWS,
+		"dataFluxWSURL":       DataFluxWSURL,
 	}
 
-	for _, c := range constants {
-		if !strings.Contains(js, c) {
-			t.Fatalf("namespace constants missing %q", c)
-		}
-	}
-
-	if !strings.Contains(js, endpoint) {
-		t.Fatalf("namespace script missing endpoint %q", endpoint)
-	}
-
-	expecteds := []string{
-		// constants
-		`const dataFluxAction = "` + DataFluxAction + `";`,
-		`const dataFluxDispatchTo = "` + DataFluxDispatchTo + `";`,
-		`const dataFluxComponent = "` + DataFluxComponent + `";`,
-		`const dataFluxComponentID = "` + DataFluxComponentID + `";`,
-		`const dataFluxID = "` + DataFluxID + `";`,
-		`const dataFluxMount = "` + DataFluxMount + `";`,
-		`const dataFluxParam = "` + DataFluxParam + `";`,
-		`const dataFluxRoot = "` + DataFluxRoot + `";`,
-		`const dataFluxSubmit = "` + DataFluxSubmit + `";`,
-		`const dataFluxWS = "` + DataFluxWS + `";`,
-		`const dataFluxWSURL = "` + DataFluxWSURL + `";`,
-		`const endpoint = "` + endpoint + `";`,
-
-		// added to window.liveflux object
-		`dataFluxAction,`,
-		`dataFluxDispatchTo,`,
-		`dataFluxComponent,`,
-		`dataFluxComponentID,`,
-		`dataFluxID,`,
-		`dataFluxMount,`,
-		`dataFluxParam,`,
-		`dataFluxRoot,`,
-		`dataFluxSubmit,`,
-		`dataFluxWS,`,
-		`dataFluxWSURL,`,
-		`endpoint,`,
-	}
-
-	for _, e := range expecteds {
-		if !strings.Contains(js, e) {
-			t.Fatalf("namespace constants missing %q", e)
+	for key, val := range constants {
+		needle := `"` + key + `":"` + val + `"`
+		if !strings.Contains(out, needle) {
+			t.Fatalf("JS() config missing constant %q (%s)", key, val)
 		}
 	}
 }
