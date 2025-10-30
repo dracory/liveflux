@@ -10,7 +10,11 @@ import (
 
 // NewID generates a URL-safe random ID string.
 func NewID() string {
-	return str.RandomFromGamma(12, "123456789bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ")
+	id, err := str.RandomFromGamma(12, "123456789bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ")
+	if err != nil {
+		return str.Random(12)
+	}
+	return id
 }
 
 // DefaultAliasFromType derives a sensible default alias from a component's Go type.
