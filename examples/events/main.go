@@ -10,16 +10,16 @@ import (
 )
 
 func main() {
-    // Register components
-    if err := liveflux.RegisterByAlias("post-creator", &PostCreator{}); err != nil {
-        log.Fatal(err)
-    }
-    if err := liveflux.RegisterByAlias("post-list", &PostList{}); err != nil {
-        log.Fatal(err)
-    }
-    if err := liveflux.RegisterByAlias("notification-banner", &NotificationBanner{}); err != nil {
-        log.Fatal(err)
-    }
+	// Register components
+	if err := liveflux.RegisterByAlias("post-creator", &PostCreator{}); err != nil {
+		log.Fatal(err)
+	}
+	if err := liveflux.RegisterByAlias("post-list", &PostList{}); err != nil {
+		log.Fatal(err)
+	}
+	if err := liveflux.RegisterByAlias("notification-banner", &NotificationBanner{}); err != nil {
+		log.Fatal(err)
+	}
 
 	// Setup HTTP server
 	mux := http.NewServeMux()
@@ -32,6 +32,8 @@ func main() {
 		page := hb.Webpage().
 			SetTitle("Liveflux Events Example").
 			SetCharset("utf-8").
+			ScriptURL("/liveflux"). // external script
+			// Script(liveflux.JS()). // embedded script
 			Style(`
 				body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
 				.container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
@@ -60,8 +62,7 @@ func main() {
 					liveflux.PlaceholderByAlias("post-list"),
 				}),
 				liveflux.PlaceholderByAlias("notification-banner"),
-			}).
-			Script(liveflux.JS())
+			})
 
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprint(w, page.ToHTML())

@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/dracory/liveflux"
 )
@@ -31,8 +33,12 @@ func main() {
 		_, _ = w.Write([]byte(html))
 	})
 
-	addr := ":8080"
-	log.Printf("Liveflux tree example listening on %s", addr)
+	port := "8085"
+	addr := ":" + port
+	fmt.Printf("========================\n")
+	fmt.Printf("Server running at: http://localhost:%s\n", port)
+	fmt.Println("Current time: " + time.Now().Format("2006-01-02 15:04:05"))
+	fmt.Printf("========================\n")
 	if err := http.ListenAndServe(addr, mux); err != nil {
 		log.Fatal(err)
 	}

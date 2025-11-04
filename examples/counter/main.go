@@ -40,6 +40,8 @@ func main() {
 			SetCharset("utf-8").
 			Meta(hb.Meta().Attr("name", "viewport").Attr("content", "width=device-width, initial-scale=1")).
 			StyleURL("https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css").
+			ScriptURL("/liveflux"). // external script
+			// Script(liveflux.JS()). // embedded script
 			Child(
 				hb.Div().Class("container py-4").
 					Child(hb.Div().Class("row g-4").
@@ -55,8 +57,7 @@ func main() {
 									counter2,
 								}),
 						})),
-			).
-			Script(liveflux.JS())
+			)
 
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		_, _ = w.Write([]byte(page.ToHTML()))

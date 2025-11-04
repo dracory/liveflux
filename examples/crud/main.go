@@ -30,6 +30,15 @@ func main() {
 		page := hb.Webpage().
 			SetTitle("Liveflux CRUD").
 			SetCharset("utf-8").
+			StyleURLs([]string{
+				"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css",
+				"https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css",
+			}).
+			ScriptURLs([]string{
+				"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js",
+				"/liveflux", // external script
+			}).
+			// Script(liveflux.JS()) // embedded script
 			Style(`
 				body{background-color:#f8f9fa;}
 				.crud-modal{display:none;position:fixed;inset:0;padding:1.5rem;background:rgba(33,37,41,.55);z-index:1050;align-items:center;justify-content:center;}
@@ -49,17 +58,7 @@ func main() {
 						edit,
 						deleteHTML,
 					}),
-			).
-			StyleURLs([]string{
-				"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css",
-				"https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css",
-			}).
-			ScriptURLs([]string{
-				"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js",
-				"/liveflux",
-			})
-			// .
-			// Script(liveflux.JS())
+			)
 
 		_, _ = w.Write([]byte(page.ToHTML()))
 	})

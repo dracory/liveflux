@@ -30,9 +30,12 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+examples/counter/tmp/
+examples/crud/tmp/
+examples/events/tmp/
+examples/formless/tmp/
 examples/tree/tmp/
 examples/websocket/tmp/
-examples/events/tmp/
-examples/crud/tmp/
-examples/formless/tmp/
 js/tests/tmp/build-errors.log
+
