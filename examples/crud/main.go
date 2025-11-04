@@ -56,16 +56,21 @@ func main() {
 			}).
 			ScriptURLs([]string{
 				"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js",
-			}).
-			Script(liveflux.JS())
+				"/liveflux",
+			})
+			// .
+			// Script(liveflux.JS())
 
 		_, _ = w.Write([]byte(page.ToHTML()))
 	})
 
-	addr := ":8080"
-	fmt.Printf("Server running at http://localhost%s\n", addr)
+	port := "8082"
+	addr := ":" + port
+	fmt.Printf("========================\n")
+	fmt.Printf("Server running at: http://localhost:%s\n", port)
 	fmt.Println("Open your browser and create posts to see CRUD in action!")
 	fmt.Println("Current time: " + time.Now().Format("2006-01-02 15:04:05"))
+	fmt.Printf("========================\n")
 	if err := http.ListenAndServe(addr, mux); err != nil {
 		log.Fatal(err)
 	}

@@ -1,9 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"time"
 
+	"github.com/dracory/hb"
 	"github.com/dracory/liveflux"
 )
 
@@ -29,25 +32,42 @@ func main() {
 			return
 		}
 
-		html := `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">` +
-			`<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">` +
-			`<title>Liveflux Counter</title></head><body class="p-4">`
+		counter1 := liveflux.SSR(inst1)
+		counter2 := liveflux.SSR(inst2)
 
-		// SSR two components side-by-side
-		html += `<div class="container"><div class="row g-4">`
-		html += `<div class="col-md-6"><h3>Counter 1</h3>` + liveflux.SSR(inst1).ToHTML() + `</div>`
-		html += `<div class="col-md-6"><h3>Counter 2</h3>` + liveflux.SSR(inst2).ToHTML() + `</div>`
-		html += `</div></div>`
+		page := hb.Webpage().
+			SetTitle("Liveflux Counter").
+			SetCharset("utf-8").
+			Meta(hb.Meta().Attr("name", "viewport").Attr("content", "width=device-width, initial-scale=1")).
+			StyleURL("https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css").
+			Child(
+				hb.Div().Class("container py-4").
+					Child(hb.Div().Class("row g-4").
+						Children([]hb.TagInterface{
+							hb.Div().Class("col-md-6").
+								Children([]hb.TagInterface{
+									hb.H3().Text("Counter 1"),
+									counter1,
+								}),
+							hb.Div().Class("col-md-6").
+								Children([]hb.TagInterface{
+									hb.H3().Text("Counter 2"),
+									counter2,
+								}),
+						})),
+			).
+			Script(liveflux.JS())
 
-		// Client runtime (include once)
-		html += liveflux.Script().ToHTML()
-
-		html += "</body></html>"
-		_, _ = w.Write([]byte(html))
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_, _ = w.Write([]byte(page.ToHTML()))
 	})
 
-	addr := ":8080"
-	log.Printf("Liveflux counter example listening on %s", addr)
+	port := "8081"
+	addr := ":" + port
+	fmt.Printf("========================\n")
+	fmt.Printf("Server running at: http://localhost:%s\n", port)
+	fmt.Println("Current time: " + time.Now().Format("2006-01-02 15:04:05"))
+	fmt.Printf("========================\n")
 	if err := http.ListenAndServe(addr, mux); err != nil {
 		log.Fatal(err)
 	}
