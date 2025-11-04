@@ -35,3 +35,4 @@ examples/websocket/tmp/
 examples/events/
 examples/crud/
 examples/formless/
+js/tests/tmp/build-errors.log
