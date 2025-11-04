@@ -88,9 +88,13 @@ func (b *Base) TakeRedirectDelaySeconds() int {
 // This avoids repeating boilerplate in every component's Render method.
 func (b *Base) Root(content hb.TagInterface) hb.TagInterface {
 	root := hb.Div().
+		// data-flux-root is checked by the client to determine if this is a Liveflux component.
 		Attr(DataFluxRoot, "1").
+		// data-flux-component is the component alias (TYPE identifier).
 		Attr(DataFluxComponent, b.GetAlias()).
+		// data-flux-component-id is the component instance ID (INSTANCE identifier).
 		Attr(DataFluxComponentID, b.GetID()).
+		// Hidden fields for form submission.
 		Child(hb.Input().Type("hidden").Name(FormComponent).Value(b.GetAlias())).
 		Child(hb.Input().Type("hidden").Name(FormComponentID).Value(b.GetID()))
 
