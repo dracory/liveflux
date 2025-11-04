@@ -12,6 +12,9 @@
   const rootSelector = `[${dataFluxRoot}]`;
   const rootSelectorWithFallback = `${rootSelector}, [flux-root]`;
 
+  // Track in-flight requests per component ID to prevent concurrent requests
+  const pendingRequests = new Map();
+
   function handleActionClick(e){
     const btn = e.target.closest(actionSelectorWithFallback);
     if(!btn) return;
@@ -29,6 +32,12 @@
 
     e.preventDefault();
 
+    // Check if there's already a pending request for this component
+    if(pendingRequests.has(metadata.id)){
+      console.log('[Liveflux] Skipping action - request already in progress for component:', metadata.id);
+      return;
+    }
+
     // Use collectAllFields to support data-flux-include and data-flux-exclude
     const fields = liveflux.collectAllFields(btn, metadata.root, assocForm);
 
@@ -37,6 +46,9 @@
       liveflux_component_id: metadata.id,
       liveflux_action: action
     });
+
+    // Mark this component as having a pending request
+    pendingRequests.set(metadata.id, true);
 
     liveflux.post(params).then((result)=>{
       const html = result.html || result;
@@ -56,7 +68,11 @@
           if(liveflux.initWire) liveflux.initWire();
         }
       }
-    }).catch((err)=>{ console.error('action', err); });
+    }).catch((err)=>{ console.error('action', err); })
+      .finally(()=>{
+        // Clear the pending request flag
+        pendingRequests.delete(metadata.id);
+      });
   }
 
   function handleFormSubmit(e){
