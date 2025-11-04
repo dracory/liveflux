@@ -29,15 +29,38 @@
     </script>
     
     <!-- Source files to test -->
-    <script src="../liveflux_find.js"></script>
-    <script src="../liveflux_events.js"></script>
-    <script src="../liveflux_dispatch.js"></script>
-    <script src="../liveflux_bootstrap.js"></script>
+    <script src="/liveflux_find.js"></script>
+    <script src="/liveflux_events.js"></script>
+    <script>
+        // Debug: Check if events module loaded
+        console.log('After events.js:', {
+            events: window.liveflux.events,
+            dispatch: window.liveflux.dispatch,
+            on: window.liveflux.on
+        });
+    </script>
+    <script src="/liveflux_dispatch.js"></script>
+    <script>
+        // Debug: Check if dispatch module loaded
+        console.log('After dispatch.js:', {
+            dispatchTo: window.liveflux.dispatchTo,
+            dispatchToAlias: window.liveflux.dispatchToAlias,
+            dispatchToAliasAndId: window.liveflux.dispatchToAliasAndId
+        });
+    </script>
+    <script src="/liveflux_bootstrap.js"></script>
+    <script>
+        // Debug: Check if bootstrap module loaded
+        console.log('After bootstrap.js:', {
+            bootstrapInit: window.liveflux.bootstrapInit,
+            __bootstrapInitDone: window.liveflux.__bootstrapInitDone
+        });
+    </script>
     
     <!-- Test specs -->
-    <script src="find.spec.js"></script>
-    <script src="events.spec.js"></script>
-    <script src="dispatch.spec.js"></script>
-    <script src="bootstrap.spec.js"></script>
+    <script src="/tests/find.spec.js"></script>
+    <script src="/tests/events.spec.js"></script>
+    <script src="/tests/dispatch.spec.js"></script>
+    <script src="/tests/bootstrap.spec.js"></script>
 </body>
 </html>
