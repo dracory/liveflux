@@ -13,8 +13,9 @@ type Store interface {
 // and single-instance deployments. Replace with a session or DB-backed
 // implementation for multi-instance deployments.
 type MemoryStore struct {
-	mu sync.RWMutex
-	m  map[string]ComponentInterface
+	mu    sync.RWMutex
+	m     map[string]ComponentInterface
+	locks sync.Map // map[string]*sync.Mutex for per-component locking
 }
 
 // NewMemoryStore creates a MemoryStore.
@@ -45,6 +46,24 @@ func (s *MemoryStore) Delete(id string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	delete(s.m, id)
+	s.locks.Delete(id)
+}
+
+// LockComponent acquires a per-component lock to prevent concurrent modifications.
+// Returns the lock that must be unlocked after the operation completes.
+func (s *MemoryStore) LockComponent(id string) *sync.Mutex {
+	// Get or create a mutex for this component ID
+	actual, _ := s.locks.LoadOrStore(id, &sync.Mutex{})
+	mu := actual.(*sync.Mutex)
+	mu.Lock()
+	return mu
+}
+
+// UnlockComponent releases the per-component lock.
+func (s *MemoryStore) UnlockComponent(mu *sync.Mutex) {
+	if mu != nil {
+		mu.Unlock()
+	}
 }
 
 // StoreDefault is the default process-local store used by the handler.
