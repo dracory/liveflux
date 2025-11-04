@@ -60,10 +60,10 @@
   function initWire(){
     const roots = document.querySelectorAll(rootSelectorWithFallback);
     roots.forEach(function(root){
-      const comp = root.querySelector('input[name="liveflux_component_type"]');
-      const id = root.querySelector('input[name="liveflux_component_id"]');
+      const comp = root.getAttribute(liveflux.dataFluxComponent || 'data-flux-component');
+      const id = root.getAttribute(liveflux.dataFluxComponentID || 'data-flux-component-id');
       if(!comp || !id) return;
-      root.$wire = createWire(id.value, comp.value, root);
+      root.$wire = createWire(id, comp, root);
     });
   }
 

@@ -93,10 +93,7 @@ func (b *Base) Root(content hb.TagInterface) hb.TagInterface {
 		// data-flux-component is the component alias (TYPE identifier).
 		Attr(DataFluxComponent, b.GetAlias()).
 		// data-flux-component-id is the component instance ID (INSTANCE identifier).
-		Attr(DataFluxComponentID, b.GetID()).
-		// Hidden fields for form submission.
-		Child(hb.Input().Type("hidden").Name(FormComponent).Value(b.GetAlias())).
-		Child(hb.Input().Type("hidden").Name(FormComponentID).Value(b.GetID()))
+		Attr(DataFluxComponentID, b.GetID())
 
 	if content != nil {
 		root = root.Child(content)

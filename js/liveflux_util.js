@@ -122,13 +122,13 @@
   function resolveComponentMetadata(btn, rootSelector){
     if(!btn) return null;
 
-    // 1. Try nearest root (standard case)
+    // 1. Try nearest root (standard case) - read from data attributes
     let root = btn.closest(rootSelector);
     if(root){
-      const comp = root.querySelector('input[name="liveflux_component_type"]');
-      const id = root.querySelector('input[name="liveflux_component_id"]');
+      const comp = root.getAttribute(liveflux.dataFluxComponent || 'data-flux-component');
+      const id = root.getAttribute(liveflux.dataFluxComponentID || 'data-flux-component-id');
       if(comp && id){
-        return { comp: comp.value, id: id.value, root: root };
+        return { comp: comp, id: id, root: root };
       }
     }
 
@@ -144,10 +144,10 @@
     if(rootId){
       root = document.getElementById(rootId);
       if(root){
-        const comp = root.querySelector('input[name="liveflux_component_type"]');
-        const id = root.querySelector('input[name="liveflux_component_id"]');
+        const comp = root.getAttribute(liveflux.dataFluxComponent || 'data-flux-component');
+        const id = root.getAttribute(liveflux.dataFluxComponentID || 'data-flux-component-id');
         if(comp && id){
-          return { comp: comp.value, id: id.value, root: root };
+          return { comp: comp, id: id, root: root };
         }
       }
     }

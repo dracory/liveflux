@@ -64,8 +64,8 @@
     if(!form) return;
     const root = form.closest(rootSelectorWithFallback);
     if(!root) return;
-    const comp = root.querySelector('input[name="liveflux_component_type"]');
-    const id = root.querySelector('input[name="liveflux_component_id"]');
+    const comp = root.getAttribute(liveflux.dataFluxComponent || 'data-flux-component');
+    const id = root.getAttribute(liveflux.dataFluxComponentID || 'data-flux-component-id');
     if(!comp||!id) return;
     e.preventDefault();
 
@@ -77,7 +77,7 @@
       ? liveflux.collectAllFields(submitter, root, form)
       : liveflux.serializeElement(form);
 
-    const params = Object.assign({}, fields, { liveflux_component_type: comp.value, liveflux_component_id: id.value, liveflux_action: action });
+    const params = Object.assign({}, fields, { liveflux_component_type: comp, liveflux_component_id: id, liveflux_action: action });
     liveflux.post(params).then((result)=>{
       const html = result.html || result;
       const tmp = document.createElement('div');
