@@ -10,6 +10,8 @@ Liveflux exposes HTTP handlers that integrate with any Go router. This guide exp
 - `liveflux_component_id` (`FormID`): assigned during mount; required for actions.
 - `liveflux_action` (`FormAction`): optional action identifier.
 
+All other form fields are passed to the component's `Handle` method as `url.Values`.
+
 ### Mount Requests
 
 1. Clients submit forms without `liveflux_component_id`.
@@ -99,3 +101,75 @@ handler.ServeHTTP(rr, req)
 ```
 
 Use `handler_test.go` as a reference for expected status codes and behaviors.
+
+## Form-less Submission
+
+The client runtime supports flexible field collection using `data-flux-include` and `data-flux-exclude` attributes on action buttons. This allows components to collect data from arbitrary DOM elements without requiring traditional `<form>` wrappers.
+
+### Basic Usage
+
+Add `data-flux-include` to an action button to collect fields from elements outside the component root:
+
+```html
+<button data-flux-action="save" data-flux-include="#user-form">
+  Save
+</button>
+```
+
+The client will serialize all input fields within `#user-form` and include them in the action request.
+
+### Multiple Selectors
+
+Specify multiple CSS selectors separated by commas:
+
+```html
+<button data-flux-action="submit" 
+        data-flux-include="#step-1, #step-2, .shared-inputs">
+  Submit
+</button>
+```
+
+### Excluding Fields
+
+Use `data-flux-exclude` to omit specific fields from included scopes:
+
+```html
+<button data-flux-action="update" 
+        data-flux-include="#profile-form"
+        data-flux-exclude=".sensitive">
+  Update Profile
+</button>
+```
+
+This includes all fields from `#profile-form` except those with the `sensitive` class.
+
+### Field Precedence
+
+When the same field name appears in multiple sources, the precedence (lowest to highest) is:
+
+1. Component root fields
+2. Associated form fields
+3. Included elements (left to right in selector list)
+4. Excluded elements (removed)
+5. Button `data-flux-param-*` attributes
+6. Button `name`/`value` (if applicable)
+
+### Server-Side Helpers
+
+Use the `IncludeSelectors` and `ExcludeSelectors` helpers to build attribute values:
+
+```go
+hb.Button().
+    Attr(liveflux.DataFluxAction, "save").
+    Attr(liveflux.DataFluxInclude, liveflux.IncludeSelectors("#form-1", "#form-2")).
+    Text("Save")
+```
+
+### Benefits
+
+- **Progressive enhancement**: Works without JavaScript by using non-form containers
+- **Flexible composition**: Share form fragments across multiple components
+- **Reduced overhead**: No need for `<form>` wrappers everywhere
+- **Fine-grained control**: Include or exclude specific fields as needed
+
+See `examples/formless/` for complete working examples.

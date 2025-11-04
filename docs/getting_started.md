@@ -143,5 +143,6 @@ Visit `http://localhost:8080` to interact with two counters sharing the same end
 ## Next Steps
 
 - Review `docs/components.md` for best practices in component design.
-- Consult `docs/handler_and_transport.md` for transport configuration.
+- Consult `docs/handler_and_transport.md` for transport configuration and form-less submission.
 - Explore `docs/ssr.md` and `docs/websocket.md` for advanced rendering and realtime integrations.
+- See `examples/formless/` for flexible field collection using `data-flux-include` and `data-flux-exclude`.

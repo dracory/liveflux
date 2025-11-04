@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Liveflux Jasmine Tests</title>
+    
+    <!-- Jasmine CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jasmine/5.1.1/jasmine.min.css">
+    
+    <!-- Jasmine Core -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/5.1.1/jasmine.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/5.1.1/jasmine-html.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/5.1.1/boot0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jasmine/5.1.1/boot1.min.js"></script>
+</head>
+<body>
+    <!-- Mock liveflux namespace for testing -->
+    <script>
+        window.liveflux = {
+            dataFluxComponent: 'data-flux-component',
+            dataFluxComponentID: 'data-flux-component-id',
+            dataFluxRoot: 'data-flux-root',
+            __componentSubscriptions: {},
+            // Mock methods that bootstrap expects
+            handleActionClick: function() {},
+            handleFormSubmit: function() {},
+            mountPlaceholders: function() {}
+        };
+    </script>
+    
+    <!-- Source files to test -->
+    <script src="../liveflux_find.js"></script>
+    <script src="../liveflux_events.js"></script>
+    <script src="../liveflux_dispatch.js"></script>
+    <script src="../liveflux_bootstrap.js"></script>
+    
+    <!-- Test specs -->
+    <script src="find.spec.js"></script>
+    <script src="events.spec.js"></script>
+    <script src="dispatch.spec.js"></script>
+    <script src="bootstrap.spec.js"></script>
+</body>
+</html>

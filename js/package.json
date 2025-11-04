@@ -1,0 +1,23 @@
+{
+  "name": "liveflux-js-tests",
+  "version": "1.0.0",
+  "description": "Jasmine tests for Liveflux JavaScript modules",
+  "scripts": {
+    "test": "python -m http.server 8000",
+    "test:python": "python -m http.server 8000",
+    "test:python3": "python3 -m http.server 8000",
+    "test:node": "npx http-server -p 8000 -o tests/runner.html",
+    "test:go": "go run ."
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "keywords": [
+    "liveflux",
+    "javascript",
+    "tests",
+    "jasmine"
+  ],
+  "author": "Liveflux",
+  "license": "MIT"
+}

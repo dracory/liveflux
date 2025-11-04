@@ -13,6 +13,7 @@ Liveflux is a server-driven component system for Go. It uses [`github.com/dracor
 - **Composable state**: Per-component state persists via pluggable stores (`MemoryStore` by default).
 - **Event-driven UX**: Dispatch server events and respond via Go or JavaScript listeners.
 - **Transport flexibility**: Use standard HTTP POST/GET or upgrade seamlessly to WebSockets.
+- **Form-less submission**: Collect fields from anywhere in the DOM using `data-flux-include` and `data-flux-exclude`.
 
 ## Quick start
 
@@ -116,6 +117,25 @@ Screenshot:
 ![WebSocket Counter Example](examples/websocket/screenshot.png)
 
 Source: `examples/websocket/`
+
+### Form-less Submission (flexible field collection)
+
+Run from repo root:
+
+```bash
+go run ./examples/formless
+# or, with Task
+task examples:formless:run
+```
+
+What it shows:
+
+- Shared filters across multiple components using `data-flux-include`.
+- Multi-step forms collecting fields from multiple DOM sections.
+- Excluding sensitive fields with `data-flux-exclude`.
+- Progressive enhancement without requiring `<form>` wrappers.
+
+Source: `examples/formless/`
 
 ## Documentation
 

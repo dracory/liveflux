@@ -70,6 +70,19 @@ func init() { _ = liveflux.Register(new(TodoList)) }
 
 Placeholder attributes like `data-flux-param-theme="dark"` map to `params["theme"]` in `Mount`. Use this to pass initial state or configuration.
 
+## Form-less Field Collection
+
+Components can collect form data from anywhere in the DOM using `data-flux-include` and `data-flux-exclude` attributes on action buttons:
+
+```go
+hb.Button().
+    Attr(liveflux.DataFluxAction, "save").
+    Attr(liveflux.DataFluxInclude, "#external-form").
+    Text("Save")
+```
+
+This allows sharing form inputs across multiple components without requiring traditional `<form>` wrappers. The client runtime serializes all fields from the specified selectors and includes them in the action request. See `docs/handler_and_transport.md` for detailed usage and `examples/formless/` for working examples.
+
 ## Redirects
 
 `liveflux.Base` exposes redirect helpers consumed by `Handler`:
