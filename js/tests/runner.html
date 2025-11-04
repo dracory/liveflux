@@ -27,9 +27,27 @@
             mountPlaceholders: function() {}
         };
     </script>
+
+    <!-- livefluxUtilJS,
+		
+    livefluxMountJS,
+		livefluxHandlersJS,
+		livefluxBootstrapJS,
+		livefluxFindJS,
+		livefluxDispatchJS, -->
     
-    <!-- Source files to test -->
-    <script src="/liveflux_find.js"></script>
+    <!-- !!! Load in the order they are defined in script.go !!! -->
+    
+    <!-- liveflux_util.js -->
+    <script src="/liveflux_util.js"></script>
+    <script>
+        // Debug: Check if util module loaded
+        console.log('After util.js:', {
+            util: window.liveflux.util
+        });
+    </script>
+
+    <!-- liveflux_events.js -->
     <script src="/liveflux_events.js"></script>
     <script>
         // Debug: Check if events module loaded
@@ -39,6 +57,63 @@
             on: window.liveflux.on
         });
     </script>
+
+    <!-- liveflux_network.js -->
+    <script src="/liveflux_network.js"></script>
+    <script>
+        // Debug: Check if network module loaded
+        console.log('After network.js:', {
+            network: window.liveflux.network
+        });
+    </script>
+
+    <!-- liveflux_wire.js -->
+    <script src="/liveflux_wire.js"></script>
+    <script>
+        // Debug: Check if wire module loaded
+        console.log('After wire.js:', {
+            wire: window.liveflux.wire
+        });
+    </script>
+
+    <!-- liveflux_mount.js -->
+    <script src="/liveflux_mount.js"></script>
+    <script>
+        // Debug: Check if mount module loaded
+        console.log('After mount.js:', {
+            mount: window.liveflux.mount
+        });
+    </script>
+
+    <!-- liveflux_handlers.js -->
+    <script src="/liveflux_handlers.js"></script>
+    <script>
+        // Debug: Check if handlers module loaded
+        console.log('After handlers.js:', {
+            handlers: window.liveflux.handlers
+        });
+    </script>
+
+    <!-- liveflux_bootstrap.js -->
+    <script src="/liveflux_bootstrap.js"></script>
+    <script>
+        // Debug: Check if bootstrap module loaded
+        console.log('After bootstrap.js:', {
+            bootstrapInit: window.liveflux.bootstrapInit,
+            __bootstrapInitDone: window.liveflux.__bootstrapInitDone
+        });
+    </script>
+
+    <!-- liveflux_find.js -->
+    <script src="/liveflux_find.js"></script>
+    <script>
+        // Debug: Check if find module loaded
+        console.log('After find.js:', {
+            find: window.liveflux.find
+        });
+    </script>
+
+    <!-- liveflux_dispatch.js -->
     <script src="/liveflux_dispatch.js"></script>
     <script>
         // Debug: Check if dispatch module loaded
@@ -46,14 +121,6 @@
             dispatchTo: window.liveflux.dispatchTo,
             dispatchToAlias: window.liveflux.dispatchToAlias,
             dispatchToAliasAndId: window.liveflux.dispatchToAliasAndId
-        });
-    </script>
-    <script src="/liveflux_bootstrap.js"></script>
-    <script>
-        // Debug: Check if bootstrap module loaded
-        console.log('After bootstrap.js:', {
-            bootstrapInit: window.liveflux.bootstrapInit,
-            __bootstrapInitDone: window.liveflux.__bootstrapInitDone
         });
     </script>
     
