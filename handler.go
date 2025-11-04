@@ -6,6 +6,7 @@ import (
 	"html"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/spf13/cast"
 )
@@ -163,6 +164,14 @@ func (h *Handler) handle(ctx context.Context, w http.ResponseWriter, r *http.Req
 	// Validate basic inputs
 	if !h.validateAliasAndID(w, alias, id) {
 		return
+	}
+
+	// Acquire per-component lock to prevent concurrent modifications
+	// This is critical when multiple requests target the same component ID
+	var componentLock *sync.Mutex
+	if memStore, ok := h.Store.(*MemoryStore); ok {
+		componentLock = memStore.LockComponent(id)
+		defer memStore.UnlockComponent(componentLock)
 	}
 
 	// Retrieve component from store
