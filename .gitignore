@@ -32,7 +32,7 @@ go.work.sum
 # .vscode/
 examples/tree/tmp/
 examples/websocket/tmp/
-examples/events/
-examples/crud/
-examples/formless/
+examples/events/tmp/
+examples/crud/tmp/
+examples/formless/tmp/
 js/tests/tmp/build-errors.log

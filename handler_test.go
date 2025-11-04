@@ -18,6 +18,27 @@ type handlerComp struct {
 	Count int
 }
 
+func TestHandler_GetScript(t *testing.T) {
+	h := NewHandler(NewMemoryStore())
+	req := httptest.NewRequest(http.MethodGet, "/liveflux", nil)
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rec.Code)
+	}
+
+	ct := rec.Header().Get("Content-Type")
+	if !strings.HasPrefix(ct, "application/javascript") {
+		t.Fatalf("expected javascript content-type, got %q", ct)
+	}
+
+	body := rec.Body.String()
+	if !strings.Contains(body, "window.liveflux") {
+		t.Fatalf("expected script body to contain window.liveflux, got %q", body)
+	}
+}
+
 func (c *handlerComp) GetAlias() string { return "" }
 func (c *handlerComp) Mount(_ context.Context, params map[string]string) error {
 	if v, ok := params["init"]; ok && v == "err" {

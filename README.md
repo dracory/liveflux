@@ -22,9 +22,27 @@ Liveflux is a server-driven component system for Go. It uses [`github.com/dracor
 - Mount the handler at `/liveflux`
 - Include `liveflux.Script()` and use `liveflux.PlaceholderByAlias()` or `liveflux.SSR()`
 
-Full walkthroughs live in `docs/getting_started.md` and `docs/components.md`.
+### Serving the client script endpoint
+
+`liveflux.NewHandler` also responds to `GET` requests by returning the embedded client runtime. Mount the handler where you want to serve both HTML updates and the script:
+
+```go
+mux := http.NewServeMux()
+handler := liveflux.NewHandler(nil)
+mux.Handle("/liveflux", handler)
+```
+
+Then include the JS by reference from your layout:
+
+```html
+<script src="/liveflux" defer></script>
+```
+
+If you prefer to inline the script instead, call `liveflux.Script()` (see `docs/getting_started.md`).
 
 ## Examples
+
+Full walkthroughs live in `docs/getting_started.md` and `docs/components.md`.
 
 ### Counter (two instances side-by-side)
 

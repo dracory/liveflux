@@ -43,6 +43,7 @@ sequenceDiagram
 
 ## Request Handling Pipeline (`handler.go`)
 
+- Responds to `GET` requests by writing the bundled client script (`script.go`).
 - Parses forms (`ParseForm`) to read `FormComponent`, `FormID`, `FormAction`.
 - If `FormID` is empty, calls `mount()` to create a new instance via `newByAlias` from `registry.go`.
 - On successful mount, stores the instance in the configured `Store` and returns rendered HTML.

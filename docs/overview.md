@@ -8,7 +8,7 @@ Liveflux is a server-driven UI framework for Go that renders HTML on the server 
 - **Base mixin**: `liveflux.Base` embeds alias/ID tracking, redirect helpers, and `Root()` markup wrapper.
 - **Transport**: HTTP POST/GET via `liveflux.NewHandler()`; optional WebSocket transport via `liveflux.NewHandlerWS()`.
 - **State store**: `liveflux.Store` persists component instances between requests. Default is in-memory; swap with a custom implementation for multi-instance deployments.
-- **Client runtime**: Embedded JavaScript served by `liveflux.Script()` manages mounting, action submission, redirects, and optional WebSocket connections.
+- **Client runtime**: Embedded JavaScript served either inline via `liveflux.Script()` or on-demand through `GET` requests to `liveflux.NewHandler()`; it manages mounting, action submission, redirects, and optional WebSocket connections.
 - **Server-side rendering (SSR)**: `liveflux.SSR()` and `liveflux.SSRHTML()` render components once on the server while keeping them interactive after hydration.
 
 ## Architecture Diagram

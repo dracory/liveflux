@@ -64,10 +64,17 @@ func NewHandlerEx(store Store, enableWebSocket bool) http.Handler {
 	return NewHandler(store)
 }
 
-// ServeHTTP implements http.Handler.
+// ServeHTTP handles Liveflux HTTP traffic.
+//   - GET requests return the bundled client script so the runtime can be loaded via URL.
+//   - POST requests mount components (when no ID is provided) or dispatch actions to existing instances.
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost && r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	if r.Method == http.MethodGet {
+		h.writeClientScript(w)
 		return
 	}
 
@@ -257,6 +264,11 @@ func (h *Handler) writeRender(ctx context.Context, w http.ResponseWriter, c Comp
 func (h *Handler) writeError(w http.ResponseWriter, status int, msg string) {
 	w.WriteHeader(status)
 	_, _ = w.Write([]byte(msg))
+}
+
+func (h *Handler) writeClientScript(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+	_, _ = w.Write([]byte(JS()))
 }
 
 // buildRedirectFallbackHTML returns the script + noscript fallback HTML document for a redirect.

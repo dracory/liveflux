@@ -97,7 +97,13 @@ _, _ = w.Write([]byte(layout.ToHTML()))
 
 ## 4. Include the Client Runtime
 
-The client script must be present once per page. If you are not using `hb`, emit the string returned by `liveflux.Script()` manually:
+The client script must be present once per page. You can link to the handler endpoint, which serves the embedded runtime on `GET` requests:
+
+```html
+<script src="/liveflux" defer></script>
+```
+
+If you need or prefer to inline the script, call `liveflux.Script()` manually:
 
 ```go
 fmt.Fprintf(w, "<script>%s</script>", liveflux.JS())
