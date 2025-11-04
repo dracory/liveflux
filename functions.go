@@ -80,3 +80,30 @@ func toKebab(s string) string {
 	}
 	return b.String()
 }
+
+// IncludeSelectors joins CSS selectors with commas for use with data-flux-include.
+// This is a convenience helper for building the attribute value.
+//
+// Example:
+//
+//	hb.Button().
+//	  Attr(liveflux.DataFluxAction, "save").
+//	  Attr(liveflux.DataFluxInclude, liveflux.IncludeSelectors("#extra-fields", ".shared-inputs")).
+//	  Text("Save")
+func IncludeSelectors(selectors ...string) string {
+	return strings.Join(selectors, ", ")
+}
+
+// ExcludeSelectors joins CSS selectors with commas for use with data-flux-exclude.
+// This is a convenience helper for building the attribute value.
+//
+// Example:
+//
+//	hb.Button().
+//	  Attr(liveflux.DataFluxAction, "update").
+//	  Attr(liveflux.DataFluxInclude, "#user-form").
+//	  Attr(liveflux.DataFluxExclude, liveflux.ExcludeSelectors(".sensitive", ".internal")).
+//	  Text("Update Profile")
+func ExcludeSelectors(selectors ...string) string {
+	return strings.Join(selectors, ", ")
+}

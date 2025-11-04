@@ -51,9 +51,115 @@
     return out;
   }
 
+  // collectAllFields implements the form-less submission feature.
+  // It collects fields from the default scope (form or root), then merges
+  // fields from elements specified in data-flux-include, removes fields
+  // from data-flux-exclude, and finally merges button params.
+  function collectAllFields(btn, root, assocForm){
+    if(!btn) return {};
+
+    // 1. Serialize default scope (form or root)
+    let fields = assocForm 
+      ? serializeElement(assocForm) 
+      : (root ? serializeElement(root) : {});
+
+    // 2. Process data-flux-include
+    const includeAttr = btn.getAttribute('data-flux-include') || 
+                        btn.getAttribute('flux-include');
+    if(includeAttr){
+      const selectors = includeAttr.split(',').map(function(s){ return s.trim(); });
+      selectors.forEach(function(selector){
+        if(!selector) return;
+        try {
+          const elements = document.querySelectorAll(selector);
+          if(elements.length === 0){
+            console.warn('[Liveflux] Include selector "' + selector + '" matched no elements');
+          }
+          elements.forEach(function(el){
+            const included = serializeElement(el);
+            // Later sources override (last-write-wins)
+            Object.assign(fields, included);
+          });
+        } catch(e) {
+          console.error('[Liveflux] Invalid include selector "' + selector + '":', e);
+        }
+      });
+    }
+
+    // 3. Process data-flux-exclude
+    const excludeAttr = btn.getAttribute('data-flux-exclude') || 
+                        btn.getAttribute('flux-exclude');
+    if(excludeAttr){
+      const excludeSelectors = excludeAttr.split(',').map(function(s){ return s.trim(); });
+      excludeSelectors.forEach(function(selector){
+        if(!selector) return;
+        try {
+          const elements = document.querySelectorAll(selector);
+          elements.forEach(function(el){
+            const excluded = serializeElement(el);
+            Object.keys(excluded).forEach(function(key){
+              delete fields[key];
+            });
+          });
+        } catch(e) {
+          console.error('[Liveflux] Invalid exclude selector "' + selector + '":', e);
+        }
+      });
+    }
+
+    // 4. Merge button params (highest precedence)
+    const btnParams = readParams(btn);
+    if(btn.name){
+      btnParams[btn.name] = btn.value;
+    }
+    Object.assign(fields, btnParams);
+
+    return fields;
+  }
+
+  // resolveComponentMetadata attempts to find component type and ID from various sources.
+  // Returns { comp: string, id: string, root: Element|null } or null if not found.
+  function resolveComponentMetadata(btn, rootSelector){
+    if(!btn) return null;
+
+    // 1. Try nearest root (standard case)
+    let root = btn.closest(rootSelector);
+    if(root){
+      const comp = root.querySelector('input[name="liveflux_component_type"]');
+      const id = root.querySelector('input[name="liveflux_component_id"]');
+      if(comp && id){
+        return { comp: comp.value, id: id.value, root: root };
+      }
+    }
+
+    // 2. Try explicit attributes on button (for buttons outside component root)
+    const explicitComp = btn.getAttribute('data-flux-component-type');
+    const explicitId = btn.getAttribute('data-flux-component-id');
+    if(explicitComp && explicitId){
+      return { comp: explicitComp, id: explicitId, root: null };
+    }
+
+    // 3. Try data attribute pointing to root by ID
+    const rootId = btn.getAttribute('data-flux-root-id');
+    if(rootId){
+      root = document.getElementById(rootId);
+      if(root){
+        const comp = root.querySelector('input[name="liveflux_component_type"]');
+        const id = root.querySelector('input[name="liveflux_component_id"]');
+        if(comp && id){
+          return { comp: comp.value, id: id.value, root: root };
+        }
+      }
+    }
+
+    return null;
+  }
+
   // Expose on liveflux
   liveflux.executeScripts = executeScripts;
   liveflux.serializeElement = serializeElement;
   liveflux.readParams = readParams;
+  liveflux.collectAllFields = collectAllFields;
+  liveflux.resolveComponentMetadata = resolveComponentMetadata;
 
 })();

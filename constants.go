@@ -12,5 +12,7 @@ const (
 	DataFluxSubmit      = "data-flux-submit"
 	DataFluxWS          = "data-flux-ws"
 	DataFluxWSURL       = "data-flux-ws-url"
+	DataFluxInclude     = "data-flux-include"
+	DataFluxExclude     = "data-flux-exclude"
 	DefaultEndpoint     = "/liveflux"
 )

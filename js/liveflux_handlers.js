@@ -15,11 +15,10 @@
   function handleActionClick(e){
     const btn = e.target.closest(actionSelectorWithFallback);
     if(!btn) return;
-    const root = btn.closest(rootSelectorWithFallback);
-    if(!root) return;
-    const comp = root.querySelector('input[name="liveflux_component_type"]');
-    const id = root.querySelector('input[name="liveflux_component_id"]');
-    if(!comp||!id) return;
+
+    // Resolve component metadata with fallback chain
+    const metadata = liveflux.resolveComponentMetadata(btn, rootSelectorWithFallback);
+    if(!metadata) return;
 
     const action = btn.getAttribute(dataFluxAction) || btn.getAttribute('flux-action');
     const formId = btn.getAttribute('form');
@@ -30,13 +29,12 @@
 
     e.preventDefault();
 
-    const fields = assocForm ? liveflux.serializeElement(assocForm) : liveflux.serializeElement(root);
-    const btnParams = liveflux.readParams(btn);
-    if (btn.name) { btnParams[btn.name] = btn.value; }
+    // Use collectAllFields to support data-flux-include and data-flux-exclude
+    const fields = liveflux.collectAllFields(btn, metadata.root, assocForm);
 
-    const params = Object.assign({}, fields, btnParams, {
-      liveflux_component_type: comp.value,
-      liveflux_component_id: id.value,
+    const params = Object.assign({}, fields, {
+      liveflux_component_type: metadata.comp,
+      liveflux_component_id: metadata.id,
       liveflux_action: action
     });
 
@@ -45,10 +43,18 @@
       const tmp = document.createElement('div');
       tmp.innerHTML = html;
       const newNode = tmp.firstElementChild;
-      if(newNode){
-        root.replaceWith(newNode);
+      if(newNode && metadata.root){
+        metadata.root.replaceWith(newNode);
         liveflux.executeScripts(newNode);
         if(liveflux.initWire) liveflux.initWire();
+      } else if(newNode && !metadata.root){
+        // Button was outside root - try to find root by ID to replace
+        const targetRoot = document.querySelector('[data-flux-component-id="' + metadata.id + '"]');
+        if(targetRoot){
+          targetRoot.replaceWith(newNode);
+          liveflux.executeScripts(newNode);
+          if(liveflux.initWire) liveflux.initWire();
+        }
       }
     }).catch((err)=>{ console.error('action', err); });
   }
@@ -66,12 +72,10 @@
     const submitter = e.submitter || root.querySelector(actionSelectorWithFallback);
     const action = (submitter && (submitter.getAttribute(dataFluxAction) || submitter.getAttribute('flux-action'))) || form.getAttribute(dataFluxAction) || form.getAttribute('flux-action') || 'submit';
 
-    const fields = liveflux.serializeElement(form);
-    if (submitter) {
-      const extra = liveflux.readParams(submitter);
-      if (submitter.name) { extra[submitter.name] = submitter.value; }
-      Object.assign(fields, extra);
-    }
+    // Use collectAllFields to support data-flux-include and data-flux-exclude on submitter
+    const fields = submitter 
+      ? liveflux.collectAllFields(submitter, root, form)
+      : liveflux.serializeElement(form);
 
     const params = Object.assign({}, fields, { liveflux_component_type: comp.value, liveflux_component_id: id.value, liveflux_action: action });
     liveflux.post(params).then((result)=>{
