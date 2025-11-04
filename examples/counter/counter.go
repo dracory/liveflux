@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"strconv"
 
@@ -35,6 +36,7 @@ func (c *Counter) Handle(ctx context.Context, action string, data url.Values) er
 	case "reset":
 		c.Count = 0
 	}
+	fmt.Printf("counter %s action=%s count=%d\n", c.GetID(), action, c.Count)
 	return nil
 }
 

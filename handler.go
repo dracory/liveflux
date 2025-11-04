@@ -3,8 +3,8 @@ package liveflux
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"html"
-	"log"
 	"net/http"
 	"sync"
 
@@ -135,7 +135,7 @@ func (h *Handler) mount(ctx context.Context, w http.ResponseWriter, r *http.Requ
 	// Mount the component
 	if err := c.Mount(ctx, params); err != nil {
 		// Log error to console
-		log.Printf("liveflux: mount error: %v", err)
+		fmt.Printf("liveflux: mount error: %v\n", err)
 
 		// Send 500 error to client with generic error message
 		w.WriteHeader(http.StatusInternalServerError)
@@ -159,7 +159,7 @@ func (h *Handler) mount(ctx context.Context, w http.ResponseWriter, r *http.Requ
 }
 
 func (h *Handler) handle(ctx context.Context, w http.ResponseWriter, r *http.Request, alias, id, action string) {
-	log.Printf("[Liveflux Handler] handle: alias=%s, id=%s, action=%s", alias, id, action)
+	fmt.Printf("[Liveflux Handler] handle: alias=%s, id=%s, action=%s\n", alias, id, action)
 
 	// Validate basic inputs
 	if !h.validateAliasAndID(w, alias, id) {
@@ -214,7 +214,7 @@ func (h *Handler) validateAliasAndID(w http.ResponseWriter, alias, id string) bo
 // processAction invokes the component's Handle for the given action. Returns true if successful.
 func (h *Handler) processAction(ctx context.Context, w http.ResponseWriter, c ComponentInterface, r *http.Request) bool {
 	if err := c.Handle(ctx, r.FormValue(FormAction), r.Form); err != nil {
-		log.Printf("liveflux: handle error: %v", err)
+		fmt.Printf("liveflux: handle error: %v\n", err)
 		h.writeError(w, http.StatusBadRequest, "action error")
 		return false
 	}
@@ -257,11 +257,11 @@ func (h *Handler) writeRender(ctx context.Context, w http.ResponseWriter, c Comp
 		dispatcher := ea.GetEventDispatcher()
 		if dispatcher != nil && dispatcher.HasEvents() {
 			eventsJSON := dispatcher.EventsJSON()
-			log.Printf("[Liveflux Events] Sending events in response: %s", eventsJSON)
+			fmt.Printf("[Liveflux Events] Sending events in response: %s\n", eventsJSON)
 			// Send events as a header
 			w.Header().Set(EventsHeader, eventsJSON)
 		} else {
-			log.Printf("[Liveflux Events] No events to send for component %s", c.GetAlias())
+			fmt.Printf("[Liveflux Events] No events to send for component %s\n", c.GetAlias())
 		}
 	}
 

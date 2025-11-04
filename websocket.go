@@ -3,7 +3,7 @@ package liveflux
 import (
 	"context"
 	"encoding/json"
-	"log"
+	"fmt"
 	"net"
 	"net/http"
 	"strings"
@@ -231,7 +231,7 @@ func (h *WebSocketHandler) handleWebSocket(w http.ResponseWriter, r *http.Reques
 	var firstMsg WebSocketMessage
 	if err := conn.ReadJSON(&firstMsg); err != nil {
 		if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-			log.Printf("WebSocket error on first read: %v", err)
+			fmt.Printf("WebSocket error on first read: %v\n", err)
 		}
 		return
 	}
@@ -257,7 +257,7 @@ func (h *WebSocketHandler) handleWebSocket(w http.ResponseWriter, r *http.Reques
 		var msg WebSocketMessage
 		if err := conn.ReadJSON(&msg); err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("WebSocket error: %v", err)
+				fmt.Printf("WebSocket error: %v\n", err)
 			}
 			break
 		}
