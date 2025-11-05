@@ -1,7 +1,11 @@
 describe('Liveflux Wire', function() {
     describe('initWire', function() {
+        let testContainer;
+
         beforeEach(function() {
-            document.body.innerHTML = `
+            testContainer = document.createElement('div');
+            testContainer.id = 'test-container';
+            testContainer.innerHTML = `
                 <div data-flux-root="1" 
                      data-flux-component="counter" 
                      data-flux-component-id="counter-123">
@@ -17,10 +21,13 @@ describe('Liveflux Wire', function() {
                     <p>Missing component alias</p>
                 </div>
             `;
+            document.body.appendChild(testContainer);
         });
 
         afterEach(function() {
-            document.body.innerHTML = '';
+            if (testContainer && testContainer.parentNode) {
+                testContainer.parentNode.removeChild(testContainer);
+            }
         });
 
         it('should initialize $wire on all valid roots', function() {
@@ -60,19 +67,26 @@ describe('Liveflux Wire', function() {
     });
 
     describe('$wire API', function() {
+        let testContainer;
+
         beforeEach(function() {
-            document.body.innerHTML = `
+            testContainer = document.createElement('div');
+            testContainer.id = 'test-container';
+            testContainer.innerHTML = `
                 <div data-flux-root="1" 
                      data-flux-component="test-component" 
                      data-flux-component-id="test-123">
                     <p>Test content</p>
                 </div>
             `;
+            document.body.appendChild(testContainer);
             window.liveflux.initWire();
         });
 
         afterEach(function() {
-            document.body.innerHTML = '';
+            if (testContainer && testContainer.parentNode) {
+                testContainer.parentNode.removeChild(testContainer);
+            }
         });
 
         it('should expose id property', function() {

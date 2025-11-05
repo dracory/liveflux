@@ -20,11 +20,18 @@
             dataFluxComponent: 'data-flux-component',
             dataFluxComponentID: 'data-flux-component-id',
             dataFluxRoot: 'data-flux-root',
+            dataFluxParam: 'data-flux-param',
+            dataFluxIndicator: 'data-flux-indicator',
             __componentSubscriptions: {},
             // Mock methods that bootstrap expects
             handleActionClick: function() {},
             handleFormSubmit: function() {},
-            mountPlaceholders: function() {}
+            mountPlaceholders: function() {},
+            // Mock methods that wire expects
+            executeScripts: function() {},
+            startRequestIndicators: function() { return []; },
+            endRequestIndicators: function() {},
+            post: function() { return Promise.resolve({}); }
         };
     </script>
     
@@ -122,7 +129,7 @@
     <script src="/tests/dispatch.spec.js"></script>
     <script src="/tests/bootstrap.spec.js"></script>
     <script src="/tests/util.spec.js"></script>
-    <!-- <script src="/tests/wire.spec.js"></script> -->
+    <script src="/tests/wire.spec.js"></script>
     <!-- <script src="/tests/handlers.spec.js"></script> -->
 </body>
 </html>
