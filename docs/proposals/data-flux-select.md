@@ -1,8 +1,14 @@
 # `data-flux-select`: Response Fragment Filtering
 
+## Status
+
+**Priority**: First implementation - standalone feature  
+**Dependencies**: None - works with current architecture  
+**Related**: Independent of other proposals
+
 ## Overview
 
-This proposal introduces `data-flux-select`, a declarative way for Liveflux clients to extract specific fragments from full HTML responses before applying swaps. The goal is to complement `data-flux-target` (which locates *where* to insert content) with a symmetrical mechanism that chooses *what* to keep from multi-fragment responses, mirroring htmx’s `hx-select` semantics while fitting Liveflux’s component lifecycle.
+This proposal introduces `data-flux-select`, a declarative way for Liveflux clients to extract specific fragments from full HTML responses before applying swaps. The goal is to let clients pick *what* to keep from multi-fragment responses while the existing swap pipeline decides *where* to place content, mirroring htmx's `hx-select` semantics but staying compatible with Liveflux's current full-component replacement model.
 
 ## Motivation
 
@@ -13,9 +19,10 @@ This proposal introduces `data-flux-select`, a declarative way for Liveflux clie
 
 ## Current Limitations
 
-1. Liveflux clients expect either fragment templates or a complete component render; there is no filtering step akin to `hx-select` @docs/proposals/partial-updates.md#30-153
+1. Liveflux clients expect a complete component render; there is no filtering step to extract specific fragments from the response
 2. Components returning full HTML must generate separate payloads for partial consumers to avoid over-updating the DOM
-3. External endpoints (e.g., CMS pages) cannot be re-used without server-side customization to emit Liveflux templates
+3. External endpoints (e.g., CMS pages) cannot be re-used without server-side customization to emit Liveflux-compatible HTML
+4. Current architecture replaces entire component root via `metadata.root.replaceWith(newNode)` @js/liveflux_handlers.js#55-72
 
 ## Proposed Solution
 
@@ -37,75 +44,66 @@ Add a `data-flux-select` attribute that can be placed on action triggers (button
 ```html
 <button
   data-flux-action="update"
-  data-flux-select="#cart-summary, .promo-banner"
-  data-flux-target="#cart-summary"
-  data-flux-swap="replace"
-  data-flux-target-secondary=".promo-banner">
+  data-flux-select="#cart-summary, .promo-banner">
   Refresh Cart
 </button>
 ```
 
 - The response may include both cart and promo markup
-- Each selector drives a corresponding target (see below for mapping mechanics)
+- The client will extract both nodes and, in the current implementation, treat the first match as the replacement fragment (narrow selectors with pseudo-classes or `:first-of-type` when you only need one)
 
 ## Design Details
 
 ### Attribute Semantics
 
 - `data-flux-select`: comma-separated CSS selectors to extract from the response document
-- Optional `data-flux-select-mode`: `first` (default) selects the first match per selector; `all` collects every match
-- Extraction occurs **before** template handling; the filtered nodes become synthetic `<template data-flux-target="…">` entries for the swap pipeline
+- Extraction occurs **before** swap handling; the filtered nodes are treated as standalone fragments that feed directly into the existing replacement pipeline
 
-### Selector-to-Target Mapping
+### Selector-to-Root Mapping
 
-1. **Implicit mapping**: If a selector also appears in `data-flux-target`, the extracted fragment is paired with that target
-2. **Secondary targets**: Introduce `data-flux-target:n` (or `data-flux-target-secondary`) to map multiple selectors to distinct targets
-3. **Fallback**: If no target is provided, default to the component root (`data-flux-component`), mirroring full render replacement
+1. **Current behavior**: The first matched fragment replaces the component root (or form submit scope) using existing `root.replaceWith(newNode)` logic @js/liveflux_handlers.js#61
+2. **Multiple selectors**: When multiple selectors match, only the first match is used; use CSS pseudo-classes (`:first-of-type`, `:nth-child()`) to select a single node
+3. **Future compatibility**: This feature is designed to work seamlessly with future targeted update proposals without modification
 
 ### Response Handling Flow
 
 1. Client receives raw HTML (string or DOM document)
 2. If `data-flux-select` is set on the triggering element:
-   - Parse response into a detached DOM
-   - For each selector, query matches (respecting `select-mode`)
-   - Wrap each match in an in-memory `<template>` element, set `data-flux-target`/`data-flux-swap` based on trigger attributes
-3. Pass synthesized templates into `liveflux.applyTargets`
-4. If selectors fail to match, fall back to original response (either as a full render or existing templates)
+   - Parse response into a detached DOM using `DOMParser`
+   - For each selector in comma-separated list, attempt to match via `querySelector`
+   - Return the `outerHTML` of the first successful match
+3. Pass extracted fragment (or original HTML if no match) into existing replacement logic
+4. If selectors fail to match, fall back to original response with console warning
 
 ### Interaction with Existing Features
 
-- **`data-flux-target`**: Continues to point at destination nodes; select provides the source fragment
-- **`data-flux-swap`**: Still controls how fragments are merged (replace, append, etc.)
-- **`data-flux-component` template**: If present in response, it remains available; select-filtered fragments can coexist with server-provided templates
+- **Component replacement**: Extracted fragments replace the component root using existing `root.replaceWith(newNode)` logic @js/liveflux_handlers.js#61, #108
+- **Script execution**: Extracted fragments pass through `liveflux.executeScripts(newNode)` as normal @js/liveflux_handlers.js#62
 - **WebSocket updates**: When WS messages include full HTML payloads, the select logic applies identically
+- **Form submissions**: Works with both action clicks and form submits without modification
+- **Future compatibility**: Designed to integrate with future targeted update features without breaking changes
 
 ## Implementation Plan
 
-### Phase 1: Client Support (Weeks 1-2)
+### Phase 1: Core Functionality
 
-1. Extend action metadata resolution to capture `data-flux-select` and optional `data-flux-select-mode`
-2. Implement response filtering utility `extractSelectedFragments(responseHTML, selectors, mode)` returning synthetic templates
-3. Integrate extraction into HTTP and WebSocket pipelines before `applyTargets`
-4. Add console warnings when selectors match nothing; fall back to unfiltered payload
-5. Unit tests covering single selector, multiple selectors, `select-mode` variations, and fallback paths
+1. **Attribute capture**: Extend action metadata resolution to capture `data-flux-select` from trigger elements (buttons, forms)
+2. **Extraction utility**: Implement `liveflux.extractSelectedFragments(responseHTML, selectors)` that:
+   - Parses response HTML into a detached DOM
+   - Queries each selector and returns the first match
+   - Returns original HTML if no matches found
+3. **Integration points**:
+   - Modify `handleActionClick` to apply extraction before `tmp.innerHTML = html` @js/liveflux_handlers.js#57-58
+   - Modify `handleFormSubmit` to apply extraction before `tmp.innerHTML = html` @js/liveflux_handlers.js#104-105
+   - Modify WebSocket `handleUpdate` to apply extraction before DOM replacement
+4. **Fallback behavior**: Log console warning when selectors fail; use unfiltered response
+5. **Testing**: Unit tests for single selector, multiple selectors, no-match fallback, and malformed selectors
 
-### Phase 2: Trigger-to-Target Mapping (Weeks 3-4)
+### Phase 2: Developer Experience
 
-1. Support indexed `data-flux-target-n` attributes to map selectors → targets
-2. Allow specifying swap modes per selector (`data-flux-swap-n`)
-3. Integration tests ensuring extracted fragments swap into intended destinations
-
-### Phase 3: Server & DX Enhancements (Weeks 5-6)
-
-1. Document best practices for components returning full HTML when select is used
-2. Provide helper constants (`DataFluxSelect`, `DataFluxSelectMode`) and builder APIs in Go helpers @functions.go
-3. Update examples to showcase reusing existing templates (e.g., marketing banners)
-
-### Phase 4: Advanced Modes (Weeks 7-8)
-
-1. Introduce select presets (e.g., `data-flux-select="@body"` for common regions)
-2. Optional streaming support: allow select to run incrementally if the response is streamed (future)
-3. Performance benchmarking to ensure parsing overhead is minimal
+1. Add debug logging toggle for selection results
+2. Document selector best practices and common patterns
+3. Update examples to showcase fragment extraction use cases
 
 ## Security & Safety Considerations
 
@@ -115,12 +113,51 @@ Add a `data-flux-select` attribute that can be placed on action triggers (button
 
 ## Open Questions
 
-1. Should we allow XPath or only CSS selectors?
-2. Should select support negative filters ("keep everything except …")?
-3. How do we expose selection results for debugging (e.g., devtools overlay)?
-4. Do we need server hints to indicate safe regions (for security/containment)?
+1. Should we allow XPath or only CSS selectors? **Recommendation**: Start with CSS selectors only for simplicity
+2. Should select support negative filters ("keep everything except …")? **Recommendation**: Defer to future iteration
+3. How do we expose selection results for debugging? **Recommendation**: Console logging with optional verbose mode
+4. Do we need server hints to indicate safe regions? **Recommendation**: Not required; client-side selection is sufficient
+5. Should we support multiple fragments or only first match? **Recommendation**: First match only initially; multiple fragment support can be added later if needed
 
 ## References
 
-- **Partial update protocol**: @docs/proposals/partial-updates.md
 - **htmx `hx-select` docs**: https://htmx.org/attributes/hx-select/
+- **Action handlers**: @js/liveflux_handlers.js#18-121
+- **WebSocket updates**: @js/liveflux_websocket.js
+- **Component rendering**: @handler.go#254-269
+
+## Example Implementation Snippet
+
+```javascript
+// Add to liveflux namespace
+liveflux.extractSelectedFragments = function(html, selectors) {
+  if (!selectors || selectors.trim() === '') {
+    return html;
+  }
+  
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const selectorList = selectors.split(',').map(s => s.trim());
+  
+  for (const selector of selectorList) {
+    try {
+      const match = doc.querySelector(selector);
+      if (match) {
+        console.log('[Liveflux Select] Extracted fragment:', selector);
+        return match.outerHTML;
+      }
+    } catch (e) {
+      console.warn('[Liveflux Select] Invalid selector:', selector, e);
+    }
+  }
+  
+  console.warn('[Liveflux Select] No matches found for selectors:', selectors);
+  return html; // Fallback to original
+};
+
+// Usage in handleActionClick (before line 57)
+const selectAttr = btn.getAttribute('data-flux-select');
+const html = selectAttr 
+  ? liveflux.extractSelectedFragments(result.html || result, selectAttr)
+  : (result.html || result);
+```
