@@ -72,31 +72,31 @@ describe('Liveflux Util', function() {
             expect(metadata.root).not.toBeNull();
         });
 
-    //     it('should return null when button is null', function() {
-    //         const metadata = window.liveflux.resolveComponentMetadata(null, '[data-flux-root]');
-    //         expect(metadata).toBeNull();
-    //     });
+        it('should return null when button is null', function() {
+            const metadata = window.liveflux.resolveComponentMetadata(null, '[data-flux-root]');
+            expect(metadata).toBeNull();
+        });
 
-    //     it('should return null when no metadata is found', function() {
-    //         const btn = document.createElement('button');
-    //         document.body.appendChild(btn);
+        it('should return null when no metadata is found', function() {
+            const btn = document.createElement('button');
+            testContainer.appendChild(btn);
             
-    //         const metadata = window.liveflux.resolveComponentMetadata(btn, '[data-flux-root]');
-    //         expect(metadata).toBeNull();
-    //     });
+            const metadata = window.liveflux.resolveComponentMetadata(btn, '[data-flux-root]');
+            expect(metadata).toBeNull();
+        });
 
-    //     it('should handle missing component attribute', function() {
-    //         document.body.innerHTML = `
-    //             <div data-flux-root="1" data-flux-component-id="test-id-123">
-    //                 <button id="btn-incomplete" data-flux-action="test">Click</button>
-    //             </div>
-    //         `;
+        it('should handle missing component attribute', function() {
+            testContainer.innerHTML = `
+                <div data-flux-root="1" data-flux-component-id="test-id-123">
+                    <button id="btn-incomplete" data-flux-action="test">Click</button>
+                </div>
+            `;
             
-    //         const btn = document.getElementById('btn-incomplete');
-    //         const metadata = window.liveflux.resolveComponentMetadata(btn, '[data-flux-root]');
+            const btn = document.getElementById('btn-incomplete');
+            const metadata = window.liveflux.resolveComponentMetadata(btn, '[data-flux-root]');
             
-    //         expect(metadata).toBeNull();
-    //     });
+            expect(metadata).toBeNull();
+        });
 
     //     it('should handle missing component-id attribute', function() {
     //         document.body.innerHTML = `
