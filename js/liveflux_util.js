@@ -24,8 +24,9 @@
   function serializeElement(el){
     const params = {};
     if(!el) return params;
-    const elements = el.querySelectorAll('input[name], select[name], textarea[name]');
-    elements.forEach((field)=>{
+    
+    // Helper function to serialize a single field
+    const serializeField = (field) => {
       const name = field.name; if(!name) return;
       const type = (field.type||'').toLowerCase();
       if((type === 'checkbox' || type === 'radio') && !field.checked) return;
@@ -36,7 +37,18 @@
         return;
       }
       params[name] = field.value ?? '';
-    });
+    };
+    
+    // If element itself is a form field, serialize it
+    const tagName = el.tagName;
+    if((tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA') && el.name){
+      serializeField(el);
+    }
+    
+    // Serialize child form fields
+    const elements = el.querySelectorAll('input[name], select[name], textarea[name]');
+    elements.forEach(serializeField);
+    
     return params;
   }
 
