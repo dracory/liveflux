@@ -190,4 +190,51 @@ describe('Liveflux Util', function() {
             expect(fields).toEqual({});
         });
     });
+
+    describe('request indicators', function() {
+        let trigger, root, indicator;
+
+        beforeEach(function() {
+            document.body.innerHTML = `
+                <div id="component" data-flux-root="1" data-flux-component="test" data-flux-component-id="abc">
+                    <button id="action" data-flux-indicator="this, #spinner">Action</button>
+                    <span id="spinner" class="flux-indicator"></span>
+                </div>
+            `;
+            trigger = document.getElementById('action');
+            root = document.getElementById('component');
+            indicator = document.getElementById('spinner');
+        });
+
+        afterEach(function() {
+            document.body.innerHTML = '';
+        });
+
+        it('should add request classes to trigger and referenced indicators', function() {
+            const els = window.liveflux.startRequestIndicators(trigger, root);
+
+            expect(Array.isArray(els)).toBeTrue();
+            expect(trigger.classList.contains('flux-request')).toBeTrue();
+            expect(trigger.classList.contains('htmx-request')).toBeTrue();
+            expect(indicator.classList.contains('flux-request')).toBeTrue();
+            expect(indicator.classList.contains('htmx-request')).toBeTrue();
+
+            window.liveflux.endRequestIndicators(els);
+        });
+
+        it('should fall back to .flux-indicator elements when attribute missing', function() {
+            trigger.removeAttribute('data-flux-indicator');
+            indicator.className = 'flux-indicator';
+
+            const els = window.liveflux.startRequestIndicators(trigger, root);
+
+            expect(indicator.classList.contains('flux-request')).toBeTrue();
+            expect(indicator.classList.contains('htmx-request')).toBeTrue();
+
+            window.liveflux.endRequestIndicators(els);
+
+            expect(indicator.classList.contains('flux-request')).toBeFalse();
+            expect(indicator.classList.contains('htmx-request')).toBeFalse();
+        });
+    });
 });

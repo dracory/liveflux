@@ -93,11 +93,12 @@ func JS(opts ...ClientOptions) string {
 	cfgPayload := clientConfig{
 		DataFluxAction:      DataFluxAction,
 		DataFluxDispatchTo:  DataFluxDispatchTo,
-		DataFluxComponent:   DataFluxComponent,
+		DataFluxComponent:   DataFluxComponentAlias,
 		DataFluxComponentID: DataFluxComponentID,
 		DataFluxID:          DataFluxID,
 		DataFluxMount:       DataFluxMount,
 		DataFluxParam:       DataFluxParam,
+		DataFluxIndicator:   DataFluxIndicator,
 		DataFluxRoot:        DataFluxRoot,
 		DataFluxSubmit:      DataFluxSubmit,
 		DataFluxWS:          DataFluxWS,
@@ -152,6 +153,7 @@ type clientConfig struct {
 	DataFluxID          string            `json:"dataFluxID"`
 	DataFluxMount       string            `json:"dataFluxMount"`
 	DataFluxParam       string            `json:"dataFluxParam"`
+	DataFluxIndicator   string            `json:"dataFluxIndicator"`
 	DataFluxRoot        string            `json:"dataFluxRoot"`
 	DataFluxSubmit      string            `json:"dataFluxSubmit"`
 	DataFluxWS          string            `json:"dataFluxWS"`

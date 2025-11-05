@@ -5,7 +5,9 @@
   }
 
   const liveflux = window.liveflux;
-  const { dataFluxParam } = liveflux;
+  const { dataFluxParam, dataFluxIndicator } = liveflux;
+  const REQUEST_CLASS = 'flux-request';
+  const REQUEST_CLASS_COMPAT = 'htmx-request';
   const dataParamPrefix = `${dataFluxParam}-`;
 
   function executeScripts(root){
@@ -155,11 +157,74 @@
     return null;
   }
 
+  function resolveIndicators(trigger, root){
+    const targets = new Set();
+    if(trigger){
+      targets.add(trigger);
+    }
+
+    const attrName = dataFluxIndicator || 'data-flux-indicator';
+    const attrFallback = 'flux-indicator';
+    const indicatorAttr = trigger ? (trigger.getAttribute(attrName) || trigger.getAttribute(attrFallback)) : null;
+
+    const selectors = [];
+    if(indicatorAttr){
+      indicatorAttr.split(',').forEach(function(sel){
+        const trimmed = (sel || '').trim();
+        if(trimmed){ selectors.push(trimmed); }
+      });
+    }
+
+    selectors.forEach(function(selector){
+      if(selector === 'this' && trigger){
+        targets.add(trigger);
+        return;
+      }
+      try {
+        document.querySelectorAll(selector).forEach(function(node){ targets.add(node); });
+      } catch(err) {
+        console.error('[Liveflux] Invalid indicator selector "' + selector + '"', err);
+      }
+    });
+
+    if(!indicatorAttr){
+      const fallbackSelector = '.flux-indicator, .htmx-indicator';
+      if(root){
+        root.querySelectorAll(fallbackSelector).forEach(function(node){ targets.add(node); });
+      }
+      if(trigger && trigger.matches(fallbackSelector)){
+        targets.add(trigger);
+      }
+    }
+
+    return Array.from(targets.values()).filter(Boolean);
+  }
+
+  function startRequestIndicators(trigger, root){
+    const elements = resolveIndicators(trigger, root);
+    elements.forEach(function(el){
+      el.classList.add(REQUEST_CLASS);
+      el.classList.add(REQUEST_CLASS_COMPAT);
+    });
+    return elements;
+  }
+
+  function endRequestIndicators(elements){
+    if(!elements) return;
+    elements.forEach(function(el){
+      el.classList.remove(REQUEST_CLASS);
+      el.classList.remove(REQUEST_CLASS_COMPAT);
+    });
+  }
+
   // Expose on liveflux
   liveflux.executeScripts = executeScripts;
   liveflux.serializeElement = serializeElement;
   liveflux.readParams = readParams;
   liveflux.collectAllFields = collectAllFields;
   liveflux.resolveComponentMetadata = resolveComponentMetadata;
+  liveflux.resolveIndicators = resolveIndicators;
+  liveflux.startRequestIndicators = startRequestIndicators;
+  liveflux.endRequestIndicators = endRequestIndicators;
 
 })();

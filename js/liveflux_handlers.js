@@ -50,6 +50,8 @@
     // Mark this component as having a pending request
     pendingRequests.set(metadata.id, true);
 
+    const indicatorEls = liveflux.startRequestIndicators(btn, metadata.root);
+
     liveflux.post(params).then((result)=>{
       const html = result.html || result;
       const tmp = document.createElement('div');
@@ -70,6 +72,7 @@
       }
     }).catch((err)=>{ console.error('action', err); })
       .finally(()=>{
+        liveflux.endRequestIndicators(indicatorEls);
         // Clear the pending request flag
         pendingRequests.delete(metadata.id);
       });
@@ -94,6 +97,8 @@
       : liveflux.serializeElement(form);
 
     const params = Object.assign({}, fields, { liveflux_component_type: comp, liveflux_component_id: id, liveflux_action: action });
+    const indicatorEls = liveflux.startRequestIndicators(submitter || form, root);
+
     liveflux.post(params).then((result)=>{
       const html = result.html || result;
       const tmp = document.createElement('div');
@@ -104,7 +109,10 @@
         liveflux.executeScripts(newNode);
         if(liveflux.initWire) liveflux.initWire();
       }
-    }).catch((err)=>{ console.error('form submit', err); });
+    }).catch((err)=>{ console.error('form submit', err); })
+      .finally(()=>{
+        liveflux.endRequestIndicators(indicatorEls);
+      });
   }
 
   // Expose

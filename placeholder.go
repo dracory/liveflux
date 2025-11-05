@@ -16,7 +16,7 @@ func PlaceholderByAlias(alias string, params ...map[string]string) hb.TagInterfa
 	label := fmt.Sprintf("Loading %s...", alias)
 	div := hb.Div().
 		Attr(DataFluxMount, "1").
-		Attr(DataFluxComponent, alias).
+		Attr(DataFluxComponentAlias, alias).
 		Text(label)
 
 	for k, v := range p {

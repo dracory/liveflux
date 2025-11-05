@@ -166,9 +166,14 @@ func (c *CreateUserModal) Render(ctx context.Context) hb.TagInterface {
 
 	submitBtn := hb.Button().
 		Type("submit").
-		Class("btn btn-primary").
+		Class("btn btn-primary d-inline-flex align-items-center gap-1").
 		Attr(liveflux.DataFluxAction, "create").
-		Text("Create")
+		Attr(liveflux.DataFluxIndicator, "this, #crud-create-submit-indicator").
+		Text("Create").
+		Child(
+			hb.Span().ID("crud-create-submit-indicator").Class("spinner-border spinner-border-sm d-none flux-indicator").Attr("role", "status").
+				Child(hb.Span().Class("visually-hidden").Text("Loading...")),
+		)
 	footer := hb.Div().Class("crud-modal__footer").
 		Child(cancelBtn).
 		Child(submitBtn)

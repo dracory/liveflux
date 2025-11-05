@@ -15,6 +15,8 @@
       if(!component) return;
       const params = liveflux.readParams(el);
       params.liveflux_component_type = component;
+      const indicatorEls = liveflux.startRequestIndicators(el, el);
+
       liveflux.post(params).then((result)=>{
         const html = result.html || result;
         const tmp = document.createElement('div');
@@ -25,7 +27,10 @@
           liveflux.executeScripts(newNode);
           if(liveflux.initWire) liveflux.initWire();
         }
-      }).catch((err)=>{ console.error(component+' mount', err); });
+      }).catch((err)=>{ console.error(component+' mount', err); })
+        .finally(()=>{
+          liveflux.endRequestIndicators(indicatorEls);
+        });
     });
   }
 

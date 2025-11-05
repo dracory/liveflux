@@ -62,19 +62,35 @@ func (c *UserList) Render(ctx context.Context) hb.TagInterface {
 	searchInput := hb.Input().Type("search").Class("form-control").
 		ID("crud-search").Name("search").Placeholder("Search...").Value(c.Query)
 
-	filterBtn := hb.Button().Type("submit").Class("btn btn-primary").
-		Attr(liveflux.DataFluxAction, "filter").Text("Search")
+	filterBtn := hb.Button().Type("submit").Class("btn btn-primary d-inline-flex align-items-center gap-1").
+		Attr(liveflux.DataFluxAction, "filter").
+		Attr(liveflux.DataFluxIndicator, "this, #crud-search-indicator").
+		Text("Search").
+		Child(
+			hb.Span().ID("crud-search-indicator").Class("spinner-border spinner-border-sm d-none flux-indicator").Attr("role", "status").
+				Child(hb.Span().Class("visually-hidden").Text("Loading...")),
+		)
 
-	clearBtn := hb.Button().Type("button").Class("btn btn-outline-secondary").
+	clearBtn := hb.Button().Type("button").Class("btn btn-outline-secondary d-inline-flex align-items-center gap-1").
 		Attr("onclick", "document.getElementById('crud-search').value='';(this.form || this.closest('form')).requestSubmit();").
 		Attr(liveflux.DataFluxAction, "clear").
-		Text("Clear")
+		Attr(liveflux.DataFluxIndicator, "this, #crud-clear-indicator").
+		Text("Clear").
+		Child(
+			hb.Span().ID("crud-clear-indicator").Class("spinner-border spinner-border-sm d-none flux-indicator").Attr("role", "status").
+				Child(hb.Span().Class("visually-hidden").Text("Loading...")),
+		)
 
 	createBtn := hb.Button().
 		Type("button").
-		Class("btn btn-success").
+		Class("btn btn-success d-inline-flex align-items-center gap-1").
 		Attr(liveflux.DataFluxAction, "create_modal_open").
-		Text("Add User")
+		Attr(liveflux.DataFluxIndicator, "this, #crud-create-indicator").
+		Text("Add User").
+		Child(
+			hb.Span().ID("crud-create-indicator").Class("spinner-border spinner-border-sm d-none flux-indicator").Attr("role", "status").
+				Child(hb.Span().Class("visually-hidden").Text("Loading...")),
+		)
 
 	form := hb.Form().Class("mb-3").
 		Method("post").

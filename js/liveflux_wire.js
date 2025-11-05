@@ -38,6 +38,8 @@
           liveflux_component_id: componentId,
           liveflux_action: action
         });
+        const indicatorEls = liveflux.startRequestIndicators(rootEl, rootEl);
+
         return liveflux.post(params).then(function(result){
           const html = result.html || result;
           const tmp = document.createElement('div');
@@ -50,6 +52,8 @@
             if(liveflux.initWire) liveflux.initWire();
           }
           return result;
+        }).finally(function(){
+          liveflux.endRequestIndicators(indicatorEls);
         });
       },
       id: componentId,

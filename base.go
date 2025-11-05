@@ -91,7 +91,7 @@ func (b *Base) Root(content hb.TagInterface) hb.TagInterface {
 		// data-flux-root is checked by the client to determine if this is a Liveflux component.
 		Attr(DataFluxRoot, "1").
 		// data-flux-component is the component alias (TYPE identifier).
-		Attr(DataFluxComponent, b.GetAlias()).
+		Attr(DataFluxComponentAlias, b.GetAlias()).
 		// data-flux-component-id is the component instance ID (INSTANCE identifier).
 		Attr(DataFluxComponentID, b.GetID())
 

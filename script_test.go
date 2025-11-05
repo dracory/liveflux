@@ -53,7 +53,7 @@ func TestJSIncludesConfigVariables(t *testing.T) {
 	configVariables := map[string]string{
 		"dataFluxAction":      DataFluxAction,
 		"dataFluxDispatchTo":  DataFluxDispatchTo,
-		"dataFluxComponent":   DataFluxComponent,
+		"dataFluxComponent":   DataFluxComponentAlias,
 		"dataFluxComponentID": DataFluxComponentID,
 		"dataFluxID":          DataFluxID,
 		"dataFluxMount":       DataFluxMount,

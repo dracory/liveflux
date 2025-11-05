@@ -24,7 +24,7 @@ func TestPlaceholderByAlias_BuildsDivWithParams(t *testing.T) {
 	if !strings.Contains(h, DataFluxMount+"=\"1\"") {
 		t.Fatalf("expected data-flux-mount=1, got: %s", h)
 	}
-	if !strings.Contains(h, DataFluxComponent+"=\""+alias+"\"") {
+	if !strings.Contains(h, DataFluxComponentAlias+"=\""+alias+"\"") {
 		t.Fatalf("expected data-flux-component with alias, got: %s", h)
 	}
 	if !strings.Contains(h, DataFluxParam+"-foo=\"bar\"") {
