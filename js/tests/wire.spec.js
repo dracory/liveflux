@@ -33,7 +33,7 @@ describe('Liveflux Wire', function() {
         it('should initialize $wire on all valid roots', function() {
             window.liveflux.initWire();
             
-            const roots = document.querySelectorAll('[data-flux-root]');
+            const roots = testContainer.querySelectorAll('[data-flux-root]');
             const counterRoot = roots[0];
             const todoRoot = roots[1];
             
@@ -49,7 +49,7 @@ describe('Liveflux Wire', function() {
         it('should skip roots with missing component data', function() {
             window.liveflux.initWire();
             
-            const roots = document.querySelectorAll('[data-flux-root]');
+            const roots = testContainer.querySelectorAll('[data-flux-root]');
             const incompleteRoot = roots[2];
             
             expect(incompleteRoot.$wire).toBeUndefined();
@@ -58,7 +58,7 @@ describe('Liveflux Wire', function() {
         it('should read component metadata from data attributes', function() {
             window.liveflux.initWire();
             
-            const root = document.querySelector('[data-flux-component="counter"]');
+            const root = testContainer.querySelector('[data-flux-component="counter"]');
             
             expect(root.$wire).toBeDefined();
             expect(root.$wire.id).toBe('counter-123');
@@ -90,37 +90,37 @@ describe('Liveflux Wire', function() {
         });
 
         it('should expose id property', function() {
-            const root = document.querySelector('[data-flux-root]');
+            const root = testContainer.querySelector('[data-flux-root]');
             expect(root.$wire.id).toBe('test-123');
         });
 
         it('should expose alias property', function() {
-            const root = document.querySelector('[data-flux-root]');
+            const root = testContainer.querySelector('[data-flux-root]');
             expect(root.$wire.alias).toBe('test-component');
         });
 
         it('should expose on method', function() {
-            const root = document.querySelector('[data-flux-root]');
+            const root = testContainer.querySelector('[data-flux-root]');
             expect(typeof root.$wire.on).toBe('function');
         });
 
         it('should expose dispatch method', function() {
-            const root = document.querySelector('[data-flux-root]');
+            const root = testContainer.querySelector('[data-flux-root]');
             expect(typeof root.$wire.dispatch).toBe('function');
         });
 
         it('should expose dispatchSelf method', function() {
-            const root = document.querySelector('[data-flux-root]');
+            const root = testContainer.querySelector('[data-flux-root]');
             expect(typeof root.$wire.dispatchSelf).toBe('function');
         });
 
         it('should expose dispatchTo method', function() {
-            const root = document.querySelector('[data-flux-root]');
+            const root = testContainer.querySelector('[data-flux-root]');
             expect(typeof root.$wire.dispatchTo).toBe('function');
         });
 
         it('should expose call method', function() {
-            const root = document.querySelector('[data-flux-root]');
+            const root = testContainer.querySelector('[data-flux-root]');
             expect(typeof root.$wire.call).toBe('function');
         });
     });
