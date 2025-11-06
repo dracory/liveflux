@@ -170,6 +170,7 @@ What it shows:
 
 - Implementing `TargetRenderer` to return only changed fragments.
 - Marking targets dirty with `MarkTargetDirty()`.
+- Independent updates for multiple components and document-scoped elements (see [Targeted updates guide](docs/targeted_updates.md#document-scoped-fragments-global-selectors)).
 - 80-95% reduction in network payload for large components.
 - Preserving client state (focus, scroll, media playback).
 

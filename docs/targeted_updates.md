@@ -24,6 +24,15 @@ func (c *CartComponent) RenderTargets(ctx context.Context) []liveflux.TargetFrag
             SwapMode: liveflux.SwapReplace,
         })
     }
+
+    if c.IsDirty("#global-cart-badge") {
+        fragments = append(fragments, liveflux.TargetFragment{
+            Selector:            "#global-cart-badge",
+            Content:             c.renderGlobalBadge(),
+            SwapMode:            liveflux.SwapInner,
+            NoComponentMetadata: true, // document-scoped fragment
+        })
+    }
     
     return fragments
 }
@@ -57,6 +66,23 @@ func (c *CartComponent) Render(ctx context.Context) hb.TagInterface {
 ```
 
 ## How It Works
+
+### Document-scoped fragments (global selectors)
+
+Fragments without `data-flux-component` metadata are treated as document scoped. Set `NoComponentMetadata` to `true` when you want to patch DOM outside the component root, such as a header badge shared across multiple components:
+
+```go
+if c.IsDirty("#global-cart-badge") {
+    fragments = append(fragments, liveflux.TargetFragment{
+        Selector:            "#global-cart-badge",
+        Content:             c.renderGlobalBadge(),
+        SwapMode:            liveflux.SwapInner,
+        NoComponentMetadata: true,
+    })
+}
+```
+
+On the client, the fragment selector is resolved against `document` instead of the component root, so the badge updates even though it lives outside the cart component tree. Keep selectors unique to avoid accidental matches.
 
 ### Client-Server Flow
 
