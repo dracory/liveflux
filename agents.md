@@ -1,4 +1,10 @@
-# LiveFlux
+# agents.md - LiveFlux Development Guidelines
+
+
+> Guidance for autonomous coding agents (Windsurf, OpenAI Codex CLI, Copilot Agent Mode, Cursor, etc.)
+> Read this before writing, editing, or executing anything in this repo.
+
+---
 
 ## Documentation
 There is a README.md file in the root directory. It serves as a quick start guide
