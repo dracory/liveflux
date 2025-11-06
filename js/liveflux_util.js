@@ -5,10 +5,11 @@
   }
 
   const liveflux = window.liveflux;
-  const { dataFluxParam, dataFluxIndicator } = liveflux;
+  const { dataFluxParam, dataFluxIndicator, dataFluxSelect } = liveflux;
   const REQUEST_CLASS = 'flux-request';
   const REQUEST_CLASS_COMPAT = 'htmx-request';
   const dataParamPrefix = `${dataFluxParam}-`;
+  const SELECT_LOG_PREFIX = '[Liveflux Select]';
 
   function executeScripts(root){
     if(!root) return;
@@ -63,6 +64,48 @@
       }
     }
     return out;
+  }
+
+  function readSelectAttribute(el){
+    if(!el || typeof el.getAttribute !== 'function') return '';
+    const candidates = [];
+    if(dataFluxSelect){ candidates.push(dataFluxSelect); }
+    candidates.push('flux-select');
+    for(const name of candidates){
+      if(!name) continue;
+      const value = el.getAttribute(name);
+      if(typeof value === 'string' && value.trim()){ return value.trim(); }
+    }
+    return '';
+  }
+
+  function extractSelectedFragment(html, selectors){
+    if(!selectors || !selectors.trim()) return html;
+    if(typeof DOMParser === 'undefined'){
+      console.warn(`${SELECT_LOG_PREFIX} DOMParser unavailable; returning full response`);
+      return html;
+    }
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const selectorList = selectors.split(',').map((s)=>s.trim()).filter(Boolean);
+
+    for(const selector of selectorList){
+      try {
+        const match = doc.querySelector(selector);
+        if(match){
+          if(liveflux.debugSelect){
+            console.debug(`${SELECT_LOG_PREFIX} Extracted fragment using selector "${selector}"`);
+          }
+          return match.outerHTML;
+        }
+      } catch (err){
+        console.warn(`${SELECT_LOG_PREFIX} Invalid selector "${selector}"`, err);
+      }
+    }
+
+    console.warn(`${SELECT_LOG_PREFIX} No matches found for selectors: ${selectorList.join(', ')}`);
+    return html;
   }
 
   // collectAllFields implements the form-less submission feature.
@@ -233,6 +276,8 @@
   liveflux.executeScripts = executeScripts;
   liveflux.serializeElement = serializeElement;
   liveflux.readParams = readParams;
+  liveflux.readSelectAttribute = readSelectAttribute;
+  liveflux.extractSelectedFragment = extractSelectedFragment;
   liveflux.collectAllFields = collectAllFields;
   liveflux.resolveComponentMetadata = resolveComponentMetadata;
   liveflux.resolveIndicators = resolveIndicators;

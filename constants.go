@@ -9,6 +9,7 @@ const (
 	DataFluxID             = "data-flux-id"
 	DataFluxInclude        = "data-flux-include"
 	DataFluxIndicator      = "data-flux-indicator"
+	DataFluxSelect         = "data-flux-select"
 	DataFluxMount          = "data-flux-mount"
 	DataFluxParam          = "data-flux-param"
 	DataFluxRoot           = "data-flux-root"

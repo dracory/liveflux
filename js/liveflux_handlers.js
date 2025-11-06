@@ -11,9 +11,37 @@
   const actionSelectorWithFallback = `${actionSelector}, [flux-action]`;
   const rootSelector = `[${dataFluxRoot}]`;
   const rootSelectorWithFallback = `${rootSelector}, [flux-root]`;
+  const SELECT_LOG_PREFIX = '[Liveflux Select]';
 
   // Track in-flight requests per component ID to prevent concurrent requests
   const pendingRequests = new Map();
+
+  function parseSelectors(selectAttr){
+    if(!selectAttr) return [];
+    return selectAttr.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+  }
+
+  function isComponentRootNode(node){
+    if(!node || typeof node.hasAttribute !== 'function') return false;
+    const rootAttr = dataFluxRoot || 'data-flux-root';
+    return node.hasAttribute(rootAttr) || node.hasAttribute('flux-root');
+  }
+
+  function applySelectedFragment(root, selectors, newNode){
+    if(!root || !newNode || !selectors || selectors.length === 0) return false;
+    for(const selector of selectors){
+      try {
+        const target = root.querySelector(selector);
+        if(target){
+          target.replaceWith(newNode);
+          return true;
+        }
+      } catch(err){
+        console.warn(`${SELECT_LOG_PREFIX} Failed to apply selector "${selector}"`, err);
+      }
+    }
+    return false;
+  }
 
   function handleActionClick(e){
     const btn = e.target.closest(actionSelectorWithFallback);
@@ -24,6 +52,7 @@
     if(!metadata) return;
 
     const action = btn.getAttribute(dataFluxAction) || btn.getAttribute('flux-action');
+    const selectAttr = liveflux.readSelectAttribute ? liveflux.readSelectAttribute(btn) : '';
     const formId = btn.getAttribute('form');
     const assocForm = btn.closest('form') || (formId ? document.getElementById(formId) : null);
 
@@ -53,10 +82,21 @@
     const indicatorEls = liveflux.startRequestIndicators(btn, metadata.root);
 
     liveflux.post(params).then((result)=>{
-      const html = result.html || result;
+      const rawHtml = result.html || result;
+      const html = liveflux.extractSelectedFragment ? liveflux.extractSelectedFragment(rawHtml, selectAttr) : rawHtml;
       const tmp = document.createElement('div');
       tmp.innerHTML = html;
-      const newNode = tmp.firstElementChild;
+      let newNode = tmp.firstElementChild;
+      const selectors = parseSelectors(selectAttr);
+      if(newNode && selectors.length && metadata.root && !isComponentRootNode(newNode)){
+        const applied = applySelectedFragment(metadata.root, selectors, newNode);
+        if(applied){
+          liveflux.executeScripts(newNode);
+          if(liveflux.initWire) liveflux.initWire();
+          return;
+        }
+        newNode = tmp.firstElementChild;
+      }
       if(newNode && metadata.root){
         metadata.root.replaceWith(newNode);
         liveflux.executeScripts(newNode);
@@ -65,6 +105,15 @@
         // Button was outside root - try to find root by ID to replace
         const targetRoot = document.querySelector('[data-flux-component-id="' + metadata.id + '"]');
         if(targetRoot){
+          if(selectors.length && !isComponentRootNode(newNode)){
+            const applied = applySelectedFragment(targetRoot, selectors, newNode);
+            if(applied){
+              liveflux.executeScripts(newNode);
+              if(liveflux.initWire) liveflux.initWire();
+              return;
+            }
+            newNode = tmp.firstElementChild;
+          }
           targetRoot.replaceWith(newNode);
           liveflux.executeScripts(newNode);
           if(liveflux.initWire) liveflux.initWire();
@@ -89,6 +138,9 @@
     e.preventDefault();
 
     const submitter = e.submitter || root.querySelector(actionSelectorWithFallback);
+    const selectAttr = submitter
+      ? (liveflux.readSelectAttribute ? liveflux.readSelectAttribute(submitter) : '')
+      : (liveflux.readSelectAttribute ? liveflux.readSelectAttribute(form) : '');
     const action = (submitter && (submitter.getAttribute(dataFluxAction) || submitter.getAttribute('flux-action'))) || form.getAttribute(dataFluxAction) || form.getAttribute('flux-action') || 'submit';
 
     // Use collectAllFields to support data-flux-include and data-flux-exclude on submitter
@@ -100,10 +152,21 @@
     const indicatorEls = liveflux.startRequestIndicators(submitter || form, root);
 
     liveflux.post(params).then((result)=>{
-      const html = result.html || result;
+      const rawHtml = result.html || result;
+      const html = liveflux.extractSelectedFragment ? liveflux.extractSelectedFragment(rawHtml, selectAttr) : rawHtml;
       const tmp = document.createElement('div');
       tmp.innerHTML = html;
-      const newNode = tmp.firstElementChild;
+      let newNode = tmp.firstElementChild;
+      const selectors = parseSelectors(selectAttr);
+      if(newNode && selectors.length && !isComponentRootNode(newNode)){
+        const applied = applySelectedFragment(root, selectors, newNode);
+        if(applied){
+          liveflux.executeScripts(newNode);
+          if(liveflux.initWire) liveflux.initWire();
+          return;
+        }
+        newNode = tmp.firstElementChild;
+      }
       if(newNode){
         root.replaceWith(newNode);
         liveflux.executeScripts(newNode);

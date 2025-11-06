@@ -44,20 +44,25 @@ func (c *Counter) Handle(ctx context.Context, action string, data url.Values) er
 func (c *Counter) Render(ctx context.Context) hb.TagInterface {
 	title := hb.H2().Text("Counter")
 
+	// The counter display gets an ID so actions can select it via data-flux-select.
 	display := hb.Div().
+		Attr("id", "counter-display").
 		Style("font-size: 2rem; margin: 10px 0;").
 		Text(strconv.Itoa(c.Count))
 
 	buttonIncrement := hb.Button().
 		Attr(liveflux.DataFluxAction, "inc").
+		Attr(liveflux.DataFluxSelect, "#counter-display"). // Selects the display element to update after the action.
 		Text("+1")
 
 	buttonDecrement := hb.Button().
 		Attr(liveflux.DataFluxAction, "dec").
+		Attr(liveflux.DataFluxSelect, "#counter-display"). // Selects the display element to update after the action.
 		Text("-1")
 
 	buttonReset := hb.Button().
 		Attr(liveflux.DataFluxAction, "reset").
+		Attr(liveflux.DataFluxSelect, "#counter-display"). // Selects the display element to update after the action.
 		Text("Reset")
 
 	content := hb.Div().

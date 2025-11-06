@@ -83,6 +83,23 @@ hb.Button().
 
 This allows sharing form inputs across multiple components without requiring traditional `<form>` wrappers. The client runtime serializes all fields from the specified selectors and includes them in the action request. See `docs/handler_and_transport.md` for detailed usage and `examples/formless/` for working examples.
 
+## Response Fragment Filtering (`data-flux-select`)
+
+Use `data-flux-select` on triggers (buttons, links, forms) when the server returns a full HTML document but only a fragment should replace the component root:
+
+```html
+<button
+  data-flux-action="refresh"
+  data-flux-select="#cart-summary, #cart-summary > .total:first-of-type">
+  Refresh Cart
+</button>
+```
+
+- The client parses the response with `DOMParser`, evaluates selectors in order, and swaps with the first match.
+- When no selector matches, Liveflux logs a warning and falls back to the original HTML to avoid blank updates.
+- The attribute works with both click actions and form submissions. For forms without a submitter (e.g., programmatic submission), set `data-flux-select` on the `<form>` element itself.
+- To inspect selection decisions during development, set `window.liveflux.debugSelect = true` in the browser console to print verbose logs.
+
 ## Redirects
 
 `liveflux.Base` exposes redirect helpers consumed by `Handler`:
