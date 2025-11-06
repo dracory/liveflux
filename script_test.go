@@ -24,6 +24,7 @@ func TestJSConcatenationOrder(t *testing.T) {
 		strings.TrimSpace(readJS(t, "liveflux_util.js")),
 		strings.TrimSpace(readJS(t, "liveflux_events.js")),
 		strings.TrimSpace(readJS(t, "liveflux_network.js")),
+		strings.TrimSpace(readJS(t, "liveflux_target.js")),
 		strings.TrimSpace(readJS(t, "liveflux_wire.js")),
 		strings.TrimSpace(readJS(t, "liveflux_mount.js")),
 		strings.TrimSpace(readJS(t, "liveflux_handlers.js")),
