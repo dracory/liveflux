@@ -103,11 +103,14 @@ describe('Liveflux data-flux-select integration', function() {
     it('filters action responses before swap when trigger defines data-flux-select', function(done) {
         testContainer.innerHTML = `
             <div data-flux-root="1" data-flux-component="test" data-flux-component-id="123">
+                <div id="partial">Original</div>
                 <button id="select-action" data-flux-action="refresh" data-flux-select="#partial">Refresh</button>
+                <div class="wrapper">static</div>
             </div>
         `;
 
         const btn = document.getElementById('select-action');
+        const originalRoot = document.querySelector('[data-flux-component-id="123"]');
         const event = {
             target: btn,
             preventDefault: jasmine.createSpy('preventDefault')
@@ -125,6 +128,9 @@ describe('Liveflux data-flux-select integration', function() {
 
             const fragment = document.querySelector('#partial');
             expect(fragment && fragment.textContent.trim()).toBe('Filtered');
+            const currentRoot = document.querySelector('[data-flux-component-id="123"]');
+            expect(currentRoot).toBe(originalRoot);
+            expect(document.querySelector('.wrapper').textContent.trim()).toBe('static');
             done();
         }, 50);
     });
@@ -135,10 +141,13 @@ describe('Liveflux data-flux-select integration', function() {
                 <form id="select-form">
                     <button type="submit" data-flux-action="save" data-flux-select="#partial">Save</button>
                 </form>
+                <div id="partial">Original</div>
+                <div class="wrapper">static</div>
             </div>
         `;
 
         const form = document.getElementById('select-form');
+        const originalRoot = document.querySelector('[data-flux-component-id="123"]');
         const event = {
             target: form,
             preventDefault: jasmine.createSpy('preventDefault')
@@ -151,6 +160,9 @@ describe('Liveflux data-flux-select integration', function() {
 
             const fragment = document.querySelector('#partial');
             expect(fragment && fragment.textContent.trim()).toBe('Filtered');
+            const currentRoot = document.querySelector('[data-flux-component-id="123"]');
+            expect(currentRoot).toBe(originalRoot);
+            expect(document.querySelector('.wrapper').textContent.trim()).toBe('static');
             done();
         }, 50);
     });
