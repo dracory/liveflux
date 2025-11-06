@@ -25,6 +25,10 @@ type Base struct {
 
 	// eventDispatcher manages event dispatching and listening for this component.
 	eventDispatcher *EventDispatcher
+
+	// dirtyTargets tracks which DOM targets need to be updated.
+	// Components can use MarkTargetDirty to signal that specific selectors changed.
+	dirtyTargets map[string]bool
 }
 
 // GetAlias returns the component's alias.
@@ -134,4 +138,39 @@ func (b *Base) DispatchSelf(eventName string, data ...map[string]any) {
 	dataUpdated := lo.FirstOr(data, map[string]any{})
 	dataUpdated["__self"] = true
 	b.GetEventDispatcher().DispatchToAliasAndID(b.GetAlias(), b.GetID(), eventName, dataUpdated)
+}
+
+// MarkTargetDirty marks a specific DOM target as needing an update.
+// This is used in conjunction with TargetRenderer to track which fragments changed.
+// Usage: component.MarkTargetDirty("#cart-total")
+func (b *Base) MarkTargetDirty(selector string) {
+	if b.dirtyTargets == nil {
+		b.dirtyTargets = make(map[string]bool)
+	}
+	b.dirtyTargets[selector] = true
+}
+
+// IsDirty checks if a specific target has been marked dirty.
+func (b *Base) IsDirty(selector string) bool {
+	if b.dirtyTargets == nil {
+		return false
+	}
+	return b.dirtyTargets[selector]
+}
+
+// ClearDirtyTargets clears all dirty target markers.
+func (b *Base) ClearDirtyTargets() {
+	b.dirtyTargets = make(map[string]bool)
+}
+
+// GetDirtyTargets returns a copy of the dirty targets map.
+func (b *Base) GetDirtyTargets() map[string]bool {
+	if b.dirtyTargets == nil {
+		return make(map[string]bool)
+	}
+	result := make(map[string]bool, len(b.dirtyTargets))
+	for k, v := range b.dirtyTargets {
+		result[k] = v
+	}
+	return result
 }

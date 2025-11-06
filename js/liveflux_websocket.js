@@ -78,7 +78,20 @@
     handleUpdate(message){
       const element = document.querySelector(componentIdSelector(message.componentID));
       if(element && message.data && message.data.html){
-        element.outerHTML = message.data.html;
+        const html = message.data.html;
+        
+        // Check if response contains target templates
+        if(liveflux.hasTargetTemplates && liveflux.hasTargetTemplates(html)){
+          const fallback = liveflux.applyTargets(html, element);
+          if(fallback){
+            // Targets failed, do full replacement
+            element.outerHTML = fallback;
+          }
+        } else {
+          // Traditional full replacement
+          element.outerHTML = html;
+        }
+        
         if(this.connected){
           const refreshed = document.querySelector(componentIdSelector(message.componentID));
           if(refreshed){

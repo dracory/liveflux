@@ -83,6 +83,25 @@
 
     liveflux.post(params).then((result)=>{
       const rawHtml = result.html || result;
+      
+      // Check if response contains target templates
+      if(liveflux.hasTargetTemplates && liveflux.hasTargetTemplates(rawHtml)){
+        const fallback = liveflux.applyTargets(rawHtml, metadata.root);
+        if(fallback){
+          // Targets failed, do full replacement with fallback HTML
+          const tmp = document.createElement('div');
+          tmp.innerHTML = fallback;
+          const newNode = tmp.firstElementChild;
+          if(newNode && metadata.root){
+            metadata.root.replaceWith(newNode);
+            liveflux.executeScripts(newNode);
+          }
+        }
+        if(liveflux.initWire) liveflux.initWire();
+        return;
+      }
+      
+      // Traditional flow with data-flux-select support
       const html = liveflux.extractSelectedFragment ? liveflux.extractSelectedFragment(rawHtml, selectAttr) : rawHtml;
       const tmp = document.createElement('div');
       tmp.innerHTML = html;
@@ -153,6 +172,25 @@
 
     liveflux.post(params).then((result)=>{
       const rawHtml = result.html || result;
+      
+      // Check if response contains target templates
+      if(liveflux.hasTargetTemplates && liveflux.hasTargetTemplates(rawHtml)){
+        const fallback = liveflux.applyTargets(rawHtml, root);
+        if(fallback){
+          // Targets failed, do full replacement with fallback HTML
+          const tmp = document.createElement('div');
+          tmp.innerHTML = fallback;
+          const newNode = tmp.firstElementChild;
+          if(newNode){
+            root.replaceWith(newNode);
+            liveflux.executeScripts(newNode);
+          }
+        }
+        if(liveflux.initWire) liveflux.initWire();
+        return;
+      }
+      
+      // Traditional flow with data-flux-select support
       const html = liveflux.extractSelectedFragment ? liveflux.extractSelectedFragment(rawHtml, selectAttr) : rawHtml;
       const tmp = document.createElement('div');
       tmp.innerHTML = html;
