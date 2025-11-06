@@ -14,6 +14,7 @@ Liveflux is a server-driven component system for Go. It uses [`github.com/dracor
 - **Event-driven UX**: Dispatch server events and respond via Go or JavaScript listeners.
 - **Transport flexibility**: Use standard HTTP POST/GET or upgrade seamlessly to WebSockets.
 - **Form-less submission**: Collect fields from anywhere in the DOM using `data-flux-include` and `data-flux-exclude`.
+- **Targeted updates**: Update only specific DOM regions instead of full component re-renders for better performance.
 
 ## Quick start
 
@@ -155,6 +156,25 @@ What it shows:
 
 Source: `examples/formless/`
 
+### Targeted Updates (selective DOM updates)
+
+Run from repo root:
+
+```bash
+go run ./examples/target
+# or, with Task
+task examples:target:run
+```
+
+What it shows:
+
+- Implementing `TargetRenderer` to return only changed fragments.
+- Marking targets dirty with `MarkTargetDirty()`.
+- 80-95% reduction in network payload for large components.
+- Preserving client state (focus, scroll, media playback).
+
+Source: `examples/target/`
+
 ## Documentation
 
 Start with the focused guides under `docs/`:
@@ -168,6 +188,7 @@ Start with the focused guides under `docs/`:
 - [State management](docs/state_management.md)
 - [SSR](docs/ssr.md)
 - [WebSocket integration](docs/websocket.md)
+- [Targeted updates](docs/targeted_updates.md)
 
 ## Package API
 

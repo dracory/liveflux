@@ -130,6 +130,18 @@
             dispatchToAliasAndId: window.liveflux.dispatchToAliasAndId
         });
     </script>
+
+    <!-- liveflux_target.js -->
+    <script src="/liveflux_target.js"></script>
+    <script>
+        // Debug: Check if target module loaded
+        console.log('After target.js:', {
+            applyTargets: window.liveflux.applyTargets,
+            hasTargetTemplates: window.liveflux.hasTargetTemplates,
+            enableTargetSupport: window.liveflux.enableTargetSupport,
+            disableTargetSupport: window.liveflux.disableTargetSupport
+        });
+    </script>
     
     <!-- Test specs -->
     <script src="/tests/find.spec.js"></script>
@@ -140,5 +152,6 @@
     <script src="/tests/wire.spec.js"></script>
     <script src="/tests/handlers.spec.js"></script>
     <script src="/tests/data-flux-select.spec.js"></script>
+    <script src="/tests/data-flux-target.spec.js"></script>
 </body>
 </html>

@@ -41,12 +41,16 @@ var livefluxFindJS string
 //go:embed js/liveflux_dispatch.js
 var livefluxDispatchJS string
 
+//go:embed js/liveflux_target.js
+var livefluxTargetJS string
+
 // baseJS concatenates embedded client modules.
 func baseJS(includeWS bool) string {
 	js := []string{
 		livefluxUtilJS,
 		livefluxEventsJS,
 		livefluxNetworkJS,
+		livefluxTargetJS,
 		livefluxWireJS,
 		livefluxMountJS,
 		livefluxHandlersJS,
