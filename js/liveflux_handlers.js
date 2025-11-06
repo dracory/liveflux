@@ -24,6 +24,7 @@
     if(!metadata) return;
 
     const action = btn.getAttribute(dataFluxAction) || btn.getAttribute('flux-action');
+    const selectAttr = liveflux.readSelectAttribute ? liveflux.readSelectAttribute(btn) : '';
     const formId = btn.getAttribute('form');
     const assocForm = btn.closest('form') || (formId ? document.getElementById(formId) : null);
 
@@ -53,7 +54,8 @@
     const indicatorEls = liveflux.startRequestIndicators(btn, metadata.root);
 
     liveflux.post(params).then((result)=>{
-      const html = result.html || result;
+      const rawHtml = result.html || result;
+      const html = liveflux.extractSelectedFragment ? liveflux.extractSelectedFragment(rawHtml, selectAttr) : rawHtml;
       const tmp = document.createElement('div');
       tmp.innerHTML = html;
       const newNode = tmp.firstElementChild;
@@ -89,6 +91,9 @@
     e.preventDefault();
 
     const submitter = e.submitter || root.querySelector(actionSelectorWithFallback);
+    const selectAttr = submitter
+      ? (liveflux.readSelectAttribute ? liveflux.readSelectAttribute(submitter) : '')
+      : (liveflux.readSelectAttribute ? liveflux.readSelectAttribute(form) : '');
     const action = (submitter && (submitter.getAttribute(dataFluxAction) || submitter.getAttribute('flux-action'))) || form.getAttribute(dataFluxAction) || form.getAttribute('flux-action') || 'submit';
 
     // Use collectAllFields to support data-flux-include and data-flux-exclude on submitter
@@ -100,7 +105,8 @@
     const indicatorEls = liveflux.startRequestIndicators(submitter || form, root);
 
     liveflux.post(params).then((result)=>{
-      const html = result.html || result;
+      const rawHtml = result.html || result;
+      const html = liveflux.extractSelectedFragment ? liveflux.extractSelectedFragment(rawHtml, selectAttr) : rawHtml;
       const tmp = document.createElement('div');
       tmp.innerHTML = html;
       const newNode = tmp.firstElementChild;

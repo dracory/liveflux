@@ -96,6 +96,7 @@ func JS(opts ...ClientOptions) string {
 		DataFluxComponent:   DataFluxComponentAlias,
 		DataFluxComponentID: DataFluxComponentID,
 		DataFluxID:          DataFluxID,
+		DataFluxSelect:      DataFluxSelect,
 		DataFluxMount:       DataFluxMount,
 		DataFluxParam:       DataFluxParam,
 		DataFluxIndicator:   DataFluxIndicator,
@@ -151,6 +152,7 @@ type clientConfig struct {
 	DataFluxComponent   string            `json:"dataFluxComponent"`
 	DataFluxComponentID string            `json:"dataFluxComponentID"`
 	DataFluxID          string            `json:"dataFluxID"`
+	DataFluxSelect      string            `json:"dataFluxSelect"`
 	DataFluxMount       string            `json:"dataFluxMount"`
 	DataFluxParam       string            `json:"dataFluxParam"`
 	DataFluxIndicator   string            `json:"dataFluxIndicator"`
