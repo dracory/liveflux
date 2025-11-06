@@ -60,7 +60,6 @@
       const swapMode = template.dataset.fluxSwap || 'replace';
       const targetComponent = template.dataset.fluxComponent;
       const targetComponentId = template.dataset.fluxComponentId;
-      
       try {
         // Validate component metadata if present
         if (targetComponent || targetComponentId) {
@@ -78,7 +77,9 @@
           }
         }
 
-        const target = newComponentRoot.querySelector(selector);
+        const searchRoot = (targetComponent || targetComponentId) ? newComponentRoot : document;
+
+        const target = searchRoot.querySelector(selector);
         if (!target) {
           console.warn(`${TARGET_LOG_PREFIX} Selector not found: ${selector}`);
           return;

@@ -18,6 +18,9 @@ type TargetFragment struct {
 	// SwapMode determines how the content is merged with the target
 	// Valid values: "replace", "inner", "beforebegin", "afterbegin", "beforeend", "afterend"
 	SwapMode string
+	// NoComponentMetadata omits data-flux-component and data-flux-component-id attributes.
+	// When true, the client treats the fragment as document-scoped instead of component-scoped.
+	NoComponentMetadata bool
 }
 
 // TargetRenderer is an optional interface that components can implement
@@ -53,12 +56,16 @@ func BuildTargetResponse(fragments []TargetFragment, fullRender string, comp Com
 			content = frag.Content.ToHTML()
 		}
 
+		attrs := ""
+		if !frag.NoComponentMetadata {
+			attrs = fmt.Sprintf(" data-flux-component=\"%s\" data-flux-component-id=\"%s\"", componentAlias, componentID)
+		}
+
 		sb.WriteString(fmt.Sprintf(
-			`<template data-flux-target="%s" data-flux-swap="%s" data-flux-component="%s" data-flux-component-id="%s">%s</template>`,
+			`<template data-flux-target="%s" data-flux-swap="%s"%s>%s</template>`,
 			selector,
 			swap,
-			componentAlias,
-			componentID,
+			attrs,
 			content,
 		))
 	}
@@ -110,4 +117,10 @@ const (
 	SwapAfterBegin  = "afterbegin"  // Insert as first child of target
 	SwapBeforeEnd   = "beforeend"   // Insert as last child of target (append)
 	SwapAfterEnd    = "afterend"    // Insert after the target element
+)
+
+// Target scope constants
+const (
+	TargetScopeComponent = "component" // Resolve selector within component root (default)
+	TargetScopeDocument  = "document"  // Resolve selector within the entire document
 )

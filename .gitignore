@@ -35,7 +35,7 @@ examples/counter/tmp/
 examples/crud/tmp/
 examples/events/tmp/
 examples/formless/tmp/
+examples/target/tmp/
 examples/tree/tmp/
 examples/websocket/tmp/
-js/tests/tmp/build-errors.log
-
+js/tests/
