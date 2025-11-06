@@ -11,7 +11,7 @@
 | Client directives | Minimal (`data-flux-action`, placeholders) | Rich (`wire:*`, Alpine integration) |
 | Redirects | Custom redirect headers + HTML fallback | Framework redirects |
 | SSR | Inherent (server-rendered each request) | Server-rendered Blade + client morph |
-| Partial updates | OuterHTML swap (no DOM diff) | DOM diff/morph for granular updates |
+| Partial updates | Template fragment targets (`data-flux-target`) with optional document-scoped selectors; falls back to full swap if selectors fail | DOM diff/morph for granular updates |
 | Two-way binding | Not built-in (manual via `Handle`) | Yes (`wire:model` + modifiers) |
 | File uploads | Not built-in | Built-in helpers |
 | CSRF | Add via normal forms/headers | Laravel middleware |
@@ -74,14 +74,15 @@ This document compares our Go package `liveflux` with Laravel Livewire (PHP), hi
 
 ## SSR & Partial Updates
 - __Our pkg__
-  - Server renders the entire component subtree HTML and swaps the root node (`outerHTML`). No DOM-diffing.
-  - SSR is inherent (server renders HTML each request). No separate hydration layer.
+  - Targeted fragment responses update only matching selectors; omit component metadata when patching shared DOM outside a component root.
+  - Automatic fallback to full component render when selectors fail or no fragments are returned.
 - __Laravel Livewire__
   - Server renders Blade, client morphs DOM (partial updates), tracks effects; better incremental update performance on large trees.
 
 ## Features Comparison
 - __Implemented in our pkg__
   - Server-driven components with `Mount/Handle/Render`.
+  - Targeted fragment updates with component-scoped and document-scoped selectors.
   - Type-safe registry and aliasing helpers (`functions.go`: `DefaultAliasFromType`, `NewID`).
   - In-memory `Store` with pluggable interface (`state.go`).
   - Basic redirects with delay headers.

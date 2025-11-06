@@ -11,7 +11,7 @@
 | Client directives | Minimal (`data-flux-action`, placeholders) | `data-turbo`, `turbo-frame`, `turbo-stream`, Stimulus controllers |
 | Redirects | Custom redirect headers + HTML fallback | Standard Rails redirects; Turbo drive handles seamlessly |
 | SSR | Inherent (server-rendered each request) | Inherent SSR; progressive enhancement by Turbo |
-| Partial updates | OuterHTML swap (no DOM diff) | Targeted updates via Turbo Streams (append/prepend/replace/remove) |
+| Partial updates | Template fragment targets (`data-flux-target`) with component- or document-scoped selectors; falls back to full swap if selectors fail | Targeted updates via Turbo Streams (append/prepend/replace/remove) |
 | Two-way binding | Not built-in (manual via `Handle`) | No two-way binding; forms + Turbo Drive/Frames/Streams |
 | File uploads | Not built-in | Standard Rails forms; Turbo-compatible |
 | CSRF | Add via normal forms/headers | Rails authenticity token in forms/headers |
@@ -74,7 +74,8 @@ This document compares our Go package `liveflux` with Hotwire Turbo (Rails), foc
 
 ## SSR & Partial Updates
 - __Our pkg__
-  - Full component subtree re-render and root `outerHTML` swap.
+  - Targeted fragment responses update only matching selectors; omit component metadata when patching shared DOM outside the component root.
+  - Automatic fallback to full component render if selectors fail or the component returns no fragments.
 - __Hotwire Turbo__
   - Server renders HTML; client applies targeted updates to frames/stream targets.
   - No JSON diff protocol; patches are HTML fragments indicated by stream actions.
@@ -82,6 +83,7 @@ This document compares our Go package `liveflux` with Hotwire Turbo (Rails), foc
 ## Features Comparison
 - __Implemented in our pkg__
   - Server-driven components with explicit action handling.
+  - Targeted fragment updates supporting both component-scoped and document-scoped selectors.
   - Pluggable state store, minimal embedded JS client, redirect headers with fallback.
 - __Not (yet) implemented vs. Hotwire Turbo__
   - First-class frame scoping for partial updates.

@@ -11,7 +11,7 @@
 | Client directives | Minimal (`data-flux-action`, placeholders) | `data-reflex` attributes, Stimulus controllers, `stimulus_reflex` helpers |
 | Redirects | Custom redirect headers + HTML fallback | Standard Rails redirects; Turbo-compatible setups often used |
 | SSR | Inherent (server-rendered each request) | Inherent; Reflex augments with WS roundtrips |
-| Partial updates | OuterHTML swap (no DOM diff) | morphdom-based granular DOM patching via HTML diffs |
+| Partial updates | Template fragment targets (`data-flux-target`) with optional document-scoped selectors; falls back to full swap if selectors fail | morphdom-based granular DOM patching via HTML diffs |
 | Two-way binding | Not built-in (manual via `Handle`) | No automatic two-way binding; Stimulus handles inputs |
 | File uploads | Not built-in | Via standard Rails forms; not Reflex-specific |
 | CSRF | Add via normal forms/headers | Rails authenticity token; Action Cable connection auth |
@@ -71,13 +71,15 @@ This document compares our Go package `liveflux` with StimulusReflex, highlighti
 
 ## SSR & Partial Updates
 - __Our pkg__
-  - Full component subtree re-render and root `outerHTML` swap.
+  - Targeted fragment responses update only matching selectors; omit component metadata to patch shared DOM outside the component root.
+  - Automatic fallback to full component render when selectors fail or no fragments are returned.
 - __StimulusReflex__
   - Server renders partials; morphdom applies granular patches, minimizing layout thrash.
 
 ## Features Comparison
 - __Implemented in our pkg__
   - Server-driven components with explicit action handling.
+  - Targeted fragment updates with component-scoped and document-scoped selectors.
   - Pluggable state store, minimal embedded JS client, redirect headers with fallback.
   - Minimal client: embedded JS (mount placeholders, action clicks, form submit, script re-execution).
   - Optional WebSocket transport with `WebSocketHandler`, including origin allow-listing, CSRF checks, TLS enforcement, rate limiting, and per-message validation (`websocket.go`).

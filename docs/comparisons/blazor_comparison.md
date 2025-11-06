@@ -11,7 +11,7 @@
 | Client directives | Minimal (`data-flux-action`, placeholders) | Event binding `@onclick`, `@onchange`, two-way `@bind`, lifecycle methods |
 | Redirects | Custom redirect headers + HTML fallback | NavigationManager for client-side navigation; server redirects via ASP.NET |
 | SSR | Inherent (server-rendered each request) | Optional: Blazor Server is stateful over SignalR; Blazor WASM is client-rendered; .NET 8+ supports SSR/streaming for Razor Components |
-| Partial updates | OuterHTML swap (no DOM diff) | Diff/virtual DOM-like renderer applies minimal DOM patches |
+| Partial updates | Template fragment targets (`data-flux-target`) with optional document-scoped selectors; falls back to full swap if a selector fails | Diff/virtual DOM-like renderer applies minimal DOM patches |
 | Two-way binding | Not built-in (manual via `Handle`) | Yes, `@bind` with format/culture/modifiers |
 | File uploads | Not built-in | Built-in `<InputFile>` component and streaming APIs |
 | CSRF | Add via normal forms/headers | ASP.NET Core antiforgery for forms; auth via Identity/AuthN/AuthZ |
@@ -71,7 +71,8 @@ This document compares our Go package `liveflux` with Blazor, highlighting conce
 
 ## SSR & Partial Updates
 - __Our pkg__
-  - Full component subtree re-render and root `outerHTML` swap.
+  - Targeted fragment responses replace only the matching selectors; omit component metadata to patch document-scoped elements.
+  - Automatic fallback to full component render when selectors fail or no fragment is returned.
 - __Blazor__
   - Renderer computes minimal DOM patches and applies them efficiently.
   - .NET 8+ Razor Components can do SSR/streaming/hybrid rendering scenarios.
@@ -79,6 +80,7 @@ This document compares our Go package `liveflux` with Blazor, highlighting conce
 ## Features Comparison
 - __Implemented in our pkg__
   - Server-driven components with explicit action handling.
+  - Targeted fragment updates with component-scoped and document-scoped selectors.
   - Pluggable state store, minimal embedded JS client, redirect headers with fallback.
   - Minimal client: embedded JS (mount placeholders, action clicks, form submit, script re-execution).
   - Optional WebSocket transport with `WebSocketHandler`, including origin allow-listing, CSRF checks, TLS enforcement, rate limiting, and per-message validation (`websocket.go`).

@@ -11,7 +11,7 @@
 | Client directives | Minimal (`data-flux-action`, placeholders) | Rich `phx-*` events (`phx-click`, `phx-submit`, `phx-change`, etc.) |
 | Redirects | Custom redirect headers + HTML fallback | Live navigation: `push_patch`, `push_redirect`, `redirect` |
 | SSR | Inherent (server-rendered each request) | Initial server render; then LiveView upgrades over WS |
-| Partial updates | OuterHTML swap (no DOM diff) | DOM patches via diff protocol; `phx-update` modes |
+| Partial updates | Template fragment targets (`data-flux-target`) with optional document-scoped selectors; falls back to full swap if selectors fail | DOM patches via diff protocol; `phx-update` modes |
 | Two-way binding | Not built-in (manual via `Handle`) | Form syncing via `phx-change`/`phx-submit`, `phx-debounce`/`phx-throttle` |
 | File uploads | Not built-in | Built-in Live Uploads with chunking/validation |
 | CSRF | Add via normal forms/headers | Phoenix CSRF/auth tokens and signed sessions |
@@ -77,8 +77,9 @@ This document compares our Go package `liveflux` with Phoenix LiveView (Elixir),
 
 ## SSR & Partial Updates
 - __Our pkg__
-  - Server renders the entire component subtree HTML and swaps the root node (`outerHTML`). No DOM-diffing.
-  - SSR is inherent (server renders HTML each request). No separate hydration layer.
+  - SSR inherent (server-rendered each request).
+  - Targeted fragment responses update only matching selectors; omit component metadata to patch document-scoped regions shared across components.
+  - Automatic fallback to full component render when selectors fail or no fragments are returned.
 - __Phoenix LiveView__
   - Server renders HEEx; client applies DOM patches via diffs for granular updates.
   - `phx-update` controls node replacement/append/prepend/ignore semantics.
@@ -86,6 +87,7 @@ This document compares our Go package `liveflux` with Phoenix LiveView (Elixir),
 ## Features Comparison
 - __Implemented in our pkg__
   - Server-driven components with `Mount/Handle/Render`.
+  - Targeted fragment updates with component-scoped and document-scoped selectors.
   - Type-safe registry and aliasing helpers (`functions.go`: `DefaultAliasFromType`, `NewID`).
   - In-memory `Store` with pluggable interface (`state.go`).
   - Basic redirects with delay headers.
