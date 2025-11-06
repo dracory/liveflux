@@ -1,4 +1,14 @@
 describe('Liveflux Handlers', function() {
+    let originalPost;
+    let originalExecuteScripts;
+    let originalInitWire;
+
+    beforeAll(function() {
+        originalPost = window.liveflux.post;
+        originalExecuteScripts = window.liveflux.executeScripts;
+        originalInitWire = window.liveflux.initWire;
+    });
+
     beforeEach(function() {
         // Mock liveflux.post
         if (!window.liveflux.post || !window.liveflux.post.and) {
@@ -24,6 +34,46 @@ describe('Liveflux Handlers', function() {
             window.liveflux.initWire = jasmine.createSpy('initWire');
         } else {
             window.liveflux.initWire.calls.reset();
+        }
+    });
+
+    afterEach(function() {
+        if (typeof originalPost === 'undefined') {
+            delete window.liveflux.post;
+        } else {
+            window.liveflux.post = originalPost;
+        }
+
+        if (typeof originalExecuteScripts === 'undefined') {
+            delete window.liveflux.executeScripts;
+        } else {
+            window.liveflux.executeScripts = originalExecuteScripts;
+        }
+
+        if (typeof originalInitWire === 'undefined') {
+            delete window.liveflux.initWire;
+        } else {
+            window.liveflux.initWire = originalInitWire;
+        }
+    });
+
+    afterAll(function() {
+        if (typeof originalPost === 'undefined') {
+            delete window.liveflux.post;
+        } else {
+            window.liveflux.post = originalPost;
+        }
+
+        if (typeof originalExecuteScripts === 'undefined') {
+            delete window.liveflux.executeScripts;
+        } else {
+            window.liveflux.executeScripts = originalExecuteScripts;
+        }
+
+        if (typeof originalInitWire === 'undefined') {
+            delete window.liveflux.initWire;
+        } else {
+            window.liveflux.initWire = originalInitWire;
         }
     });
 

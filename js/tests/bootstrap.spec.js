@@ -16,12 +16,46 @@ describe('Liveflux Bootstrap', function() {
     });
 
     describe('bootstrapInit function', function() {
+        let originalHandleActionClick;
+        let originalHandleFormSubmit;
+        let originalMountPlaceholders;
+        let originalInitWire;
+
+        beforeAll(function() {
+            originalHandleActionClick = window.liveflux.handleActionClick;
+            originalHandleFormSubmit = window.liveflux.handleFormSubmit;
+            originalMountPlaceholders = window.liveflux.mountPlaceholders;
+            originalInitWire = window.liveflux.initWire;
+        });
+
         beforeEach(function() {
             // Mock the liveflux methods
             window.liveflux.handleActionClick = jasmine.createSpy('handleActionClick');
             window.liveflux.handleFormSubmit = jasmine.createSpy('handleFormSubmit');
             window.liveflux.mountPlaceholders = jasmine.createSpy('mountPlaceholders');
             window.liveflux.initWire = jasmine.createSpy('initWire');
+        });
+
+        afterEach(function() {
+            window.liveflux.handleActionClick = originalHandleActionClick;
+            window.liveflux.handleFormSubmit = originalHandleFormSubmit;
+            window.liveflux.mountPlaceholders = originalMountPlaceholders;
+            if (typeof originalInitWire === 'undefined') {
+                delete window.liveflux.initWire;
+            } else {
+                window.liveflux.initWire = originalInitWire;
+            }
+        });
+
+        afterAll(function() {
+            window.liveflux.handleActionClick = originalHandleActionClick;
+            window.liveflux.handleFormSubmit = originalHandleFormSubmit;
+            window.liveflux.mountPlaceholders = originalMountPlaceholders;
+            if (typeof originalInitWire === 'undefined') {
+                delete window.liveflux.initWire;
+            } else {
+                window.liveflux.initWire = originalInitWire;
+            }
         });
 
         it('should add event listeners when called', function() {
