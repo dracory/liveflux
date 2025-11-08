@@ -13,6 +13,7 @@ Liveflux is a server-driven component system for Go. It uses [`github.com/dracor
 - **Composable state**: Per-component state persists via pluggable stores (`MemoryStore` by default).
 - **Event-driven UX**: Dispatch server events and respond via Go or JavaScript listeners.
 - **Transport flexibility**: Use standard HTTP POST/GET or upgrade seamlessly to WebSockets.
+- **Declarative triggers**: Bind DOM events to actions with `data-flux-trigger` for live search, auto-save, and validation without custom JavaScript.
 - **Form-less submission**: Collect fields from anywhere in the DOM using `data-flux-include` and `data-flux-exclude`.
 - **Targeted updates**: Update only specific DOM regions instead of full component re-renders for better performance.
 
@@ -176,6 +177,25 @@ What it shows:
 
 Source: `examples/target/`
 
+### Triggers (live search with debouncing)
+
+Run from repo root:
+
+```bash
+go run ./examples/triggers
+# or, with Task
+task examples:triggers:run
+```
+
+What it shows:
+
+- Declarative event handling with `data-flux-trigger`.
+- Live search with automatic debouncing using `keyup changed delay:300ms`.
+- No custom JavaScript required for interactive features.
+- Built-in change detection prevents redundant requests.
+
+Source: `examples/triggers/`
+
 ## Documentation
 
 Start with the focused guides under `docs/`:
@@ -189,6 +209,7 @@ Start with the focused guides under `docs/`:
 - [State management](docs/state_management.md)
 - [SSR](docs/ssr.md)
 - [WebSocket integration](docs/websocket.md)
+- [Triggers](docs/triggers.md)
 - [Targeted updates](docs/targeted_updates.md)
 
 ## Package API

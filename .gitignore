@@ -36,6 +36,7 @@ examples/crud/tmp/
 examples/events/tmp/
 examples/formless/tmp/
 examples/target/tmp/
+examples/triggers/tmp/
 examples/tree/tmp/
 examples/websocket/tmp/
-js/tests/
+js/tests/tmp/

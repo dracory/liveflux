@@ -142,6 +142,20 @@
             disableTargetSupport: window.liveflux.disableTargetSupport
         });
     </script>
+
+    <!-- liveflux_triggers.js -->
+    <script src="/liveflux_triggers.js"></script>
+    <script>
+        // Debug: Check if triggers module loaded
+        console.log('After triggers.js:', {
+            parseTriggers: window.liveflux.parseTriggers,
+            registerTriggers: window.liveflux.registerTriggers,
+            unregisterTriggers: window.liveflux.unregisterTriggers,
+            initTriggers: window.liveflux.initTriggers,
+            cleanupTriggers: window.liveflux.cleanupTriggers,
+            configureTriggers: window.liveflux.configureTriggers
+        });
+    </script>
     
     <!-- Test specs -->
     <script src="/tests/find.spec.js"></script>
@@ -153,5 +167,6 @@
     <script src="/tests/handlers.spec.js"></script>
     <script src="/tests/data-flux-select.spec.js"></script>
     <script src="/tests/data-flux-target.spec.js"></script>
+    <script src="/tests/triggers.spec.js"></script>
 </body>
 </html>

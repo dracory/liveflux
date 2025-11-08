@@ -38,6 +38,7 @@
       if (newRoot) {
         componentRoot.replaceWith(newRoot);
         liveflux.executeScripts(newRoot);
+        if (liveflux.initTriggers) liveflux.initTriggers(newRoot);
         newComponentRoot = newRoot; // Update reference for subsequent selectors
         appliedCount++;
         console.log(`${TARGET_LOG_PREFIX} Applied full component replacement`);
@@ -96,10 +97,12 @@
           case 'replace':
             target.replaceWith(fragment);
             liveflux.executeScripts(fragment);
+            if (liveflux.initTriggers) liveflux.initTriggers(fragment);
             break;
           case 'inner':
             target.innerHTML = fragment.innerHTML;
             liveflux.executeScripts(target);
+            if (liveflux.initTriggers) liveflux.initTriggers(target);
             break;
           case 'beforebegin':
           case 'afterbegin':
@@ -107,6 +110,7 @@
           case 'afterend':
             target.insertAdjacentElement(swapMode, fragment);
             liveflux.executeScripts(fragment);
+            if (liveflux.initTriggers) liveflux.initTriggers(fragment);
             break;
           default:
             console.warn(`${TARGET_LOG_PREFIX} Unknown swap mode: ${swapMode}`);
