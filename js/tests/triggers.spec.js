@@ -19,31 +19,72 @@ describe('Liveflux Triggers', function() {
 
     beforeEach(function() {
         // Mock liveflux.post
-        window.liveflux.post = jasmine.createSpy('post').and.returnValue(Promise.resolve({
-            html: '<div data-flux-root="1" data-flux-component="test" data-flux-component-id="123"><p>Updated</p></div>'
-        }));
+        if (!window.liveflux.post || !window.liveflux.post.and) {
+            window.liveflux.post = jasmine.createSpy('post').and.returnValue(Promise.resolve({
+                html: '<div data-flux-root="1" data-flux-component="test" data-flux-component-id="123"><p>Updated</p></div>'
+            }));
+        } else {
+            window.liveflux.post.calls.reset();
+            window.liveflux.post.and.returnValue(Promise.resolve({
+                html: '<div data-flux-root="1" data-flux-component="test" data-flux-component-id="123"><p>Updated</p></div>'
+            }));
+        }
         
         // Mock executeScripts
-        window.liveflux.executeScripts = jasmine.createSpy('executeScripts');
+        if (!window.liveflux.executeScripts || !window.liveflux.executeScripts.and) {
+            window.liveflux.executeScripts = jasmine.createSpy('executeScripts');
+        } else {
+            window.liveflux.executeScripts.calls.reset();
+        }
         
         // Mock initWire
-        window.liveflux.initWire = jasmine.createSpy('initWire');
+        if (!window.liveflux.initWire || !window.liveflux.initWire.and) {
+            window.liveflux.initWire = jasmine.createSpy('initWire');
+        } else {
+            window.liveflux.initWire.calls.reset();
+        }
         
         // Mock collectAllFields
-        window.liveflux.collectAllFields = jasmine.createSpy('collectAllFields').and.returnValue({
-            query: 'test'
-        });
+        if (!window.liveflux.collectAllFields || !window.liveflux.collectAllFields.and) {
+            window.liveflux.collectAllFields = jasmine.createSpy('collectAllFields').and.returnValue({
+                query: 'test'
+            });
+        } else {
+            window.liveflux.collectAllFields.calls.reset();
+            window.liveflux.collectAllFields.and.returnValue({
+                query: 'test'
+            });
+        }
         
         // Mock resolveComponentMetadata
-        window.liveflux.resolveComponentMetadata = jasmine.createSpy('resolveComponentMetadata').and.returnValue({
-            comp: 'search',
-            id: 'search-123',
-            root: document.createElement('div')
-        });
+        if (!window.liveflux.resolveComponentMetadata || !window.liveflux.resolveComponentMetadata.and) {
+            window.liveflux.resolveComponentMetadata = jasmine.createSpy('resolveComponentMetadata').and.returnValue({
+                comp: 'search',
+                id: 'search-123',
+                root: document.createElement('div')
+            });
+        } else {
+            window.liveflux.resolveComponentMetadata.calls.reset();
+            window.liveflux.resolveComponentMetadata.and.returnValue({
+                comp: 'search',
+                id: 'search-123',
+                root: document.createElement('div')
+            });
+        }
         
         // Mock indicators
-        window.liveflux.startRequestIndicators = jasmine.createSpy('startRequestIndicators').and.returnValue([]);
-        window.liveflux.endRequestIndicators = jasmine.createSpy('endRequestIndicators');
+        if (!window.liveflux.startRequestIndicators || !window.liveflux.startRequestIndicators.and) {
+            window.liveflux.startRequestIndicators = jasmine.createSpy('startRequestIndicators').and.returnValue([]);
+        } else {
+            window.liveflux.startRequestIndicators.calls.reset();
+            window.liveflux.startRequestIndicators.and.returnValue([]);
+        }
+        
+        if (!window.liveflux.endRequestIndicators || !window.liveflux.endRequestIndicators.and) {
+            window.liveflux.endRequestIndicators = jasmine.createSpy('endRequestIndicators');
+        } else {
+            window.liveflux.endRequestIndicators.calls.reset();
+        }
     });
 
     afterEach(function() {
@@ -224,6 +265,16 @@ describe('Liveflux Triggers', function() {
         });
 
         afterEach(function() {
+            // Cleanup triggers before removing container
+            if (testContainer) {
+                const triggeredElements = testContainer.querySelectorAll('[data-flux-trigger]');
+                triggeredElements.forEach(el => {
+                    if (window.liveflux.unregisterTriggers) {
+                        window.liveflux.unregisterTriggers(el);
+                    }
+                });
+            }
+            
             if (testContainer && testContainer.parentNode) {
                 testContainer.parentNode.removeChild(testContainer);
             }
@@ -262,8 +313,8 @@ describe('Liveflux Triggers', function() {
             const input = document.getElementById('search-input');
             const root = testContainer.querySelector('[data-flux-root]');
             
-            // Mock resolveComponentMetadata to return the actual root
-            window.liveflux.resolveComponentMetadata = jasmine.createSpy('resolveComponentMetadata').and.returnValue({
+            // Update existing spy to return the actual root
+            window.liveflux.resolveComponentMetadata.and.returnValue({
                 comp: 'search',
                 id: 'search-123',
                 root: root
@@ -296,8 +347,8 @@ describe('Liveflux Triggers', function() {
             const input = document.getElementById('search-input');
             const root = testContainer.querySelector('[data-flux-root]');
             
-            // Mock resolveComponentMetadata to return the actual root
-            window.liveflux.resolveComponentMetadata = jasmine.createSpy('resolveComponentMetadata').and.returnValue({
+            // Update existing spy to return the actual root
+            window.liveflux.resolveComponentMetadata.and.returnValue({
                 comp: 'search',
                 id: 'search-123',
                 root: root
@@ -334,8 +385,8 @@ describe('Liveflux Triggers', function() {
             const input = document.getElementById('search-input');
             const root = testContainer.querySelector('[data-flux-root]');
             
-            // Mock resolveComponentMetadata to return the actual root
-            window.liveflux.resolveComponentMetadata = jasmine.createSpy('resolveComponentMetadata').and.returnValue({
+            // Update existing spy to return the actual root
+            window.liveflux.resolveComponentMetadata.and.returnValue({
                 comp: 'search',
                 id: 'search-123',
                 root: root
@@ -352,7 +403,8 @@ describe('Liveflux Triggers', function() {
             
             // Should only fire once after all events settle
             setTimeout(function() {
-                expect(window.liveflux.post.calls.count()).toBe(1);
+                const callCount = window.liveflux.post.calls.count();
+                expect(callCount).toBe(1);
                 done();
             }, 400);
         });
@@ -474,6 +526,16 @@ describe('Liveflux Triggers', function() {
         });
 
         afterEach(function() {
+            // Cleanup triggers before removing container
+            if (testContainer) {
+                const triggeredElements = testContainer.querySelectorAll('[data-flux-trigger]');
+                triggeredElements.forEach(el => {
+                    if (window.liveflux.unregisterTriggers) {
+                        window.liveflux.unregisterTriggers(el);
+                    }
+                });
+            }
+            
             if (testContainer && testContainer.parentNode) {
                 testContainer.parentNode.removeChild(testContainer);
             }
@@ -483,7 +545,8 @@ describe('Liveflux Triggers', function() {
             testContainer.innerHTML = `
                 <div data-flux-root="1" data-flux-component="search" data-flux-component-id="search-123">
                     <input id="search-input" 
-                           type="text" 
+                           type="text"
+                           name="query"
                            data-flux-trigger="keyup"
                            data-flux-action="search" />
                 </div>
@@ -492,8 +555,8 @@ describe('Liveflux Triggers', function() {
             const input = document.getElementById('search-input');
             const root = testContainer.querySelector('[data-flux-root]');
             
-            // Mock resolveComponentMetadata to return the actual root
-            window.liveflux.resolveComponentMetadata = jasmine.createSpy('resolveComponentMetadata').and.returnValue({
+            // Update existing spy to return the actual root
+            window.liveflux.resolveComponentMetadata.and.returnValue({
                 comp: 'search',
                 id: 'search-123',
                 root: root

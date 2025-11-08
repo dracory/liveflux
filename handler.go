@@ -251,12 +251,9 @@ func (h *Handler) maybeWriteRedirect(w http.ResponseWriter, c ComponentInterface
 }
 
 // writeRender renders component HTML and sends any queued events.
-// If the client supports targeted updates and the component implements TargetRenderer,
-// it will send only the changed fragments instead of the full component.
+// If the component implements TargetRenderer, it will send only the changed fragments
+// instead of the full component.
 func (h *Handler) writeRender(ctx context.Context, w http.ResponseWriter, r *http.Request, c ComponentInterface) {
-	// Check if client supports targeted updates
-	supportsTargets := r.Header.Get("X-Liveflux-Target") == "enabled"
-
 	// Check if component supports events
 	if ea, ok := c.(EventAware); ok {
 		dispatcher := ea.GetEventDispatcher()
@@ -270,19 +267,17 @@ func (h *Handler) writeRender(ctx context.Context, w http.ResponseWriter, r *htt
 		}
 	}
 
-	// Try targeted rendering if supported by both client and component
-	if supportsTargets {
-		if tr, ok := c.(TargetRenderer); ok {
-			fragments := tr.RenderTargets(ctx)
-			if len(fragments) > 0 {
-				// Build template response with fragments
-				fullRender := c.Render(ctx).ToHTML()
-				response := BuildTargetResponse(fragments, fullRender, c)
+	// Try targeted rendering if component implements TargetRenderer
+	if tr, ok := c.(TargetRenderer); ok {
+		fragments := tr.RenderTargets(ctx)
+		if len(fragments) > 0 {
+			// Build template response with fragments only (no fallback)
+			// The client will handle fallback if selectors fail
+			response := BuildTargetResponse(fragments, "", c)
 
-				w.Header().Set("Content-Type", "text/html; charset=utf-8")
-				_, _ = w.Write([]byte(response))
-				return
-			}
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			_, _ = w.Write([]byte(response))
+			return
 		}
 	}
 

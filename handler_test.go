@@ -69,9 +69,111 @@ func (c *handlerComp) Render(_ context.Context) hb.TagInterface {
 
 // helper to register a fresh alias each test
 func registerTestAlias(t *testing.T, proto ComponentInterface) string {
-	alias := "test." + NewID()
-	RegisterByAlias(alias, proto)
+	t.Helper()
+	alias := proto.GetAlias()
+	if alias == "" {
+		alias = fmt.Sprintf("test-comp-%p", proto)
+	}
+	_ = RegisterByAlias(alias, proto)
 	return alias
+}
+
+// targetComp implements TargetRenderer for testing targeted updates
+type targetComp struct {
+	Base
+	Value string
+	dirty map[string]bool
+}
+
+func (c *targetComp) GetAlias() string { return "target-test" }
+
+func (c *targetComp) Mount(_ context.Context, params map[string]string) error {
+	c.Value = params["value"]
+	c.dirty = make(map[string]bool)
+	return nil
+}
+
+func (c *targetComp) Handle(_ context.Context, action string, data url.Values) error {
+	if action == "update" {
+		c.Value = data.Get("value")
+		c.dirty["result"] = true
+	}
+	return nil
+}
+
+func (c *targetComp) Render(_ context.Context) hb.TagInterface {
+	return hb.Div().
+		Attr("data-id", c.GetID()).
+		Children([]hb.TagInterface{
+			hb.Input().Name("value").Value(c.Value),
+			hb.Div().ID("result").Text("Result: " + c.Value),
+		})
+}
+
+func (c *targetComp) RenderTargets(_ context.Context) []TargetFragment {
+	var targets []TargetFragment
+	if c.dirty["result"] {
+		targets = append(targets, TargetFragment{
+			Selector: "#result",
+			Content:  hb.Div().ID("result").Text("Result: " + c.Value),
+		})
+	}
+	return targets
+}
+
+func TestHandler_TargetedRendering(t *testing.T) {
+	s := NewMemoryStore()
+	h := NewHandler(s)
+	alias := registerTestAlias(t, &targetComp{})
+
+	// Mount component
+	mountForm := url.Values{FormComponent: {alias}, "value": {"initial"}}
+	mountReq := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(mountForm.Encode()))
+	mountReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	mountRec := httptest.NewRecorder()
+	h.ServeHTTP(mountRec, mountReq)
+
+	html := mountRec.Body.String()
+	start := strings.Index(html, "data-id=\"")
+	if start < 0 {
+		t.Fatalf("no data-id in mount HTML: %s", html)
+	}
+	start += len("data-id=\"")
+	end := strings.Index(html[start:], "\"")
+	id := html[start : start+end]
+
+	// Trigger action that marks target dirty
+	actForm := url.Values{
+		FormComponent:   {alias},
+		FormComponentID: {id},
+		FormAction:      {"update"},
+		"value":         {"updated"},
+	}
+	actReq := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(actForm.Encode()))
+	actReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	actRec := httptest.NewRecorder()
+	h.ServeHTTP(actRec, actReq)
+
+	if actRec.Code != http.StatusOK {
+		t.Fatalf("expected 200 on action, got %d", actRec.Code)
+	}
+
+	body := actRec.Body.String()
+
+	// Should contain targeted template, not full component replacement
+	if !strings.Contains(body, `<template data-flux-target="#result"`) {
+		t.Errorf("expected targeted template, got: %s", body)
+	}
+
+	// Should contain updated value in fragment
+	if !strings.Contains(body, "Result: updated") {
+		t.Errorf("expected updated value in fragment, got: %s", body)
+	}
+
+	// Should NOT contain full component fallback template
+	if strings.Contains(body, `<template data-flux-component=`) {
+		t.Errorf("should not contain full component fallback template, got: %s", body)
+	}
 }
 
 func TestHandler_MethodNotAllowed(t *testing.T) {
