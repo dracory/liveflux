@@ -85,6 +85,13 @@ describe('Liveflux Triggers', function() {
         } else {
             window.liveflux.endRequestIndicators.calls.reset();
         }
+
+        if (window.liveflux.configureTriggers) {
+            window.liveflux.configureTriggers({
+                defaultTriggerDelay: 0,
+                enableTriggers: true
+            });
+        }
     });
 
     afterEach(function() {
@@ -471,6 +478,75 @@ describe('Liveflux Triggers', function() {
             if (testContainer && testContainer.parentNode) {
                 testContainer.parentNode.removeChild(testContainer);
             }
+        });
+
+        it('should remove event listeners and stop trigger actions', function() {
+            testContainer.innerHTML = `
+                <div data-flux-root="1" data-flux-component="search" data-flux-component-id="search-123">
+                    <input id="search-input"
+                           type="text"
+                           name="query"
+                           data-flux-trigger="input"
+                           data-flux-action="search" />
+                </div>
+            `;
+
+            const input = document.getElementById('search-input');
+            const root = testContainer.querySelector('[data-flux-root]');
+
+            window.liveflux.resolveComponentMetadata.and.returnValue({
+                comp: 'search',
+                id: 'search-123',
+                root: root
+            });
+
+            window.liveflux.registerTriggers(input);
+
+            const event = new Event('input', { bubbles: true });
+            input.dispatchEvent(event);
+
+            expect(window.liveflux.post).toHaveBeenCalled();
+
+            window.liveflux.post.calls.reset();
+
+            window.liveflux.unregisterTriggers(input);
+
+            input.dispatchEvent(event);
+
+            expect(window.liveflux.post).not.toHaveBeenCalled();
+        });
+
+        it('should clear pending timers when unregistering delayed triggers', function(done) {
+            testContainer.innerHTML = `
+                <div data-flux-root="1" data-flux-component="search" data-flux-component-id="search-123">
+                    <input id="search-input"
+                           type="text"
+                           name="query"
+                           data-flux-trigger="input delay:200ms"
+                           data-flux-action="search" />
+                </div>
+            `;
+
+            const input = document.getElementById('search-input');
+            const root = testContainer.querySelector('[data-flux-root]');
+
+            window.liveflux.resolveComponentMetadata.and.returnValue({
+                comp: 'search',
+                id: 'search-123',
+                root: root
+            });
+
+            window.liveflux.registerTriggers(input);
+
+            const event = new Event('input', { bubbles: true });
+            input.dispatchEvent(event);
+
+            window.liveflux.unregisterTriggers(input);
+
+            setTimeout(function() {
+                expect(window.liveflux.post).not.toHaveBeenCalled();
+                done();
+            }, 300);
         });
     });
 
