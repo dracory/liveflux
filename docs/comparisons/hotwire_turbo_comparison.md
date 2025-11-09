@@ -29,7 +29,7 @@ This document compares our Go package `liveflux` with Hotwire Turbo (Rails), foc
   - Transport: built-in lightweight client, form-encoded POST/GET, or optional WebSocket transport via `NewHandlerWS`/`NewWebSocketHandler`.
   - Rendering: returns full component HTML via `hb.TagInterface.ToHTML()`.
   - State: `Store` interface with default `MemoryStore` (`state.go`).
-  - Registration: component registry/aliases (`registry.go`).
+  - Registration: component registry/kinds (`registry.go`).
 - __Hotwire Turbo__
   - Works with standard Rails MVC: controllers render HTML; Turbo progressively enhances navigation and updates.
   - Turbo Drive: intercepts links/forms for fast navigation and partial reloads.
@@ -47,7 +47,7 @@ This document compares our Go package `liveflux` with Hotwire Turbo (Rails), foc
 
 ## Client API & Templating
 - __Our pkg__
-  - `liveflux.PlaceholderByAlias(alias, params)` renders `<div data-flux-mount>` consumed by the client.
+  - `liveflux.PlaceholderByKind(kind, params)` renders `<div data-flux-mount>` consumed by the client.
   - Actions via `data-flux-action` (clicks/forms) posting `component`, `id`, `action`.
 - __Hotwire Turbo__
   - Templates: Rails ERB with `turbo-frame id="..."` and partials.
@@ -65,7 +65,7 @@ This document compares our Go package `liveflux` with Hotwire Turbo (Rails), foc
 
 ## Transport & Protocol
 - __Our pkg__ (`handler.go`)
-  - Mount: POST/GET `component=alias` (+params) -> HTML.
+  - Mount: POST/GET `component=kind` (+params) -> HTML.
   - Action: POST/GET `component, id, action` -> HTML or redirect headers.
 - __Hotwire Turbo__
   - Turbo Drive intercepts HTTP navigation and form submissions, expecting HTML response.
@@ -119,7 +119,7 @@ This document compares our Go package `liveflux` with Hotwire Turbo (Rails), foc
 
 ## Mapping Examples
 - __Mounting__
-  - Our: `liveflux.PlaceholderByAlias("counter")` -> client mounts via `/liveflux`.
+  - Our: `liveflux.PlaceholderByKind("counter")` -> client mounts via `/liveflux`.
   - Rails: `turbo-frame id="counter"` around content; controller renders the frame's partial.
 - __Actions__
   - Our: button `data-flux-action="inc"` -> `Handle(ctx, "inc", formValues)`.

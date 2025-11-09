@@ -30,7 +30,7 @@ This document compares our Go package `liveflux` with Laravel Livewire (PHP), hi
   - Transport: built-in lightweight client (embedded via `script.go`), standard form-encoded POST/GET, or optional WebSocket transport via `NewHandlerWS`/`NewWebSocketHandler`.
   - Rendering: server returns full component HTML using `hb.TagInterface.ToHTML()`.
   - State: `Store` interface with default in-memory `MemoryStore` (`state.go`).
-  - Registration: type-based registry, aliases via `Register`/`RegisterByAlias` (`registry.go`).
+  - Registration: type-based registry, kinds via `Register`/`RegisterByKind` (`registry.go`).
 - __Laravel Livewire__
   - Tight integration with Laravel (routing, middleware, CSRF, auth).
   - Transport: AJAX payloads with JSON diffs + DOM morphing.
@@ -39,7 +39,7 @@ This document compares our Go package `liveflux` with Laravel Livewire (PHP), hi
 
 ## Component Model & Lifecycle
 - __Our pkg__ (`component.go`)
-  - Interface: `ComponentInterface` with `GetAlias/SetAlias`, `GetID/SetID`, `Mount(ctx, params) error`, `Handle(ctx, action string, data url.Values) error`, `Render(ctx) hb.TagInterface`.
+  - Interface: `ComponentInterface` with `GetKind/SetKind`, `GetID/SetID`, `Mount(ctx, params) error`, `Handle(ctx, action string, data url.Values) error`, `Render(ctx) hb.TagInterface`.
   - Lifecycle: mount (first POST without `id`) -> state stored -> handle actions -> render.
   - Redirects: components can call `Base.Redirect(url, delaySeconds...)`. Handler emits custom redirect headers and a fallback HTML page (`handler.go`).
 - __Laravel Livewire__
@@ -49,7 +49,7 @@ This document compares our Go package `liveflux` with Laravel Livewire (PHP), hi
 ## Client API & Templating
 - __Our pkg__
   - Templating via `github.com/dracory/hb` (builder producing HTML). No Blade-equivalent.
-  - Mount via our helper: `liveflux.PlaceholderByAlias(alias, params)` which produces `<div data-flux-mount="1" data-flux-component="...">` consumed by the built-in client.
+  - Mount via our helper: `liveflux.PlaceholderByKind(kind, params)` which produces `<div data-flux-mount="1" data-flux-component-kind="...">` consumed by the built-in client.
   - Actions: buttons/submitters annotated with `data-flux-action`, posts include `component`, `id`, `action`.
 - __Laravel Livewire__
   - Blade with `@livewire('component')` and directives.
@@ -67,7 +67,7 @@ This document compares our Go package `liveflux` with Laravel Livewire (PHP), hi
 ## Transport & Protocol
 - __Our pkg__ (`handler.go`)
   - Form fields: `component`, `id`, `action`.
-  - Mount: POST/GET `component=alias` (+params) -> returns HTML.
+  - Mount: POST/GET `component=kind` (+params) -> returns HTML.
   - Action: POST/GET `component, id, action` (+fields) -> returns HTML or redirect headers.
 - __Laravel Livewire__
   - JSON payloads with component fingerprint, checksum, diffed properties, and effects; response includes DOM changes & effects.
@@ -83,7 +83,7 @@ This document compares our Go package `liveflux` with Laravel Livewire (PHP), hi
 - __Implemented in our pkg__
   - Server-driven components with `Mount/Handle/Render`.
   - Targeted fragment updates with component-scoped and document-scoped selectors.
-  - Type-safe registry and aliasing helpers (`functions.go`: `DefaultAliasFromType`, `NewID`).
+  - Type-safe registry and kind helpers (`functions.go`: `DefaultKindFromType`, `NewID`).
   - In-memory `Store` with pluggable interface (`state.go`).
   - Basic redirects with delay headers.
   - Minimal client: embedded JS (mount placeholders, action clicks, form submit, script re-execution).
@@ -131,7 +131,7 @@ This document compares our Go package `liveflux` with Laravel Livewire (PHP), hi
 
 ## Mapping Examples
 - __Mounting__
-  - Our: `liveflux.PlaceholderByAlias("counter")` -> client mounts via `/liveflux`.
+  - Our: `liveflux.PlaceholderByKind("counter")` -> client mounts via `/liveflux`.
   - PHP: `@livewire('counter')` in Blade.
 - __Actions__
   - Our: button with `data-flux-action="inc"` -> `Handle(ctx, "inc", formValues)`.
