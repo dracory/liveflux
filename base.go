@@ -7,12 +7,12 @@ import (
 	"github.com/samber/lo"
 )
 
-// Base provides minimal implementation for alias and ID handling
+// Base provides minimal implementation for kind and ID handling
 // and is exported so downstream packages can embed `liveflux.Base`
 // for shared behavior.
 type Base struct {
-	// alias is the TYPE identifier (registry key). Set once by the framework.
-	alias string
+	// kind is the TYPE identifier (registry key). Set once by the framework.
+	kind string
 
 	// id is the INSTANCE identifier (unique per mount). Set during mount.
 	id string
@@ -31,15 +31,15 @@ type Base struct {
 	dirtyTargets map[string]bool
 }
 
-// GetAlias returns the component's alias.
-func (b *Base) GetAlias() string {
-	return b.alias
+// GetKind returns the component's kind.
+func (b *Base) GetKind() string {
+	return b.kind
 }
 
-// SetAlias sets the component's alias only once (no-op if already set or empty input).
-func (b *Base) SetAlias(alias string) {
-	if b.alias == "" && alias != "" {
-		b.alias = alias
+// SetKind sets the component's kind only once (no-op if already set or empty input).
+func (b *Base) SetKind(kind string) {
+	if b.kind == "" && kind != "" {
+		b.kind = kind
 	}
 }
 
@@ -94,8 +94,8 @@ func (b *Base) Root(content hb.TagInterface) hb.TagInterface {
 	root := hb.Div().
 		// data-flux-root is checked by the client to determine if this is a Liveflux component.
 		Attr(DataFluxRoot, "1").
-		// data-flux-component is the component alias (TYPE identifier).
-		Attr(DataFluxComponentAlias, b.GetAlias()).
+		// data-flux-component-kind is the component kind (KIND identifier).
+		Attr(DataFluxComponentKind, b.GetKind()).
 		// data-flux-component-id is the component instance ID (INSTANCE identifier).
 		Attr(DataFluxComponentID, b.GetID())
 
@@ -119,17 +119,17 @@ func (b *Base) Dispatch(eventName string, data ...map[string]any) {
 	b.GetEventDispatcher().Dispatch(eventName, data...)
 }
 
-// DispatchToAlias queues an event to be sent to a specific component alias.
-// Usage: component.DispatchToAlias("users.list", "post-created", map[string]any{"id": 1, "title": "My Post"})
-func (b *Base) DispatchToAlias(componentAlias string, eventName string, data ...map[string]any) {
-	b.GetEventDispatcher().DispatchToAlias(componentAlias, eventName, data...)
+// DispatchToKind queues an event to be sent to a specific component kind.
+// Usage: component.DispatchToKind("users.list", "post-created", map[string]any{"id": 1, "title": "My Post"})
+func (b *Base) DispatchToKind(componentKind string, eventName string, data ...map[string]any) {
+	b.GetEventDispatcher().DispatchToKind(componentKind, eventName, data...)
 }
 
-// DispatchToAliasAndID queues an event to be sent to a specific component alias and ID.
-// Usage: component.DispatchToAliasAndID("users.list", someID, "post-updated", map[string]any{"id": 1})
-func (b *Base) DispatchToAliasAndID(componentAlias string, componentID string, eventName string, data ...map[string]any) {
-	fmt.Printf("Dispatching to alias and ID: %s %s %s %v\n", componentAlias, componentID, eventName, data)
-	b.GetEventDispatcher().DispatchToAliasAndID(componentAlias, componentID, eventName, data...)
+// DispatchToKindAndID queues an event to be sent to a specific component kind and ID.
+// Usage: component.DispatchToKindAndID("users.list", someID, "post-updated", map[string]any{"id": 1})
+func (b *Base) DispatchToKindAndID(componentKind string, componentID string, eventName string, data ...map[string]any) {
+	fmt.Printf("Dispatching to kind and ID: %s %s %s %v\n", componentKind, componentID, eventName, data)
+	b.GetEventDispatcher().DispatchToKindAndID(componentKind, componentID, eventName, data...)
 }
 
 // DispatchSelf queues an event to be sent only to the current component.
@@ -137,7 +137,7 @@ func (b *Base) DispatchToAliasAndID(componentAlias string, componentID string, e
 func (b *Base) DispatchSelf(eventName string, data ...map[string]any) {
 	dataUpdated := lo.FirstOr(data, map[string]any{})
 	dataUpdated["__self"] = true
-	b.GetEventDispatcher().DispatchToAliasAndID(b.GetAlias(), b.GetID(), eventName, dataUpdated)
+	b.GetEventDispatcher().DispatchToKindAndID(b.GetKind(), b.GetID(), eventName, dataUpdated)
 }
 
 // MarkTargetDirty marks a specific DOM target as needing an update.

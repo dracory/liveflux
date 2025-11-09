@@ -53,21 +53,21 @@ func TestJSIncludesConfigVariables(t *testing.T) {
 	out := JS()
 
 	configVariables := map[string]string{
-		"dataFluxAction":      DataFluxAction,
-		"dataFluxDispatchTo":  DataFluxDispatchTo,
-		"dataFluxComponent":   DataFluxComponentAlias,
-		"dataFluxComponentID": DataFluxComponentID,
-		"dataFluxID":          DataFluxID,
-		"dataFluxMount":       DataFluxMount,
-		"dataFluxParam":       DataFluxParam,
-		"dataFluxRoot":        DataFluxRoot,
-		"dataFluxSubmit":      DataFluxSubmit,
-		"dataFluxWS":          DataFluxWS,
-		"dataFluxWSURL":       DataFluxWSURL,
-		"endpoint":            DefaultEndpoint,
-		"redirectHeader":      RedirectHeader,
-		"redirectAfterHeader": RedirectAfterHeader,
-		"credentials":         "",
+		"dataFluxAction":        DataFluxAction,
+		"dataFluxDispatchTo":    DataFluxDispatchTo,
+		"dataFluxComponentKind": DataFluxComponentKind,
+		"dataFluxComponentID":   DataFluxComponentID,
+		"dataFluxID":            DataFluxID,
+		"dataFluxMount":         DataFluxMount,
+		"dataFluxParam":         DataFluxParam,
+		"dataFluxRoot":          DataFluxRoot,
+		"dataFluxSubmit":        DataFluxSubmit,
+		"dataFluxWS":            DataFluxWS,
+		"dataFluxWSURL":         DataFluxWSURL,
+		"endpoint":              DefaultEndpoint,
+		"redirectHeader":        RedirectHeader,
+		"redirectAfterHeader":   RedirectAfterHeader,
+		"credentials":           "",
 	}
 
 	for key, val := range configVariables {

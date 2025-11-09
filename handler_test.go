@@ -39,7 +39,7 @@ func TestHandler_GetScript(t *testing.T) {
 	}
 }
 
-func (c *handlerComp) GetAlias() string { return "" }
+func (c *handlerComp) GetKind() string { return "" }
 func (c *handlerComp) Mount(_ context.Context, params map[string]string) error {
 	if v, ok := params["init"]; ok && v == "err" {
 		return errors.New("mount-fail")
@@ -67,15 +67,15 @@ func (c *handlerComp) Render(_ context.Context) hb.TagInterface {
 	return hb.Div().Attr("data-id", c.GetID()).Text(fmt.Sprintf("count=%d", c.Count))
 }
 
-// helper to register a fresh alias each test
-func registerTestAlias(t *testing.T, proto ComponentInterface) string {
+// helper to register a fresh kind each test
+func registerTestKind(t *testing.T, proto ComponentInterface) string {
 	t.Helper()
-	alias := proto.GetAlias()
-	if alias == "" {
-		alias = fmt.Sprintf("test-comp-%p", proto)
+	kind := proto.GetKind()
+	if kind == "" {
+		kind = fmt.Sprintf("test-comp-%p", proto)
 	}
-	_ = RegisterByAlias(alias, proto)
-	return alias
+	_ = RegisterByKind(kind, proto)
+	return kind
 }
 
 // targetComp implements TargetRenderer for testing targeted updates
@@ -85,7 +85,7 @@ type targetComp struct {
 	dirty map[string]bool
 }
 
-func (c *targetComp) GetAlias() string { return "target-test" }
+func (c *targetComp) GetKind() string { return "target-test" }
 
 func (c *targetComp) Mount(_ context.Context, params map[string]string) error {
 	c.Value = params["value"]
@@ -124,10 +124,10 @@ func (c *targetComp) RenderTargets(_ context.Context) []TargetFragment {
 func TestHandler_TargetedRendering(t *testing.T) {
 	s := NewMemoryStore()
 	h := NewHandler(s)
-	alias := registerTestAlias(t, &targetComp{})
+	kind := registerTestKind(t, &targetComp{})
 
 	// Mount component
-	mountForm := url.Values{FormComponent: {alias}, "value": {"initial"}}
+	mountForm := url.Values{FormComponentKind: {kind}, "value": {"initial"}}
 	mountReq := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(mountForm.Encode()))
 	mountReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	mountRec := httptest.NewRecorder()
@@ -144,10 +144,10 @@ func TestHandler_TargetedRendering(t *testing.T) {
 
 	// Trigger action that marks target dirty
 	actForm := url.Values{
-		FormComponent:   {alias},
-		FormComponentID: {id},
-		FormAction:      {"update"},
-		"value":         {"updated"},
+		FormComponentKind: {kind},
+		FormComponentID:   {id},
+		FormAction:        {"update"},
+		"value":           {"updated"},
 	}
 	actReq := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(actForm.Encode()))
 	actReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -186,20 +186,20 @@ func TestHandler_MethodNotAllowed(t *testing.T) {
 	}
 }
 
-func TestHandler_MountMissingAlias(t *testing.T) {
+func TestHandler_MountMissingKind(t *testing.T) {
 	h := NewHandler(NewMemoryStore())
 	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(""))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	rec := httptest.NewRecorder()
 	h.ServeHTTP(rec, req)
-	if rec.Code != http.StatusBadRequest || !strings.Contains(rec.Body.String(), "missing component alias") {
-		t.Fatalf("expected 400 missing component alias, got %d %q", rec.Code, rec.Body.String())
+	if rec.Code != http.StatusBadRequest || !strings.Contains(rec.Body.String(), "missing component kind") {
+		t.Fatalf("expected 400 missing component kind, got %d %q", rec.Code, rec.Body.String())
 	}
 }
 
 func TestHandler_MountNotRegistered(t *testing.T) {
 	h := NewHandler(NewMemoryStore())
-	form := url.Values{FormComponent: {"unknown.alias"}}
+	form := url.Values{FormComponentKind: {"unknown.kind"}}
 	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	rec := httptest.NewRecorder()
@@ -212,10 +212,10 @@ func TestHandler_MountNotRegistered(t *testing.T) {
 func TestHandler_MountSuccess_RendersAndStores(t *testing.T) {
 	s := NewMemoryStore()
 	h := NewHandler(s)
-	alias := registerTestAlias(t, &handlerComp{})
+	kind := registerTestKind(t, &handlerComp{})
 	form := url.Values{
-		FormComponent: {alias},
-		"init":        {"1"},
+		FormComponentKind: {kind},
+		"init":            {"1"},
 	}
 	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -236,10 +236,10 @@ func TestHandler_MountSuccess_RendersAndStores(t *testing.T) {
 
 func TestHandler_MountError(t *testing.T) {
 	h := NewHandler(NewMemoryStore())
-	alias := registerTestAlias(t, &handlerComp{})
+	kind := registerTestKind(t, &handlerComp{})
 	form := url.Values{
-		FormComponent: {alias},
-		"init":        {"err"},
+		FormComponentKind: {kind},
+		"init":            {"err"},
 	}
 	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -252,8 +252,8 @@ func TestHandler_MountError(t *testing.T) {
 
 func TestHandler_HandleValidateMissing(t *testing.T) {
 	h := NewHandler(NewMemoryStore())
-	// Provide a non-empty id to take the handle path, but leave alias empty to trigger validation error
-	form := url.Values{FormComponent: {""}, FormComponentID: {"some-id"}}
+	// Provide a non-empty id to take the handle path, but leave kind empty to trigger validation error
+	form := url.Values{FormComponentKind: {""}, FormComponentID: {"some-id"}}
 	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	rec := httptest.NewRecorder()
@@ -266,9 +266,9 @@ func TestHandler_HandleValidateMissing(t *testing.T) {
 func TestHandler_HandleActionSuccess(t *testing.T) {
 	s := NewMemoryStore()
 	h := NewHandler(s)
-	alias := registerTestAlias(t, &handlerComp{})
+	kind := registerTestKind(t, &handlerComp{})
 	// First mount to create and store
-	mountForm := url.Values{FormComponent: {alias}}
+	mountForm := url.Values{FormComponentKind: {kind}}
 	mountReq := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(mountForm.Encode()))
 	mountReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	mountRec := httptest.NewRecorder()
@@ -284,7 +284,7 @@ func TestHandler_HandleActionSuccess(t *testing.T) {
 	id := html[start : start+end]
 
 	// act inc
-	actForm := url.Values{FormComponent: {alias}, FormComponentID: {id}, FormAction: {"inc"}}
+	actForm := url.Values{FormComponentKind: {kind}, FormComponentID: {id}, FormAction: {"inc"}}
 	actReq := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(actForm.Encode()))
 	actReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	actRec := httptest.NewRecorder()
@@ -300,9 +300,9 @@ func TestHandler_HandleActionSuccess(t *testing.T) {
 func TestHandler_HandleActionError(t *testing.T) {
 	s := NewMemoryStore()
 	h := NewHandler(s)
-	alias := registerTestAlias(t, &handlerComp{})
+	kind := registerTestKind(t, &handlerComp{})
 	// mount
-	mountForm := url.Values{FormComponent: {alias}}
+	mountForm := url.Values{FormComponentKind: {kind}}
 	mountReq := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(mountForm.Encode()))
 	mountReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	mountRec := httptest.NewRecorder()
@@ -314,7 +314,7 @@ func TestHandler_HandleActionError(t *testing.T) {
 	id := html[start : start+end]
 
 	// act invalid
-	actForm := url.Values{FormComponent: {alias}, FormComponentID: {id}, FormAction: {"oops"}}
+	actForm := url.Values{FormComponentKind: {kind}, FormComponentID: {id}, FormAction: {"oops"}}
 	actReq := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(actForm.Encode()))
 	actReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	actRec := httptest.NewRecorder()
@@ -327,9 +327,9 @@ func TestHandler_HandleActionError(t *testing.T) {
 func TestHandler_HandleRedirect(t *testing.T) {
 	s := NewMemoryStore()
 	h := NewHandler(s)
-	alias := registerTestAlias(t, &handlerComp{})
+	kind := registerTestKind(t, &handlerComp{})
 	// mount
-	mountForm := url.Values{FormComponent: {alias}}
+	mountForm := url.Values{FormComponentKind: {kind}}
 	mountReq := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(mountForm.Encode()))
 	mountReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	mountRec := httptest.NewRecorder()
@@ -341,7 +341,7 @@ func TestHandler_HandleRedirect(t *testing.T) {
 	id := html[start : start+end]
 
 	// act request redirect
-	actForm := url.Values{FormComponent: {alias}, FormComponentID: {id}, FormAction: {"redir"}}
+	actForm := url.Values{FormComponentKind: {kind}, FormComponentID: {id}, FormAction: {"redir"}}
 	actReq := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(actForm.Encode()))
 	actReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	actRec := httptest.NewRecorder()

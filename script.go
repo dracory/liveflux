@@ -99,27 +99,27 @@ func JS(opts ...ClientOptions) string {
 	}
 
 	cfgPayload := clientConfig{
-		DataFluxAction:      DataFluxAction,
-		DataFluxDispatchTo:  DataFluxDispatchTo,
-		DataFluxComponent:   DataFluxComponentAlias,
-		DataFluxComponentID: DataFluxComponentID,
-		DataFluxID:          DataFluxID,
-		DataFluxSelect:      DataFluxSelect,
-		DataFluxMount:       DataFluxMount,
-		DataFluxParam:       DataFluxParam,
-		DataFluxIndicator:   DataFluxIndicator,
-		DataFluxRoot:        DataFluxRoot,
-		DataFluxSubmit:      DataFluxSubmit,
-		DataFluxWS:          DataFluxWS,
-		DataFluxWSURL:       DataFluxWSURL,
-		Endpoint:            o.Endpoint,
-		RedirectHeader:      o.RedirectHeader,
-		RedirectAfterHeader: o.RedirectAfterHeader,
-		UseWebSocket:        o.UseWebSocket,
-		WebSocketURL:        o.WebSocketURL,
-		Headers:             o.Headers,
-		Credentials:         o.Credentials,
-		TimeoutMs:           o.TimeoutMs,
+		DataFluxAction:        DataFluxAction,
+		DataFluxDispatchTo:    DataFluxDispatchTo,
+		DataFluxComponentKind: DataFluxComponentKind,
+		DataFluxComponentID:   DataFluxComponentID,
+		DataFluxID:            DataFluxID,
+		DataFluxSelect:        DataFluxSelect,
+		DataFluxMount:         DataFluxMount,
+		DataFluxParam:         DataFluxParam,
+		DataFluxIndicator:     DataFluxIndicator,
+		DataFluxRoot:          DataFluxRoot,
+		DataFluxSubmit:        DataFluxSubmit,
+		DataFluxWS:            DataFluxWS,
+		DataFluxWSURL:         DataFluxWSURL,
+		Endpoint:              o.Endpoint,
+		RedirectHeader:        o.RedirectHeader,
+		RedirectAfterHeader:   o.RedirectAfterHeader,
+		UseWebSocket:          o.UseWebSocket,
+		WebSocketURL:          o.WebSocketURL,
+		Headers:               o.Headers,
+		Credentials:           o.Credentials,
+		TimeoutMs:             o.TimeoutMs,
 	}
 
 	b, err := json.Marshal(cfgPayload)
@@ -155,25 +155,25 @@ type ClientOptions struct {
 }
 
 type clientConfig struct {
-	DataFluxAction      string            `json:"dataFluxAction"`
-	DataFluxDispatchTo  string            `json:"dataFluxDispatchTo"`
-	DataFluxComponent   string            `json:"dataFluxComponent"`
-	DataFluxComponentID string            `json:"dataFluxComponentID"`
-	DataFluxID          string            `json:"dataFluxID"`
-	DataFluxSelect      string            `json:"dataFluxSelect"`
-	DataFluxMount       string            `json:"dataFluxMount"`
-	DataFluxParam       string            `json:"dataFluxParam"`
-	DataFluxIndicator   string            `json:"dataFluxIndicator"`
-	DataFluxRoot        string            `json:"dataFluxRoot"`
-	DataFluxSubmit      string            `json:"dataFluxSubmit"`
-	DataFluxWS          string            `json:"dataFluxWS"`
-	DataFluxWSURL       string            `json:"dataFluxWSURL"`
-	Endpoint            string            `json:"endpoint"`
-	RedirectHeader      string            `json:"redirectHeader"`
-	RedirectAfterHeader string            `json:"redirectAfterHeader"`
-	UseWebSocket        bool              `json:"useWebSocket"`
-	WebSocketURL        string            `json:"wsEndpoint,omitempty"`
-	Headers             map[string]string `json:"headers"`
-	Credentials         string            `json:"credentials"`
-	TimeoutMs           int               `json:"timeoutMs"`
+	DataFluxAction        string            `json:"dataFluxAction"`
+	DataFluxDispatchTo    string            `json:"dataFluxDispatchTo"`
+	DataFluxComponentKind string            `json:"dataFluxComponentKind"`
+	DataFluxComponentID   string            `json:"dataFluxComponentID"`
+	DataFluxID            string            `json:"dataFluxID"`
+	DataFluxSelect        string            `json:"dataFluxSelect"`
+	DataFluxMount         string            `json:"dataFluxMount"`
+	DataFluxParam         string            `json:"dataFluxParam"`
+	DataFluxIndicator     string            `json:"dataFluxIndicator"`
+	DataFluxRoot          string            `json:"dataFluxRoot"`
+	DataFluxSubmit        string            `json:"dataFluxSubmit"`
+	DataFluxWS            string            `json:"dataFluxWS"`
+	DataFluxWSURL         string            `json:"dataFluxWSURL"`
+	Endpoint              string            `json:"endpoint"`
+	RedirectHeader        string            `json:"redirectHeader"`
+	RedirectAfterHeader   string            `json:"redirectAfterHeader"`
+	UseWebSocket          bool              `json:"useWebSocket"`
+	WebSocketURL          string            `json:"wsEndpoint,omitempty"`
+	Headers               map[string]string `json:"headers"`
+	Credentials           string            `json:"credentials"`
+	TimeoutMs             int               `json:"timeoutMs"`
 }

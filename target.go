@@ -47,7 +47,7 @@ func BuildTargetResponse(fragments []TargetFragment, fullRender string, comp Com
 		// Escape attributes
 		selector := html.EscapeString(frag.Selector)
 		swap := html.EscapeString(swapMode)
-		componentAlias := html.EscapeString(comp.GetAlias())
+		componentKind := html.EscapeString(comp.GetKind())
 		componentID := html.EscapeString(comp.GetID())
 
 		// Render content
@@ -58,7 +58,7 @@ func BuildTargetResponse(fragments []TargetFragment, fullRender string, comp Com
 
 		attrs := ""
 		if !frag.NoComponentMetadata {
-			attrs = fmt.Sprintf(" data-flux-component=\"%s\" data-flux-component-id=\"%s\"", componentAlias, componentID)
+			attrs = fmt.Sprintf(" data-flux-component=\"%s\" data-flux-component-id=\"%s\"", componentKind, componentID)
 		}
 
 		sb.WriteString(fmt.Sprintf(
@@ -72,11 +72,11 @@ func BuildTargetResponse(fragments []TargetFragment, fullRender string, comp Com
 
 	// Include full render as fallback
 	if fullRender != "" {
-		componentAlias := html.EscapeString(comp.GetAlias())
+		componentKind := html.EscapeString(comp.GetKind())
 		componentID := html.EscapeString(comp.GetID())
 		sb.WriteString(fmt.Sprintf(
 			`<template data-flux-component="%s" data-flux-component-id="%s">%s</template>`,
-			componentAlias,
+			componentKind,
 			componentID,
 			fullRender,
 		))

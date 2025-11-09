@@ -13,9 +13,9 @@ import (
 
 // Form field names used by the handler
 const (
-	FormComponent   = "liveflux_component_alias"
-	FormComponentID = "liveflux_component_id"
-	FormAction      = "liveflux_action"
+	FormComponentKind = "liveflux_component_kind"
+	FormComponentID   = "liveflux_component_id"
+	FormAction        = "liveflux_action"
 )
 
 // Response header names for client-side redirect handling and events
@@ -28,8 +28,8 @@ const (
 // Handler is an http.Handler that mounts/handles components and returns HTML.
 //
 // Usage patterns (client-side):
-// - To mount: POST with form field `liveflux_component_alias` (alias) (and optional params) -> returns initial HTML
-// - To act:   POST with `liveflux_component_alias` (alias), `liveflux_component_id`, `liveflux_action` (+ any user fields) -> returns updated HTML
+// - To mount: POST with form field `liveflux_component_kind` (kind) (and optional params) -> returns initial HTML
+// - To act:   POST with `liveflux_component_kind` (kind), `liveflux_component_id`, `liveflux_action` (+ any user fields) -> returns updated HTML
 //
 // State is stored via the configured Store (default: in-memory). For production,
 // wire a session-backed implementation.
@@ -85,7 +85,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	alias := r.FormValue(FormComponent)
+	kind := r.FormValue(FormComponentKind)
 	id := r.FormValue(FormComponentID)
 	action := r.FormValue(FormAction)
 
@@ -93,25 +93,25 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Mount new component if no ID present
 	if id == "" {
-		h.mount(ctx, w, r, alias)
+		h.mount(ctx, w, r, kind)
 		return
 	}
 
 	// Otherwise, handle action (or just re-render if no action)
-	h.handle(ctx, w, r, alias, id, action)
+	h.handle(ctx, w, r, kind, id, action)
 }
 
 // mount creates a new component instance and mounts it.
-func (h *Handler) mount(ctx context.Context, w http.ResponseWriter, r *http.Request, alias string) {
-	// Validate alias
-	if alias == "" {
+func (h *Handler) mount(ctx context.Context, w http.ResponseWriter, r *http.Request, kind string) {
+	// Validate kind
+	if kind == "" {
 		w.WriteHeader(http.StatusBadRequest)
-		_, _ = w.Write([]byte("missing component alias"))
+		_, _ = w.Write([]byte("missing component kind"))
 		return
 	}
 
 	// Create new component instance
-	c, err := newByAlias(alias)
+	c, err := newByKind(kind)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		_, _ = w.Write([]byte(err.Error()))
@@ -126,7 +126,7 @@ func (h *Handler) mount(ctx context.Context, w http.ResponseWriter, r *http.Requ
 	params := map[string]string{}
 	for key := range r.Form {
 		// Skip canonical field names
-		if key == FormComponent || key == FormComponentID || key == FormAction {
+		if key == FormComponentKind || key == FormComponentID || key == FormAction {
 			continue
 		}
 		params[key] = r.Form.Get(key)
@@ -158,11 +158,11 @@ func (h *Handler) mount(ctx context.Context, w http.ResponseWriter, r *http.Requ
 	_, _ = w.Write([]byte(c.Render(ctx).ToHTML()))
 }
 
-func (h *Handler) handle(ctx context.Context, w http.ResponseWriter, r *http.Request, alias, id, action string) {
-	fmt.Printf("[Liveflux Handler] handle: alias=%s, id=%s, action=%s\n", alias, id, action)
+func (h *Handler) handle(ctx context.Context, w http.ResponseWriter, r *http.Request, kind, id, action string) {
+	fmt.Printf("[Liveflux Handler] handle: kind=%s, id=%s, action=%s\n", kind, id, action)
 
 	// Validate basic inputs
-	if !h.validateAliasAndID(w, alias, id) {
+	if !h.validateKindAndID(w, kind, id) {
 		return
 	}
 
@@ -181,7 +181,7 @@ func (h *Handler) handle(ctx context.Context, w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	// Optional: ensure the retrieved instance matches requested alias by type registry alias.
+	// Optional: ensure the retrieved instance matches requested kind by type registry kind.
 	// Skipped for simplicity.
 
 	// Process action if present
@@ -202,9 +202,9 @@ func (h *Handler) handle(ctx context.Context, w http.ResponseWriter, r *http.Req
 	h.writeRender(ctx, w, r, c)
 }
 
-// validateAliasAndID ensures required params are present. Returns true if OK.
-func (h *Handler) validateAliasAndID(w http.ResponseWriter, alias, id string) bool {
-	if alias == "" || id == "" {
+// validateKindAndID ensures required params are present. Returns true if OK.
+func (h *Handler) validateKindAndID(w http.ResponseWriter, kind, id string) bool {
+	if kind == "" || id == "" {
 		h.writeError(w, http.StatusBadRequest, "missing component or id")
 		return false
 	}
@@ -263,7 +263,7 @@ func (h *Handler) writeRender(ctx context.Context, w http.ResponseWriter, r *htt
 			// Send events as a header
 			w.Header().Set(EventsHeader, eventsJSON)
 		} else {
-			fmt.Printf("[Liveflux Events] No events to send for component %s\n", c.GetAlias())
+			fmt.Printf("[Liveflux Events] No events to send for component %s\n", c.GetKind())
 		}
 	}
 
