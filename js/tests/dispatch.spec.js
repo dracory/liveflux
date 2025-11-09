@@ -3,7 +3,7 @@ describe('Liveflux Dispatch', function() {
         // Mock DOM elements
         this.mockComponent = {
             getAttribute: jasmine.createSpy('getAttribute').and.callFake(function(attr) {
-                if (attr === 'data-flux-component') return 'test-component';
+                if (attr === 'data-flux-component-kind') return 'test-component';
                 if (attr === 'data-flux-component-id') return 'test-id-123';
                 return null;
             })

@@ -270,7 +270,7 @@ Listen for events from specific child components in Blade templates:
 <div>
     <!-- Listen for 'saved' event from this child -->
     <div data-flux-mount="1" 
-         data-flux-component="edit-post"
+         data-flux-component-kind="edit-post"
          x-on:saved="console.log('Post saved!')">
     </div>
 </div>

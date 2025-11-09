@@ -151,7 +151,7 @@
     if(!form) return;
     const root = form.closest(rootSelectorWithFallback);
     if(!root) return;
-    const comp = root.getAttribute(liveflux.dataFluxComponent || 'data-flux-component');
+    const comp = root.getAttribute(liveflux.dataFluxComponentKind || 'data-flux-component-kind');
     const id = root.getAttribute(liveflux.dataFluxComponentID || 'data-flux-component-id');
     if(!comp||!id) return;
     e.preventDefault();

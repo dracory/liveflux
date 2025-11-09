@@ -7,7 +7,7 @@ describe('Liveflux Util', function() {
             testContainer = document.createElement('div');
             testContainer.id = 'test-container';
             testContainer.innerHTML = `
-                <div data-flux-root="1" data-flux-component="test-component" data-flux-component-id="test-id-123">
+                <div data-flux-root="1" data-flux-component-kind="test-component" data-flux-component-id="test-id-123">
                     <button id="btn-inside" data-flux-action="increment">Click me</button>
                 </div>
                 <button id="btn-outside" 
@@ -100,7 +100,7 @@ describe('Liveflux Util', function() {
 
         it('should handle missing component-id attribute', function() {
             testContainer.innerHTML = `
-                <div data-flux-root="1" data-flux-component="test-component">
+                <div data-flux-root="1" data-flux-component-kind="test-component">
                     <button id="btn-incomplete" data-flux-action="test">Click</button>
                 </div>
             `;
@@ -164,7 +164,7 @@ describe('Liveflux Util', function() {
             testContainer = document.createElement('div');
             testContainer.id = 'test-container';
             testContainer.innerHTML = `
-                <div data-flux-root="1" data-flux-component="test" data-flux-component-id="123">
+                <div data-flux-root="1" data-flux-component-kind="test" data-flux-component-id="123">
                     <form id="main-form">
                         <input type="text" name="field1" value="value1">
                     </form>
@@ -219,7 +219,7 @@ describe('Liveflux Util', function() {
             testContainer = document.createElement('div');
             testContainer.id = 'test-container';
             testContainer.innerHTML = `
-                <div id="component" data-flux-root="1" data-flux-component="test" data-flux-component-id="abc">
+                <div id="component" data-flux-root="1" data-flux-component-kind="test" data-flux-component-id="abc">
                     <button id="action" data-flux-indicator="this, #spinner">Action</button>
                     <span id="spinner" class="flux-indicator"></span>
                 </div>

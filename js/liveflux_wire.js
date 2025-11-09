@@ -64,7 +64,7 @@
   function initWire(){
     const roots = document.querySelectorAll(rootSelectorWithFallback);
     roots.forEach(function(root){
-      const comp = root.getAttribute(liveflux.dataFluxComponent || 'data-flux-component');
+      const comp = root.getAttribute(liveflux.dataFluxComponentKind || 'data-flux-component-kind');
       const id = root.getAttribute(liveflux.dataFluxComponentID || 'data-flux-component-id');
       if(!comp || !id) return;
       root.$wire = createWire(id, comp, root);

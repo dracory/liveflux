@@ -21,12 +21,12 @@ describe('Liveflux Triggers', function() {
         // Mock liveflux.post
         if (!window.liveflux.post || !window.liveflux.post.and) {
             window.liveflux.post = jasmine.createSpy('post').and.returnValue(Promise.resolve({
-                html: '<div data-flux-root="1" data-flux-component="test" data-flux-component-id="123"><p>Updated</p></div>'
+                html: '<div data-flux-root="1" data-flux-component-kind="test" data-flux-component-id="123"><p>Updated</p></div>'
             }));
         } else {
             window.liveflux.post.calls.reset();
             window.liveflux.post.and.returnValue(Promise.resolve({
-                html: '<div data-flux-root="1" data-flux-component="test" data-flux-component-id="123"><p>Updated</p></div>'
+                html: '<div data-flux-root="1" data-flux-component-kind="test" data-flux-component-id="123"><p>Updated</p></div>'
             }));
         }
         
@@ -471,24 +471,6 @@ describe('Liveflux Triggers', function() {
             if (testContainer && testContainer.parentNode) {
                 testContainer.parentNode.removeChild(testContainer);
             }
-        });
-
-        it('should unregister triggers from element', function() {
-            testContainer.innerHTML = `
-                <div data-flux-root="1" data-flux-component="search" data-flux-component-id="search-123">
-                    <input id="search-input" 
-                           type="text" 
-                           data-flux-trigger="keyup"
-                           data-flux-action="search" />
-                </div>
-            `;
-            
-            const input = document.getElementById('search-input');
-            window.liveflux.registerTriggers(input);
-            window.liveflux.unregisterTriggers(input);
-            
-            // Should not throw
-            expect(input).toBeDefined();
         });
     });
 

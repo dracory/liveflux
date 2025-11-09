@@ -48,15 +48,15 @@ func (c *CartComponent) Handle(ctx context.Context, action string, data url.Valu
 Instead of full HTML, the server sends:
 
 ```html
-<template data-flux-target="#cart-total" data-flux-swap="replace" data-flux-component="cart" data-flux-component-id="abc123">
+<template data-flux-target="#cart-total" data-flux-swap="replace" data-flux-component-kind="cart" data-flux-component-id="abc123">
   <div id="cart-total">Total: $125.00</div>
 </template>
 
-<template data-flux-target=".line-items" data-flux-swap="replace" data-flux-component="cart" data-flux-component-id="abc123">
+<template data-flux-target=".line-items" data-flux-swap="replace" data-flux-component-kind="cart" data-flux-component-id="abc123">
   <ul class="line-items">...</ul>
 </template>
 
-<template data-flux-component="cart" data-flux-component-id="abc123">
+<template data-flux-component-kind="cart" data-flux-component-id="abc123">
   <!-- Full component render as fallback -->
 </template>
 ```

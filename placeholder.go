@@ -9,7 +9,7 @@ import (
 
 // PlaceholderByKind returns a generic mount placeholder for a component by kind.
 // The inline JS client should look for elements with data-flux-mount="1"
-// and use the data-flux-component value to POST an initial mount.
+// and use the data-flux-component-kind value to POST an initial mount.
 func PlaceholderByKind(kind string, params ...map[string]string) hb.TagInterface {
 	p := lo.FirstOr(params, map[string]string{})
 

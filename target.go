@@ -18,7 +18,7 @@ type TargetFragment struct {
 	// SwapMode determines how the content is merged with the target
 	// Valid values: "replace", "inner", "beforebegin", "afterbegin", "beforeend", "afterend"
 	SwapMode string
-	// NoComponentMetadata omits data-flux-component and data-flux-component-id attributes.
+	// NoComponentMetadata omits data-flux-component-kind and data-flux-component-id attributes.
 	// When true, the client treats the fragment as document-scoped instead of component-scoped.
 	NoComponentMetadata bool
 }
@@ -58,7 +58,7 @@ func BuildTargetResponse(fragments []TargetFragment, fullRender string, comp Com
 
 		attrs := ""
 		if !frag.NoComponentMetadata {
-			attrs = fmt.Sprintf(" data-flux-component=\"%s\" data-flux-component-id=\"%s\"", componentKind, componentID)
+			attrs = fmt.Sprintf(" data-flux-component-kind=\"%s\" data-flux-component-id=\"%s\"", componentKind, componentID)
 		}
 
 		sb.WriteString(fmt.Sprintf(
@@ -75,7 +75,7 @@ func BuildTargetResponse(fragments []TargetFragment, fullRender string, comp Com
 		componentKind := html.EscapeString(comp.GetKind())
 		componentID := html.EscapeString(comp.GetID())
 		sb.WriteString(fmt.Sprintf(
-			`<template data-flux-component="%s" data-flux-component-id="%s">%s</template>`,
+			`<template data-flux-component-kind=\"%s\" data-flux-component-id=\"%s\">%s</template>`,
 			componentKind,
 			componentID,
 			fullRender,

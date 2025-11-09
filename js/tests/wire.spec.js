@@ -7,12 +7,12 @@ describe('Liveflux Wire', function() {
             testContainer.id = 'test-container';
             testContainer.innerHTML = `
                 <div data-flux-root="1" 
-                     data-flux-component="counter" 
+                     data-flux-component-kind="counter" 
                      data-flux-component-id="counter-123">
                     <p>Counter content</p>
                 </div>
                 <div data-flux-root="1" 
-                     data-flux-component="todo" 
+                     data-flux-component-kind="todo" 
                      data-flux-component-id="todo-456">
                     <p>Todo content</p>
                 </div>
@@ -58,7 +58,7 @@ describe('Liveflux Wire', function() {
         it('should read component metadata from data attributes', function() {
             window.liveflux.initWire();
             
-            const root = testContainer.querySelector('[data-flux-component="counter"]');
+            const root = testContainer.querySelector('[data-flux-component-kind="counter"]');
             
             expect(root.$wire).toBeDefined();
             expect(root.$wire.id).toBe('counter-123');
@@ -74,7 +74,7 @@ describe('Liveflux Wire', function() {
             testContainer.id = 'test-container';
             testContainer.innerHTML = `
                 <div data-flux-root="1" 
-                     data-flux-component="test-component" 
+                     data-flux-component-kind="test-component" 
                      data-flux-component-id="test-123">
                     <p>Test content</p>
                 </div>

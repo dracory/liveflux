@@ -171,7 +171,7 @@ func TestHandler_TargetedRendering(t *testing.T) {
 	}
 
 	// Should NOT contain full component fallback template
-	if strings.Contains(body, `<template data-flux-component=`) {
+	if strings.Contains(body, `<template data-flux-component-kind=`) {
 		t.Errorf("should not contain full component fallback template, got: %s", body)
 	}
 }

@@ -25,7 +25,7 @@ func TestPlaceholderByKind_BuildsDivWithParams(t *testing.T) {
 		t.Fatalf("expected data-flux-mount=1, got: %s", h)
 	}
 	if !strings.Contains(h, DataFluxComponentKind+"=\""+kind+"\"") {
-		t.Fatalf("expected data-flux-component with kind, got: %s", h)
+		t.Fatalf("expected data-flux-component-kind with kind, got: %s", h)
 	}
 	if !strings.Contains(h, DataFluxParam+"-foo=\"bar\"") {
 		t.Fatalf("expected data param attr, got: %s", h)
@@ -57,7 +57,7 @@ func TestPlaceholder_ComponentWithKind_Registered(t *testing.T) {
 
 	c := &phComp{}
 	h := Placeholder(c, map[string]string{"x": "1"}).ToHTML()
-	if !strings.Contains(h, "data-flux-component=\""+unique+"\"") {
+	if !strings.Contains(h, "data-flux-component-kind=\""+unique+"\"") {
 		t.Fatalf("expected placeholder to use registered kind %q, got: %s", unique, h)
 	}
 	if !strings.Contains(h, "data-flux-param-x=\"1\"") {
