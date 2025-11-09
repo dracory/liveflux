@@ -71,7 +71,7 @@
     const fields = liveflux.collectAllFields(btn, metadata.root, assocForm);
 
     const params = Object.assign({}, fields, {
-      liveflux_component_type: metadata.comp,
+      liveflux_component_alias: metadata.comp,
       liveflux_component_id: metadata.id,
       liveflux_action: action
     });
@@ -167,7 +167,7 @@
       ? liveflux.collectAllFields(submitter, root, form)
       : liveflux.serializeElement(form);
 
-    const params = Object.assign({}, fields, { liveflux_component_type: comp, liveflux_component_id: id, liveflux_action: action });
+    const params = Object.assign({}, fields, { liveflux_component_alias: comp, liveflux_component_id: id, liveflux_action: action });
     const indicatorEls = liveflux.startRequestIndicators(submitter || form, root);
 
     liveflux.post(params).then((result)=>{

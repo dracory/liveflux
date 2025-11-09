@@ -142,7 +142,7 @@ func (c *CreateUserModal) Render(ctx context.Context) hb.TagInterface {
 	// Hidden inputs
 	typeInput := hb.Input().
 		Type("hidden").
-		Name("liveflux_component_type").
+		Name("liveflux_component_alias").
 		Value(c.GetAlias())
 	idInput := hb.Input().
 		Type("hidden").

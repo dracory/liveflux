@@ -6,7 +6,7 @@ Liveflux exposes HTTP handlers that integrate with any Go router. This guide exp
 
 `liveflux.NewHandler(store Store) *Handler` returns an `http.Handler` that accepts `POST` and `GET` requests. `GET` responses stream the embedded client runtime so you can serve `<script src="/liveflux" defer></script>` directly from the same endpoint. `POST` requests expect the following form fields:
 
-- `liveflux_component_type` (`FormComponent` constant): component alias.
+- `liveflux_component_alias` (`FormComponent` constant): component alias.
 - `liveflux_component_id` (`FormID`): assigned during mount; required for actions.
 - `liveflux_action` (`FormAction`): optional action identifier.
 

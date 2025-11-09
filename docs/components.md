@@ -62,7 +62,7 @@ func init() { _ = liveflux.Register(new(TodoList)) }
 
 ### Tips
 
-- Always call `c.Root(...)` to include hidden `liveflux_component_type` and `liveflux_component_id` inputs.
+- Always call `c.Root(...)` to include hidden `liveflux_component_alias` and `liveflux_component_id` inputs.
 - Keep `Render` deterministic based on component fields. Avoid non-idempotent side effects.
 - Validate user input in `Handle` to maintain server trust.
 

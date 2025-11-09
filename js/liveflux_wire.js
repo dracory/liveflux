@@ -34,7 +34,7 @@
       call: function(action, data){
         action = action || 'submit';
         const params = Object.assign({}, data || {}, {
-          liveflux_component_type: componentAlias,
+          liveflux_component_alias: componentAlias,
           liveflux_component_id: componentId,
           liveflux_action: action
         });

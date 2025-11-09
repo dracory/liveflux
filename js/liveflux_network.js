@@ -39,7 +39,7 @@
 
         // Process events from response
         const componentId = params.liveflux_component_id || '';
-        const componentAlias = params.liveflux_component_type || '';
+        const componentAlias = params.liveflux_component_alias || '';
         if(window.liveflux.events && window.liveflux.events.processEvents){
           window.liveflux.events.processEvents(res, componentId, componentAlias);
         }

@@ -263,7 +263,7 @@
       : liveflux.serializeElement(el);
 
     const params = Object.assign({}, fields, {
-      liveflux_component_type: metadata.comp,
+      liveflux_component_alias: metadata.comp,
       liveflux_component_id: metadata.id,
       liveflux_action: action
     });
