@@ -19,7 +19,7 @@
 
   const liveflux = window.liveflux;
   const {
-    dataFluxComponent,
+    dataFluxComponentKind,
     dataFluxComponentID,
     dataFluxRoot,
   } = liveflux;
@@ -42,7 +42,7 @@
       return;
     }
     
-    const componentKind = component.getAttribute(dataFluxComponent);
+    const componentKind = component.getAttribute(dataFluxComponentKind);
     const componentId   = component.getAttribute(dataFluxComponentID);
 
     if(!componentKind){
@@ -88,14 +88,14 @@
       return;
     }
 
-    const components = document.querySelectorAll(`[${dataFluxRoot}][${dataFluxComponent}="${componentKind}"]`);
+    const components = document.querySelectorAll(`[${dataFluxRoot}][${dataFluxComponentKind}="${componentKind}"]`);
     if(components.length === 0){
       console.warn('[Liveflux Events] dispatchToKind called without component');
       return;
     }
 
     components.forEach(function(component){
-      const actualComponentKind = component.getAttribute(dataFluxComponent);
+      const actualComponentKind = component.getAttribute(dataFluxComponentKind);
       const payload = Object.assign({}, data || {});
       if(actualComponentKind){
         payload.__target = actualComponentKind;
