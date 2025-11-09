@@ -324,7 +324,7 @@ Inspect responses in browser DevTools Network tab:
 - Ensure element exists before fragment is applied
 
 **Component mismatch:**
-- Verify component alias matches
+- Verify component kind matches
 - Check component ID is correct
 - Ensure fragment targets correct component instance
 

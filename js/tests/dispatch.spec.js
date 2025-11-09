@@ -11,7 +11,7 @@ describe('Liveflux Dispatch', function() {
 
         // Mock querySelectorAll
         spyOn(document, 'querySelectorAll').and.callFake(function(selector) {
-            if (selector.includes('test-component')) {
+            if (selector.includes('test-kind') || selector.includes('test-component')) {
                 return [this.mockComponent];
             }
             return [];

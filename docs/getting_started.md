@@ -10,7 +10,7 @@ This guide walks through the process of wiring Liveflux into a Go web applicatio
 
 ## 1. Register a Component
 
-Create a component struct that satisfies `liveflux.ComponentInterface`. Embed `liveflux.Base` to inherit alias/ID handling and helper methods.
+Create a component struct that satisfies `liveflux.ComponentInterface`. Embed `liveflux.Base` to inherit kind/ID handling and helper methods.
 
 ```go
 package counter
@@ -28,7 +28,7 @@ type Component struct {
     Count int
 }
 
-func (c *Component) GetAlias() string { return "counter" }
+func (c *Component) GetKind() string { return "counter" }
 
 func (c *Component) Mount(ctx context.Context, params map[string]string) error {
     c.Count = 0
@@ -57,7 +57,7 @@ func init() {
 - `Mount` initializes state with optional params from placeholders.
 - `Handle` reacts to actions sent by the client.
 - `Render` builds HTML using `hb` (or any `hb.TagInterface`).
-- `c.Root(...)` wraps the content with hidden inputs for alias and ID.
+- `c.Root(...)` wraps the content with component kind and ID data attributes.
 
 ## 2. Expose the Endpoint
 
@@ -125,13 +125,13 @@ liveflux.Script(liveflux.ClientOptions{
 Add placeholders where components should appear. The client picks them up by `data-flux-mount="1"` and posts to the endpoint.
 
 ```go
-placeholder := liveflux.PlaceholderByAlias("counter", map[string]string{"theme": "dark"})
+placeholder := liveflux.PlaceholderByKind("counter", map[string]string{"theme": "dark"})
 ```
 
 Rendered HTML:
 
 ```html
-<div data-flux-mount="1" data-flux-component="counter" data-flux-param-theme="dark">Loading counter...</div>
+<div data-flux-mount="1" data-flux-component-kind="counter" data-flux-param-theme="dark">Loading counter...</div>
 ```
 
 The `theme` parameter becomes `params["theme"]` in `Mount`.

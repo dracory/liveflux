@@ -6,7 +6,7 @@ Liveflux exposes HTTP handlers that integrate with any Go router. This guide exp
 
 `liveflux.NewHandler(store Store) *Handler` returns an `http.Handler` that accepts `POST` and `GET` requests. `GET` responses stream the embedded client runtime so you can serve `<script src="/liveflux" defer></script>` directly from the same endpoint. `POST` requests expect the following form fields:
 
-- `liveflux_component_alias` (`FormComponent` constant): component alias.
+- `liveflux_component_kind` (`FormComponentKind` constant): component kind.
 - `liveflux_component_id` (`FormID`): assigned during mount; required for actions.
 - `liveflux_action` (`FormAction`): optional action identifier.
 
@@ -15,7 +15,7 @@ All other form fields are passed to the component's `Handle` method as `url.Valu
 ### Mount Requests
 
 1. Clients submit forms without `liveflux_component_id`.
-2. `Handler.mount()` creates a new component instance (`newByAlias(alias)`), generates an ID (`NewID()`), and calls `Mount` with filtered params.
+2. `Handler.mount()` creates a new component instance (`newByKind(kind)`), generates an ID (`NewID()`), and calls `Mount` with filtered params.
 3. The component is persisted via `Store.Set` and rendered. The HTML is returned with `Content-Type: text/html; charset=utf-8`.
 
 ### Action Requests
@@ -26,8 +26,8 @@ All other form fields are passed to the component's `Handle` method as `url.Valu
 
 ### Error Handling
 
-- Missing alias or ID → `400 Bad Request`.
-- Unknown alias or missing component → `404 Not Found`.
+- Missing kind or ID → `400 Bad Request`.
+- Unknown kind or missing component → `404 Not Found`.
 - `Mount`/`Handle` returning an error → `500`/`400`, plus a log line (`log.Printf`).
 
 ## Redirects

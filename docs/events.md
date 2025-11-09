@@ -43,7 +43,7 @@ func (pc *PostCreator) Handle(ctx context.Context, action string, data url.Value
 pc.Dispatch("post-created", map[string]interface{}{"title": "Hello"})
 ```
 
-**`DispatchTo(componentAlias, name, data)`** - Send to specific component type:
+**`DispatchTo(componentKind, name, data)`** - Send to specific component type:
 ```go
 pc.DispatchTo("dashboard", "refresh", map[string]interface{}{"count": 5})
 ```
@@ -311,7 +311,7 @@ pc.DispatchSelf("internal-update", data)
 | `#[On('event')]` | `OnEventName()` method | Listen to event |
 | `$wire.on('event', fn)` | `$wire.on('event', fn)` | JS listener |
 | `Livewire.on('event', fn)` | `Liveflux.on('event', fn)` | Global JS listener |
-| `dispatch()->to(Component::class)` | `DispatchTo("alias", "event", data)` | Target specific component |
+| `dispatch()->to(Component::class)` | `DispatchTo("kind", "event", data)` | Target specific component |
 | `dispatchSelf('event')` | `DispatchSelf("event", data)` | Self-only event |
 | `x-on:event` | `x-on:event` | Alpine integration |
 | `$dispatch('event')` | `$dispatch('event')` | Alpine dispatch |
@@ -336,7 +336,7 @@ go run ./examples/events
 
 **Component Methods:**
 - `Dispatch(name string, data ...map[string]interface{})` - Dispatch event globally
-- `DispatchTo(alias, name string, data ...map[string]interface{})` - Dispatch to specific component
+- `DispatchTo(kind, name string, data ...map[string]interface{})` - Dispatch to specific component
 - `DispatchSelf(name string, data ...map[string]interface{})` - Dispatch to self only
 - `GetEventDispatcher() *EventDispatcher` - Get component's event dispatcher
 
@@ -355,15 +355,15 @@ go run ./examples/events
 - `$wire.on(eventName, callback)` - Listen for event
 - `$wire.dispatch(eventName, data)` - Dispatch event
 - `$wire.dispatchSelf(eventName, data)` - Dispatch self-only event
-- `$wire.dispatchTo(alias, eventName, data)` - Dispatch to specific component
+- `$wire.dispatchTo(kind, eventName, data)` - Dispatch to specific component
 
 **liveflux Object (global):**
 - `liveflux.on(eventName, callback)` - Listen globally
 - `liveflux.dispatch(eventName, data)` - Dispatch globally
 - `liveflux.dispatchTo(component, eventName, data)` - Dispatch targeted to a specific mounted component element
-- `liveflux.dispatchToAlias(alias, eventName, data)` - Dispatch to all components with the given alias
-- `liveflux.dispatchToAliasAndId(alias, id, eventName, data)` - Dispatch targeted to alias/id
-- `liveflux.findComponent(alias, id)` - Find a mounted component root element
+- `liveflux.dispatchToKind(kind, eventName, data)` - Dispatch to all components with the given kind
+- `liveflux.dispatchToKindAndId(kind, id, eventName, data)` - Dispatch targeted to kind/id
+- `liveflux.findComponent(kind, id)` - Find a mounted component root element
 
 #### liveflux.on usage
 
@@ -389,11 +389,11 @@ const un = liveflux.on('cart:updated', (e) => console.log(e.data));
 un();
 ```
 
-- **Target a specific component (alias/id)**
+- **Target a specific component (kind/id)**
 
 ```javascript
 // Only listeners for that component will receive it (when processed from server)
-liveflux.dispatchToAliasAndId('user-list', 'abc123', 'refresh', { reason: 'filter-change' });
+liveflux.dispatchToKindAndId('user-list', 'abc123', 'refresh', { reason: 'filter-change' });
 ```
 
 - **DOM CustomEvent integration**
