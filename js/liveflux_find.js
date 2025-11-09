@@ -18,7 +18,7 @@
   }
 
   const liveflux = window.liveflux;
-  const { dataFluxRoot, dataFluxComponent, dataFluxComponentID } = liveflux;
+  const { dataFluxRoot, dataFluxComponentKind, dataFluxComponentID } = liveflux;
 
   /**
    * Finds a component by kind and ID.
@@ -27,7 +27,7 @@
    * @returns {HTMLElement|null} - The component element if found, otherwise null.
    */
   function findComponent(componentKind, componentId){
-    return document.querySelector(`[${dataFluxRoot}][${dataFluxComponent}="${componentKind}"][${dataFluxComponentID}="${componentId}"]`);
+    return document.querySelector(`[${dataFluxRoot}][${dataFluxComponentKind}="${componentKind}"][${dataFluxComponentID}="${componentId}"]`);
   }
   
   // Add functions to liveflux namespace

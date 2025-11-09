@@ -24,10 +24,10 @@ describe('Liveflux Find', function() {
             }
 
             const liveflux = window.liveflux;
-            const { dataFluxRoot, dataFluxComponent, dataFluxComponentID } = liveflux;
+            const { dataFluxRoot, dataFluxComponentKind, dataFluxComponentID } = liveflux;
 
             function findComponent(componentKind, componentId){
-                return document.querySelector(`[${dataFluxRoot}][${dataFluxComponent}="${componentKind}"][${dataFluxComponentID}="${componentId}"]`);
+                return document.querySelector(`[${dataFluxRoot}][${dataFluxComponentKind}="${componentKind}"][${dataFluxComponentID}="${componentId}"]`);
             }
             
             liveflux.findComponent = findComponent;
