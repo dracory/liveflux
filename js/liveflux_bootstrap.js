@@ -15,6 +15,11 @@
 
     liveflux.mountPlaceholders();
 
+    // Initialize triggers
+    if(liveflux.initTriggers){
+      liveflux.initTriggers();
+    }
+
     if(liveflux.initWire){
       setTimeout(function(){ liveflux.initWire(); }, 0);
     }

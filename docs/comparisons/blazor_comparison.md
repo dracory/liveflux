@@ -29,7 +29,7 @@ This document compares our Go package `liveflux` with Blazor, highlighting conce
   - Transport: built-in lightweight client, form-encoded POST/GET, or optional WebSocket transport via `NewHandlerWS`/`NewWebSocketHandler`.
   - Rendering: returns full component HTML via `hb.TagInterface.ToHTML()`.
   - State: `Store` interface with default `MemoryStore` (`state.go`).
-  - Registration: type registry/aliases (`registry.go`).
+  - Registration: type registry/kinds (`registry.go`).
 - __Blazor__
   - Blazor Server: initial HTTP then a persistent SignalR circuit; server renders diffs and sends patches to the browser.
   - Blazor WebAssembly: .NET runtime downloads to the browser; all rendering and state are client-side.
@@ -46,7 +46,7 @@ This document compares our Go package `liveflux` with Blazor, highlighting conce
 
 ## Client API & Templating
 - __Our pkg__
-  - Templating via `github.com/dracory/hb` (HTML builder). Mount placeholders via `liveflux.PlaceholderByAlias(alias, params)` and `data-flux-action` for actions.
+  - Templating via `github.com/dracory/hb` (HTML builder). Mount placeholders via `liveflux.PlaceholderByKind(kind, params)` and `data-flux-action` for actions.
 - __Blazor__
   - Razor templating combines HTML and C# inline; components encapsulate UI and logic.
   - Event binding with `@on*`, two-way binding with `@bind-Value`/`@bind`.
@@ -63,7 +63,7 @@ This document compares our Go package `liveflux` with Blazor, highlighting conce
 
 ## Transport & Protocol
 - __Our pkg__ (`handler.go`)
-  - Mount: POST/GET `component=alias` (+params) -> HTML.
+  - Mount: POST/GET `component=kind` (+params) -> HTML.
   - Action: POST/GET `component, id, action` -> HTML or redirect headers.
 - __Blazor__
   - Server: SignalR connection carries UI diffs and events; HTTP for initial bootstrapping.
@@ -117,7 +117,7 @@ This document compares our Go package `liveflux` with Blazor, highlighting conce
 
 ## Mapping Examples
 - __Mounting__
-  - Our: `liveflux.PlaceholderByAlias("counter")` -> client mounts via `/liveflux`.
+  - Our: `liveflux.PlaceholderByKind("counter")` -> client mounts via `/liveflux`.
   - Blazor: Define `Counter.razor`; route via `@page "/counter"`; render as `<Counter />`.
 - __Actions__
   - Our: button `data-flux-action="inc"` -> `Handle(ctx, "inc", formValues)`.

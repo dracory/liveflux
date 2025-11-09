@@ -179,10 +179,10 @@ func TestRegisterEventListeners(t *testing.T) {
 	}
 }
 
-func TestEventDispatcher_DispatchToAlias(t *testing.T) {
+func TestEventDispatcher_DispatchToKind(t *testing.T) {
 	ed := NewEventDispatcher()
 
-	ed.DispatchToAlias("dashboard", "refresh", map[string]any{"count": 5})
+	ed.DispatchToKind("dashboard", "refresh", map[string]any{"count": 5})
 
 	events := ed.TakeEvents()
 	if len(events) != 1 {
@@ -198,10 +198,10 @@ func TestEventDispatcher_DispatchToAlias(t *testing.T) {
 	}
 }
 
-func TestEventDispatcher_DispatchToAliasAndID(t *testing.T) {
+func TestEventDispatcher_DispatchToKindAndID(t *testing.T) {
 	ed := NewEventDispatcher()
 
-	ed.DispatchToAliasAndID("dashboard", "component-123", "refresh", map[string]any{"count": 2})
+	ed.DispatchToKindAndID("dashboard", "component-123", "refresh", map[string]any{"count": 2})
 
 	events := ed.TakeEvents()
 	if len(events) != 1 {

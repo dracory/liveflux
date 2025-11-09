@@ -24,10 +24,10 @@ describe('Liveflux Find', function() {
             }
 
             const liveflux = window.liveflux;
-            const { dataFluxRoot, dataFluxComponent, dataFluxComponentID } = liveflux;
+            const { dataFluxRoot, dataFluxComponentKind, dataFluxComponentID } = liveflux;
 
-            function findComponent(componentAlias, componentId){
-                return document.querySelector(`[${dataFluxRoot}][${dataFluxComponent}="${componentAlias}"][${dataFluxComponentID}="${componentId}"]`);
+            function findComponent(componentKind, componentId){
+                return document.querySelector(`[${dataFluxRoot}][${dataFluxComponentKind}="${componentKind}"][${dataFluxComponentID}="${componentId}"]`);
             }
             
             liveflux.findComponent = findComponent;
@@ -35,11 +35,11 @@ describe('Liveflux Find', function() {
     });
 
     describe('findComponent', function() {
-        it('should find component by alias and ID', function() {
+        it('should find component by kind and ID', function() {
             const result = window.liveflux.findComponent('test-component', 'test-id-123');
             
             expect(document.querySelector).toHaveBeenCalledWith(
-                '[data-flux-root][data-flux-component="test-component"][data-flux-component-id="test-id-123"]'
+                '[data-flux-root][data-flux-component-kind="test-component"][data-flux-component-id="test-id-123"]'
             );
             expect(result).toBe(this.mockElement);
         });
@@ -48,16 +48,16 @@ describe('Liveflux Find', function() {
             const result = window.liveflux.findComponent('nonexistent', 'nonexistent-id');
             
             expect(document.querySelector).toHaveBeenCalledWith(
-                '[data-flux-root][data-flux-component="nonexistent"][data-flux-component-id="nonexistent-id"]'
+                '[data-flux-root][data-flux-component-kind="nonexistent"][data-flux-component-id="nonexistent-id"]'
             );
             expect(result).toBeNull();
         });
 
-        it('should handle empty alias', function() {
+        it('should handle empty kind', function() {
             const result = window.liveflux.findComponent('', 'test-id-123');
             
             expect(document.querySelector).toHaveBeenCalledWith(
-                '[data-flux-root][data-flux-component=""][data-flux-component-id="test-id-123"]'
+                '[data-flux-root][data-flux-component-kind=""][data-flux-component-id="test-id-123"]'
             );
             expect(result).toBeNull();
         });
@@ -66,7 +66,7 @@ describe('Liveflux Find', function() {
             const result = window.liveflux.findComponent('test-component', '');
             
             expect(document.querySelector).toHaveBeenCalledWith(
-                '[data-flux-root][data-flux-component="test-component"][data-flux-component-id=""]'
+                '[data-flux-root][data-flux-component-kind="test-component"][data-flux-component-id=""]'
             );
             expect(result).toBeNull();
         });

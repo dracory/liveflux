@@ -71,7 +71,7 @@
     const fields = liveflux.collectAllFields(btn, metadata.root, assocForm);
 
     const params = Object.assign({}, fields, {
-      liveflux_component_type: metadata.comp,
+      liveflux_component_kind: metadata.comp,
       liveflux_component_id: metadata.id,
       liveflux_action: action
     });
@@ -151,7 +151,7 @@
     if(!form) return;
     const root = form.closest(rootSelectorWithFallback);
     if(!root) return;
-    const comp = root.getAttribute(liveflux.dataFluxComponent || 'data-flux-component');
+    const comp = root.getAttribute(liveflux.dataFluxComponentKind || 'data-flux-component-kind');
     const id = root.getAttribute(liveflux.dataFluxComponentID || 'data-flux-component-id');
     if(!comp||!id) return;
     e.preventDefault();
@@ -167,7 +167,7 @@
       ? liveflux.collectAllFields(submitter, root, form)
       : liveflux.serializeElement(form);
 
-    const params = Object.assign({}, fields, { liveflux_component_type: comp, liveflux_component_id: id, liveflux_action: action });
+    const params = Object.assign({}, fields, { liveflux_component_kind: comp, liveflux_component_id: id, liveflux_action: action });
     const indicatorEls = liveflux.startRequestIndicators(submitter || form, root);
 
     liveflux.post(params).then((result)=>{

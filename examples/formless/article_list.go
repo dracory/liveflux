@@ -16,7 +16,7 @@ type ArticleList struct {
 	Category string
 }
 
-func (c *ArticleList) GetAlias() string { return "formless.article-list" }
+func (c *ArticleList) GetKind() string { return "formless.article-list" }
 
 func (c *ArticleList) Mount(ctx context.Context, params map[string]string) error {
 	c.Articles = []string{"Getting Started", "Advanced Tips", "Best Practices", "Troubleshooting"}

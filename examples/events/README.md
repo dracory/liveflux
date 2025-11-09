@@ -78,7 +78,7 @@ Then open http://localhost:8084 in your browser.
 ### Dispatch Methods
 
 - `Dispatch(name, data)` - Dispatch to all listeners
-- `DispatchTo(componentAlias, name, data)` - Dispatch to specific component type
+- `DispatchTo(componentKind, name, data)` - Dispatch to specific component type
 - `DispatchSelf(name, data)` - Dispatch only to current component
 
 ### Listening Methods

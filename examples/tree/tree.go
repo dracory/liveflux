@@ -26,7 +26,7 @@ type Tree struct {
 	nextID int
 }
 
-func (t *Tree) GetAlias() string { return "tree" }
+func (t *Tree) GetKind() string { return "tree" }
 
 // Mount initializes state.
 func (t *Tree) Mount(ctx context.Context, params map[string]string) error {

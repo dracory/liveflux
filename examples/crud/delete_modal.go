@@ -34,7 +34,7 @@ type DeleteUserModal struct {
 	DeletedEvent map[string]any
 }
 
-func (c *DeleteUserModal) GetAlias() string { return "users.delete_modal" }
+func (c *DeleteUserModal) GetKind() string { return "users.delete_modal" }
 
 func (c *DeleteUserModal) Mount(ctx context.Context, params map[string]string) error {
 	return nil
@@ -44,7 +44,7 @@ func (c *DeleteUserModal) Handle(ctx context.Context, action string, form url.Va
 	if action == "delete" {
 		id, _ := strconv.Atoi(form.Get("id"))
 		if user, ok := repo.Delete(id); ok {
-			c.DispatchToAlias("users.list", "user-deleted", map[string]interface{}{
+			c.DispatchToKind("users.list", "user-deleted", map[string]interface{}{
 				"id":    user.ID,
 				"name":  user.Name,
 				"email": user.Email,
@@ -78,8 +78,8 @@ func (c *DeleteUserModal) Render(ctx context.Context) hb.TagInterface {
 	// Hidden inputs
 	typeInput := hb.Input().
 		Type("hidden").
-		Name("liveflux_component_type").
-		Value(c.GetAlias())
+		Name("liveflux_component_kind").
+		Value(c.GetKind())
 	idInput := hb.Input().
 		Type("hidden").
 		Name("liveflux_component_id").

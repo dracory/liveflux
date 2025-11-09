@@ -15,7 +15,7 @@ type DealsComponent struct {
 	Index int
 }
 
-func (d *DealsComponent) GetAlias() string {
+func (d *DealsComponent) GetKind() string {
 	return "deals"
 }
 

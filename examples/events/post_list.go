@@ -74,7 +74,7 @@ func (pl *PostList) Render(ctx context.Context) hb.TagInterface {
 
 	script := hb.Script(`
         (function(){
-            var root = liveflux.findComponent('` + pl.GetAlias() + `', '` + pl.GetID() + `');
+            var root = liveflux.findComponent('` + pl.GetKind() + `', '` + pl.GetID() + `');
             if(!root) {
                 console.error('[PostList] Could not find component root');
                 return;

@@ -81,9 +81,9 @@ func buildPage() hb.TagInterface {
 				Child(globalFilters).
 				Child(hb.Div().Class("row g-4 mb-5").
 					Child(hb.Div().Class("col-md-6").
-						Child(liveflux.PlaceholderByAlias("formless.product-list", nil))).
+						Child(liveflux.PlaceholderByKind("formless.product-list", nil))).
 					Child(hb.Div().Class("col-md-6").
-						Child(liveflux.PlaceholderByAlias("formless.article-list", nil)))).
+						Child(liveflux.PlaceholderByKind("formless.article-list", nil)))).
 
 				// Example 2: Multi-step form
 				Child(hb.H2().Class("mt-5 mb-3").Text("Example 2: Multi-Step Form")).
@@ -91,7 +91,7 @@ func buildPage() hb.TagInterface {
 					Text("The submit button includes fields from both step sections using data-flux-include=\"#step-1, #step-2\".")).
 				Child(step1).
 				Child(step2).
-				Child(liveflux.PlaceholderByAlias("formless.multi-step", nil)).
+				Child(liveflux.PlaceholderByKind("formless.multi-step", nil)).
 				Child(hb.Div().Class("mb-5")).
 
 				// Example 3: Exclude sensitive fields
@@ -99,7 +99,7 @@ func buildPage() hb.TagInterface {
 				Child(hb.P().Class("text-muted").
 					Text("The button uses data-flux-include=\"#user-form\" and data-flux-exclude=\".sensitive\" to omit the password field.")).
 				Child(userForm).
-				Child(liveflux.PlaceholderByAlias("formless.exclude-example", nil)),
+				Child(liveflux.PlaceholderByKind("formless.exclude-example", nil)),
 		}).
 		Script(liveflux.JS())
 }

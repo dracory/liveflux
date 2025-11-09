@@ -117,7 +117,7 @@ type WebSocketHandler struct {
 	upgrader         websocket.Upgrader
 	mu               sync.RWMutex
 	clients          map[string]map[*websocket.Conn]bool  // componentID -> connections
-	constructors     map[string]func() ComponentInterface // alias -> constructor
+	constructors     map[string]func() ComponentInterface // kind -> constructor
 	allowedOrigins   []string
 	csrfCheck        func(*http.Request) error
 	requireTLS       bool
@@ -175,11 +175,11 @@ func (h *WebSocketHandler) checkOrigin(r *http.Request, defaultCheck func(*http.
 	return false
 }
 
-// Handle registers a component constructor for the given alias.
-func (h *WebSocketHandler) Handle(alias string, constructor func() ComponentInterface) {
+// Handle registers a component constructor for the given kind.
+func (h *WebSocketHandler) Handle(kind string, constructor func() ComponentInterface) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
-	h.constructors[alias] = constructor
+	h.constructors[kind] = constructor
 }
 
 // ServeHTTP implements http.Handler.

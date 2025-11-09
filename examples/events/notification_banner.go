@@ -1,56 +1,56 @@
 package main
 
 import (
-    "context"
-    "log"
-    "net/url"
+	"context"
+	"log"
+	"net/url"
 
-    "github.com/dracory/hb"
-    "github.com/dracory/liveflux"
+	"github.com/dracory/hb"
+	"github.com/dracory/liveflux"
 )
 
 // NotificationBanner shows notifications when events are dispatched.
 type NotificationBanner struct {
-    liveflux.Base
-    Message   string
-    Timestamp string
+	liveflux.Base
+	Message   string
+	Timestamp string
 }
 
 func (nb *NotificationBanner) Mount(ctx context.Context, params map[string]string) error {
-    nb.Message = ""
-    return nil
+	nb.Message = ""
+	return nil
 }
 
 func (nb *NotificationBanner) Handle(ctx context.Context, action string, data url.Values) error {
-    log.Printf("[NotificationBanner] Handle action: %s", action)
-    switch action {
-    case "show":
-        nb.Message = data.Get("title")
-        nb.Timestamp = data.Get("timestamp")
-    case "clear":
-        nb.Message = ""
-        nb.Timestamp = ""
-    }
-    return nil
+	log.Printf("[NotificationBanner] Handle action: %s", action)
+	switch action {
+	case "show":
+		nb.Message = data.Get("title")
+		nb.Timestamp = data.Get("timestamp")
+	case "clear":
+		nb.Message = ""
+		nb.Timestamp = ""
+	}
+	return nil
 }
 
 func (nb *NotificationBanner) Render(ctx context.Context) hb.TagInterface {
-    content := hb.Div().Class("notification-content")
+	content := hb.Div().Class("notification-content")
 
-    if nb.Message != "" {
-        content.Children([]hb.TagInterface{
-            hb.Div().Class("notification active").Children([]hb.TagInterface{
-                hb.Span().Text(nb.Message),
-                hb.Span().Text(" - " + nb.Timestamp).Class("timestamp"),
-            }),
-        })
-    } else {
-        content.Child(hb.Div().Class("notification").Text("Waiting for events..."))
-    }
+	if nb.Message != "" {
+		content.Children([]hb.TagInterface{
+			hb.Div().Class("notification active").Children([]hb.TagInterface{
+				hb.Span().Text(nb.Message),
+				hb.Span().Text(" - " + nb.Timestamp).Class("timestamp"),
+			}),
+		})
+	} else {
+		content.Child(hb.Div().Class("notification").Text("Waiting for events..."))
+	}
 
-    script := hb.Script(`
+	script := hb.Script(`
         (function(){
-            var root = liveflux.findComponent('` + nb.GetAlias() + `', '` + nb.GetID() + `');
+            var root = liveflux.findComponent('` + nb.GetKind() + `', '` + nb.GetID() + `');
             if(!root) {
                 console.error('[NotificationBanner] Could not find component root');
                 return;
@@ -76,11 +76,11 @@ func (nb *NotificationBanner) Render(ctx context.Context) hb.TagInterface {
         })();
     `)
 
-    return nb.Root(
-        hb.Div().Class("card notification-card").Children([]hb.TagInterface{
-            hb.H2().Text("Notifications"),
-            content,
-            script,
-        }),
-    )
+	return nb.Root(
+		hb.Div().Class("card notification-card").Children([]hb.TagInterface{
+			hb.H2().Text("Notifications"),
+			content,
+			script,
+		}),
+	)
 }

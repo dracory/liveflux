@@ -16,7 +16,7 @@ type Counter struct {
 	Count int
 }
 
-func (c *Counter) GetAlias() string {
+func (c *Counter) GetKind() string {
 	return "counter"
 }
 
@@ -79,6 +79,6 @@ func (c *Counter) Render(ctx context.Context) hb.TagInterface {
 }
 
 func init() {
-	// Register using default alias derived from type ("counter")
+	// Register using default kind derived from type ("counter")
 	liveflux.Register(new(Counter))
 }

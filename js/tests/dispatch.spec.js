@@ -3,7 +3,7 @@ describe('Liveflux Dispatch', function() {
         // Mock DOM elements
         this.mockComponent = {
             getAttribute: jasmine.createSpy('getAttribute').and.callFake(function(attr) {
-                if (attr === 'data-flux-component') return 'test-component';
+                if (attr === 'data-flux-component-kind') return 'test-component';
                 if (attr === 'data-flux-component-id') return 'test-id-123';
                 return null;
             })
@@ -11,7 +11,7 @@ describe('Liveflux Dispatch', function() {
 
         // Mock querySelectorAll
         spyOn(document, 'querySelectorAll').and.callFake(function(selector) {
-            if (selector.includes('test-component')) {
+            if (selector.includes('test-kind') || selector.includes('test-component')) {
                 return [this.mockComponent];
             }
             return [];
@@ -59,11 +59,11 @@ describe('Liveflux Dispatch', function() {
         });
     });
 
-    describe('dispatchToAlias', function() {
-        it('should dispatch event to all components with alias', function() {
+    describe('dispatchToKind', function() {
+        it('should dispatch event to all components with kind', function() {
             const eventData = { test: 'data' };
             
-            window.liveflux.dispatchToAlias('test-component', 'test-event', eventData);
+            window.liveflux.dispatchToKind('test-kind', 'test-event', eventData);
             
             expect(window.liveflux.events.dispatch).toHaveBeenCalledWith('test-event', {
                 test: 'data',
@@ -71,30 +71,30 @@ describe('Liveflux Dispatch', function() {
             });
         });
 
-        it('should handle missing component alias', function() {
+        it('should handle missing component kind', function() {
             spyOn(console, 'warn');
             
-            window.liveflux.dispatchToAlias(null, 'test-event', {});
+            window.liveflux.dispatchToKind(null, 'test-event', {});
             
-            expect(console.warn).toHaveBeenCalledWith('[Liveflux Events] dispatchToAlias called without component alias');
+            expect(console.warn).toHaveBeenCalledWith('[Liveflux Events] dispatchToKind called without component kind');
             expect(window.liveflux.events.dispatch).not.toHaveBeenCalled();
         });
 
         it('should handle missing event name', function() {
             spyOn(console, 'warn');
             
-            window.liveflux.dispatchToAlias('test-component', null, {});
+            window.liveflux.dispatchToKind('test-component', null, {});
             
-            expect(console.warn).toHaveBeenCalledWith('[Liveflux Events] dispatchToAlias called without event name');
+            expect(console.warn).toHaveBeenCalledWith('[Liveflux Events] dispatchToKind called without event name');
             expect(window.liveflux.events.dispatch).not.toHaveBeenCalled();
         });
     });
 
-    describe('dispatchToAliasAndId', function() {
-        it('should dispatch event to specific component by alias and ID', function() {
+    describe('dispatchToKindAndId', function() {
+        it('should dispatch event to specific component by kind and ID', function() {
             const eventData = { test: 'data' };
             
-            window.liveflux.dispatchToAliasAndId('test-component', 'test-id-123', 'test-event', eventData);
+            window.liveflux.dispatchToKindAndId('test-component', 'test-id-123', 'test-event', eventData);
             
             expect(window.liveflux.findComponent).toHaveBeenCalledWith('test-component', 'test-id-123');
             expect(window.liveflux.events.dispatch).toHaveBeenCalledWith('test-event', {
@@ -104,21 +104,21 @@ describe('Liveflux Dispatch', function() {
             });
         });
 
-        it('should handle missing component alias', function() {
+        it('should handle missing component kind', function() {
             spyOn(console, 'warn');
             
-            window.liveflux.dispatchToAliasAndId(null, 'test-id-123', 'test-event', {});
+            window.liveflux.dispatchToKindAndId(null, 'test-id-123', 'test-event', {});
             
-            expect(console.warn).toHaveBeenCalledWith('[Liveflux Events] dispatchToAliasAndId called without component alias');
+            expect(console.warn).toHaveBeenCalledWith('[Liveflux Events] dispatchToKindAndId called without component kind');
             expect(window.liveflux.events.dispatch).not.toHaveBeenCalled();
         });
 
         it('should handle missing component ID', function() {
             spyOn(console, 'warn');
             
-            window.liveflux.dispatchToAliasAndId('test-component', null, 'test-event', {});
+            window.liveflux.dispatchToKindAndId('test-component', null, 'test-event', {});
             
-            expect(console.warn).toHaveBeenCalledWith('[Liveflux Events] dispatchToAliasAndId called without component id');
+            expect(console.warn).toHaveBeenCalledWith('[Liveflux Events] dispatchToKindAndId called without component id');
             expect(window.liveflux.events.dispatch).not.toHaveBeenCalled();
         });
     });

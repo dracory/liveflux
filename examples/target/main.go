@@ -56,12 +56,12 @@ func main() {
 						hb.Div().Class("card cart-container").Children([]hb.TagInterface{
 							hb.H2().Text("Shopping Cart"),
 							hb.P().Text("Adding or removing items only updates the relevant fragments."),
-							liveflux.PlaceholderByAlias("cart"),
+							liveflux.PlaceholderByKind("cart"),
 						}),
 						hb.Div().Class("card").Children([]hb.TagInterface{
 							hb.H2().Text("Deals Component"),
 							hb.P().Text("This separate component also uses targets to update its banner."),
-							liveflux.PlaceholderByAlias("deals"),
+							liveflux.PlaceholderByKind("deals"),
 						}),
 					}),
 					liveflux.Script(),

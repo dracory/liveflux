@@ -21,7 +21,7 @@
 
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
-    const templates = doc.querySelectorAll('template[data-flux-target], template[data-flux-component]');
+    const templates = doc.querySelectorAll('template[data-flux-target], template[data-flux-component-kind]');
     
     if (templates.length === 0) {
       // No templates found, treat as full component replacement
@@ -32,12 +32,13 @@
     let newComponentRoot = componentRoot;
     
     // Process component template first (full replacement)
-    const componentTemplate = doc.querySelector('template[data-flux-component]:not([data-flux-target])');
+    const componentTemplate = doc.querySelector('template[data-flux-component-kind]:not([data-flux-target])');
     if (componentTemplate) {
       const newRoot = componentTemplate.content.firstElementChild;
       if (newRoot) {
         componentRoot.replaceWith(newRoot);
         liveflux.executeScripts(newRoot);
+        if (liveflux.initTriggers) liveflux.initTriggers(newRoot);
         newComponentRoot = newRoot; // Update reference for subsequent selectors
         appliedCount++;
         console.log(`${TARGET_LOG_PREFIX} Applied full component replacement`);
@@ -47,7 +48,7 @@
     // Process targeted fragments in document order
     templates.forEach(template => {
       // Skip the component template we already processed
-      if (template.hasAttribute('data-flux-component') && !template.hasAttribute('data-flux-target')) {
+      if (template.hasAttribute('data-flux-component-kind') && !template.hasAttribute('data-flux-target')) {
         return;
       }
       
@@ -63,7 +64,7 @@
       try {
         // Validate component metadata if present
         if (targetComponent || targetComponentId) {
-          const rootComponent = newComponentRoot.getAttribute('data-flux-component');
+          const rootComponent = newComponentRoot.getAttribute('data-flux-component-kind');
           const rootComponentId = newComponentRoot.getAttribute('data-flux-component-id');
           
           if (targetComponent && targetComponent !== rootComponent) {
@@ -96,10 +97,12 @@
           case 'replace':
             target.replaceWith(fragment);
             liveflux.executeScripts(fragment);
+            if (liveflux.initTriggers) liveflux.initTriggers(fragment);
             break;
           case 'inner':
             target.innerHTML = fragment.innerHTML;
             liveflux.executeScripts(target);
+            if (liveflux.initTriggers) liveflux.initTriggers(target);
             break;
           case 'beforebegin':
           case 'afterbegin':
@@ -107,6 +110,7 @@
           case 'afterend':
             target.insertAdjacentElement(swapMode, fragment);
             liveflux.executeScripts(fragment);
+            if (liveflux.initTriggers) liveflux.initTriggers(fragment);
             break;
           default:
             console.warn(`${TARGET_LOG_PREFIX} Unknown swap mode: ${swapMode}`);
@@ -135,7 +139,7 @@
    */
   function hasTargetTemplates(html) {
     if (!html) return false;
-    return html.includes('<template data-flux-target') || html.includes('<template data-flux-component');
+    return html.includes('<template data-flux-target') || html.includes('<template data-flux-component-kind');
   }
 
   /**

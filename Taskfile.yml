@@ -77,6 +77,18 @@ tasks:
     cmds:
       - go build -o bin/websocket .
 
+  examples:triggers:run:
+    desc: Run the triggers example (live search)
+    dir: examples/triggers
+    cmds:
+      - go run .
+
+  examples:triggers:build:
+    desc: Build the triggers example binary
+    dir: examples/triggers
+    cmds:
+      - go build -o bin/triggers .
+
   # default:
   #   desc: Alias to run counter example
   #   cmds:

@@ -29,7 +29,7 @@ This document compares our Go package `liveflux` with StimulusReflex, highlighti
   - Transport: built-in lightweight client, form-encoded POST/GET, or optional WebSocket transport via `NewHandlerWS`/`NewWebSocketHandler`.
   - Rendering: returns full component HTML via `hb.TagInterface.ToHTML()`.
   - State: `Store` interface with default `MemoryStore` (`state.go`).
-  - Registration: component registry/aliases (`registry.go`).
+  - Registration: component registry keyed by kind (`registry.go`).
 - __StimulusReflex__
   - Built on Rails controllers/views with Stimulus controllers on the client.
   - Reflex actions are invoked over Action Cable; server re-renders HTML and sends patches to morphdom.
@@ -46,7 +46,7 @@ This document compares our Go package `liveflux` with StimulusReflex, highlighti
 
 ## Client API & Templating
 - __Our pkg__
-  - Mount via `liveflux.PlaceholderByAlias(alias, params)` producing `<div data-flux-mount>` consumed by our client.
+  - Mount via `liveflux.PlaceholderByKind(kind, params)` producing `<div data-flux-mount>` consumed by our client.
   - Actions via `data-flux-action` sending `component`, `id`, `action`.
 - __StimulusReflex__
   - Stimulus controllers attach `data-reflex="click->ExampleReflex#do_thing"` (and similar) to elements.
@@ -63,7 +63,7 @@ This document compares our Go package `liveflux` with StimulusReflex, highlighti
 
 ## Transport & Protocol
 - __Our pkg__ (`handler.go`)
-  - Mount: POST/GET `component=alias` (+params) -> HTML.
+  - Mount: POST/GET `component=kind` (+params) -> HTML.
   - Action: POST/GET `component, id, action` -> HTML or redirect headers.
 - __StimulusReflex__
   - Client sends Reflex payload over Action Cable identifying the target reflex, element state, and params.
@@ -115,7 +115,7 @@ This document compares our Go package `liveflux` with StimulusReflex, highlighti
 
 ## Mapping Examples
 - __Mounting__
-  - Our: `liveflux.PlaceholderByAlias("counter")` -> client mounts via `/liveflux`.
+  - Our: `liveflux.PlaceholderByKind("counter")` -> client mounts via `/liveflux`.
   - Rails: normal ERB partial rendered in a view; Stimulus controller attaches behaviors.
 - __Actions__
   - Our: button `data-flux-action="inc"` -> `Handle(ctx, "inc", formValues)`.

@@ -69,7 +69,7 @@ func (c *CartComponent) Render(ctx context.Context) hb.TagInterface {
 
 ### Document-scoped fragments (global selectors)
 
-Fragments without `data-flux-component` metadata are treated as document scoped. Set `NoComponentMetadata` to `true` when you want to patch DOM outside the component root, such as a header badge shared across multiple components:
+Fragments without `data-flux-component-kind` metadata are treated as document scoped. Set `NoComponentMetadata` to `true` when you want to patch DOM outside the component root, such as a header badge shared across multiple components:
 
 ```go
 if c.IsDirty("#global-cart-badge") {
@@ -93,7 +93,7 @@ On the client, the fragment selector is resolved against `document` instead of t
    <template data-flux-target="#cart-total" data-flux-swap="replace">
      <div id="cart-total">$125.00</div>
    </template>
-   <template data-flux-component="cart" data-flux-component-id="abc123">
+   <template data-flux-component-kind="cart" data-flux-component-id="abc123">
      <!-- Full component render as fallback -->
    </template>
    ```
@@ -192,7 +192,7 @@ liveflux.TargetFragment{
 }
 ```
 
-The server automatically adds `data-flux-component` and `data-flux-component-id` attributes to each template. The client validates these before applying fragments, preventing cross-component updates.
+The server automatically adds `data-flux-component-kind` and `data-flux-component-id` attributes to each template. The client validates these before applying fragments, preventing cross-component updates.
 
 ## WebSocket Support
 
@@ -324,7 +324,7 @@ Inspect responses in browser DevTools Network tab:
 - Ensure element exists before fragment is applied
 
 **Component mismatch:**
-- Verify component alias matches
+- Verify component kind matches
 - Check component ID is correct
 - Ensure fragment targets correct component instance
 

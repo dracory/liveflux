@@ -30,7 +30,7 @@ This document compares our Go package `liveflux` with Phoenix LiveView (Elixir),
   - Transport: built-in lightweight client (embedded via `script.go`), standard form-encoded POST/GET, or optional WebSocket transport via `NewHandlerWS`/`NewWebSocketHandler`.
   - Rendering: server returns full component HTML using `hb.TagInterface.ToHTML()`.
   - State: `Store` interface with default in-memory `MemoryStore` (`state.go`).
-  - Registration: type-based registry, aliases via `Register`/`RegisterByAlias` (`registry.go`).
+  - Registration: type-based registry, kinds via `Register`/`RegisterByKind` (`registry.go`).
 - __Phoenix LiveView__
   - Tight integration with Phoenix router, controllers, templates, and plugs.
   - Initial HTTP render (static or connected), then upgrade to a WebSocket for live diffs.
@@ -39,7 +39,7 @@ This document compares our Go package `liveflux` with Phoenix LiveView (Elixir),
 
 ## Component Model & Lifecycle
 - __Our pkg__ (`component.go`)
-  - Interface: `ComponentInterface` with `GetAlias/SetAlias`, `GetID/SetID`, `Mount(ctx, params) error`, `Handle(ctx, action string, data url.Values) error`, `Render(ctx) hb.TagInterface`.
+  - Interface: `ComponentInterface` with `GetKind/SetKind`, `GetID/SetID`, `Mount(ctx, params) error`, `Handle(ctx, action string, data url.Values) error`, `Render(ctx) hb.TagInterface`.
   - Lifecycle: mount (first POST without `id`) -> state stored -> handle actions -> render.
   - Redirects: components can call `Base.Redirect(url, delaySeconds...)`. Handler emits custom redirect headers and a fallback HTML page (`handler.go`).
 - __Phoenix LiveView__
@@ -50,7 +50,7 @@ This document compares our Go package `liveflux` with Phoenix LiveView (Elixir),
 ## Client API & Templating
 - __Our pkg__
   - Templating via `github.com/dracory/hb` (builder producing HTML). No HEEx-equivalent.
-  - Mount via helper: `liveflux.PlaceholderByAlias(alias, params)` producing `<div data-flux-mount="1" data-flux-component="...">` consumed by the built-in client.
+  - Mount via helper: `liveflux.PlaceholderByKind(kind, params)` producing `<div data-flux-mount="1" data-flux-component-kind="...">` consumed by the built-in client.
   - Actions: elements annotated with `data-flux-action`, posts include `component`, `id`, `action`.
 - __Phoenix LiveView__
   - HEEx templating with assign interpolation and function components.
@@ -69,7 +69,7 @@ This document compares our Go package `liveflux` with Phoenix LiveView (Elixir),
 ## Transport & Protocol
 - __Our pkg__ (`handler.go`)
   - Form fields: `component`, `id`, `action`.
-  - Mount: POST/GET `component=alias` (+params) -> returns HTML.
+  - Mount: POST/GET `component=kind` (+params) -> returns HTML.
   - Action: POST/GET `component, id, action` (+fields) -> returns HTML or redirect headers.
 - __Phoenix LiveView__
   - Initial HTTP request returns rendered HTML + connection data; subsequent communication over WebSocket with a diff protocol.
@@ -88,7 +88,7 @@ This document compares our Go package `liveflux` with Phoenix LiveView (Elixir),
 - __Implemented in our pkg__
   - Server-driven components with `Mount/Handle/Render`.
   - Targeted fragment updates with component-scoped and document-scoped selectors.
-  - Type-safe registry and aliasing helpers (`functions.go`: `DefaultAliasFromType`, `NewID`).
+  - Type-safe registry and kind helpers (`functions.go`: `DefaultKindFromType`, `NewID`).
   - In-memory `Store` with pluggable interface (`state.go`).
   - Basic redirects with delay headers.
   - Minimal client: embedded JS (mount placeholders, action clicks, form submit, script re-execution).
@@ -136,7 +136,7 @@ This document compares our Go package `liveflux` with Phoenix LiveView (Elixir),
 
 ## Mapping Examples
 - __Mounting__
-  - Our: `liveflux.PlaceholderByAlias("counter")` -> client mounts via `/liveflux`.
+  - Our: `liveflux.PlaceholderByKind("counter")` -> client mounts via `/liveflux`.
   - Elixir: Router `live "/counter", MyAppWeb.CounterLive` and render via `live_render/3` or by navigating to the route.
 - __Actions__
   - Our: button with `data-flux-action="inc"` -> `Handle(ctx, "inc", formValues)`.

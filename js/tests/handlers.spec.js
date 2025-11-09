@@ -13,12 +13,12 @@ describe('Liveflux Handlers', function() {
         // Mock liveflux.post
         if (!window.liveflux.post || !window.liveflux.post.and) {
             window.liveflux.post = jasmine.createSpy('post').and.returnValue(Promise.resolve({
-                html: '<div data-flux-root="1" data-flux-component="test" data-flux-component-id="123"><p>Updated</p></div>'
+                html: '<div data-flux-root="1" data-flux-component-kind="test" data-flux-component-id="123"><p>Updated</p></div>'
             }));
         } else {
             window.liveflux.post.calls.reset();
             window.liveflux.post.and.returnValue(Promise.resolve({
-                html: '<div data-flux-root="1" data-flux-component="test" data-flux-component-id="123"><p>Updated</p></div>'
+                html: '<div data-flux-root="1" data-flux-component-kind="test" data-flux-component-id="123"><p>Updated</p></div>'
             }));
         }
         
@@ -85,7 +85,7 @@ describe('Liveflux Handlers', function() {
             testContainer.id = 'test-container';
             testContainer.innerHTML = `
                 <div data-flux-root="1" 
-                     data-flux-component="counter" 
+                     data-flux-component-kind="counter" 
                      data-flux-component-id="counter-123">
                     <button id="increment-btn" data-flux-action="increment">Increment</button>
                     <input type="text" name="amount" value="5">
@@ -112,7 +112,7 @@ describe('Liveflux Handlers', function() {
             setTimeout(function() {
                 if (window.liveflux.post.calls.count() > 0) {
                     const callArgs = window.liveflux.post.calls.argsFor(0)[0];
-                    expect(callArgs.liveflux_component_type).toBe('counter');
+                    expect(callArgs.liveflux_component_kind).toBe('counter');
                     expect(callArgs.liveflux_component_id).toBe('counter-123');
                     expect(callArgs.liveflux_action).toBe('increment');
                 }
@@ -165,7 +165,7 @@ describe('Liveflux Handlers', function() {
             testContainer.id = 'test-container';
             testContainer.innerHTML = `
                 <div data-flux-root="1" 
-                     data-flux-component="contact-form" 
+                     data-flux-component-kind="contact-form" 
                      data-flux-component-id="form-789">
                     <form id="test-form">
                         <input type="text" name="name" value="John Doe">
@@ -195,7 +195,7 @@ describe('Liveflux Handlers', function() {
             setTimeout(function() {
                 if (window.liveflux.post.calls.count() > 0) {
                     const callArgs = window.liveflux.post.calls.argsFor(0)[0];
-                    expect(callArgs.liveflux_component_type).toBe('contact-form');
+                    expect(callArgs.liveflux_component_kind).toBe('contact-form');
                     expect(callArgs.liveflux_component_id).toBe('form-789');
                     expect(callArgs.liveflux_action).toBe('save');
                 }
@@ -245,7 +245,7 @@ describe('Liveflux Handlers', function() {
             testContainer.id = 'test-container';
             testContainer.innerHTML = `
                 <div data-flux-root="1" 
-                     data-flux-component="modal" 
+                     data-flux-component-kind="modal" 
                      data-flux-component-id="modal-999">
                     <p>Modal content</p>
                 </div>
@@ -277,7 +277,7 @@ describe('Liveflux Handlers', function() {
             setTimeout(function() {
                 if (window.liveflux.post.calls.count() > 0) {
                     const callArgs = window.liveflux.post.calls.argsFor(0)[0];
-                    expect(callArgs.liveflux_component_type).toBe('modal');
+                    expect(callArgs.liveflux_component_kind).toBe('modal');
                     expect(callArgs.liveflux_component_id).toBe('modal-999');
                     expect(callArgs.liveflux_action).toBe('close');
                 }

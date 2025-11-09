@@ -26,7 +26,7 @@ describe('Liveflux Target Updates', function() {
     });
 
     it('should detect template with data-flux-component', function() {
-      const html = '<template data-flux-component="cart">content</template>';
+      const html = '<template data-flux-component-kind="cart">content</template>';
       expect(window.liveflux.hasTargetTemplates(html)).toBe(true);
     });
 
@@ -59,7 +59,7 @@ describe('Liveflux Target Updates', function() {
       // Setup component root
       const root = document.createElement('div');
       root.setAttribute('data-flux-root', '1');
-      root.setAttribute('data-flux-component', 'cart');
+      root.setAttribute('data-flux-component-kind', 'cart');
       root.setAttribute('data-flux-component-id', 'abc123');
       root.innerHTML = '<div id="total">$99</div>';
       testContainer.appendChild(root);
@@ -106,14 +106,14 @@ describe('Liveflux Target Updates', function() {
     it('should apply full component replacement first', function() {
       const root = document.createElement('div');
       root.setAttribute('data-flux-root', '1');
-      root.setAttribute('data-flux-component', 'cart');
+      root.setAttribute('data-flux-component-kind', 'cart');
       root.setAttribute('data-flux-component-id', 'abc123');
       root.innerHTML = '<div>old content</div>';
       testContainer.appendChild(root);
 
       const html = `
-        <template data-flux-component="cart" data-flux-component-id="abc123">
-          <div data-flux-root="1" data-flux-component="cart" data-flux-component-id="abc123">
+        <template data-flux-component-kind="cart" data-flux-component-id="abc123">
+          <div data-flux-root="1" data-flux-component-kind="cart" data-flux-component-id="abc123">
             <div id="new">new content</div>
           </div>
         </template>
@@ -129,14 +129,14 @@ describe('Liveflux Target Updates', function() {
     it('should validate component metadata', function() {
       const root = document.createElement('div');
       root.setAttribute('data-flux-root', '1');
-      root.setAttribute('data-flux-component', 'cart');
+      root.setAttribute('data-flux-component-kind', 'cart');
       root.setAttribute('data-flux-component-id', 'abc123');
       root.innerHTML = '<div id="total">$99</div>';
       testContainer.appendChild(root);
 
       // Mismatched component ID
       const html = `
-        <template data-flux-target="#total" data-flux-component="cart" data-flux-component-id="wrong">
+        <template data-flux-target="#total" data-flux-swap="replace" data-flux-component-kind="cart" data-flux-component-id="wrong">
           <div id="total">$125</div>
         </template>
       `;

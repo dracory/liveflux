@@ -9,16 +9,16 @@ import (
 	"github.com/dracory/hb"
 )
 
-// Types for DefaultAliasFromType tests
+// Types for DefaultKindFromType tests
 type counterType struct{ Base }
 
-func (c *counterType) GetAlias() string                                                 { return "" }
+func (c *counterType) GetKind() string                                                  { return "" }
 func (c *counterType) Mount(ctx context.Context, params map[string]string) error        { return nil }
 func (c *counterType) Handle(ctx context.Context, action string, data url.Values) error { return nil }
 func (c *counterType) Render(ctx context.Context) hb.TagInterface                       { return hb.Div() }
 
 type Liveflux struct{ Base }                                                         // matches package name case-insensitively
-func (c *Liveflux) GetAlias() string                                                 { return "" }
+func (c *Liveflux) GetKind() string                                                  { return "" }
 func (c *Liveflux) Mount(ctx context.Context, params map[string]string) error        { return nil }
 func (c *Liveflux) Handle(ctx context.Context, action string, data url.Values) error { return nil }
 func (c *Liveflux) Render(ctx context.Context) hb.TagInterface                       { return hb.Div() }
@@ -43,27 +43,27 @@ func TestNewID_LengthCharsetUniqueness(t *testing.T) {
 	}
 }
 
-func TestDefaultAliasFromType(t *testing.T) {
-	if got := DefaultAliasFromType(nil); got != "" {
+func TestDefaultKindFromType(t *testing.T) {
+	if got := DefaultKindFromType(nil); got != "" {
 		t.Fatalf("expected empty for nil, got %q", got)
 	}
 
 	// Type name different from package => pkg.type-kebab, lowercased
 	c := &counterType{}
-	if got := DefaultAliasFromType(c); got != "liveflux.counter-type" {
-		t.Fatalf("unexpected alias for counterType: %q", got)
+	if got := DefaultKindFromType(c); got != "liveflux.counter-type" {
+		t.Fatalf("unexpected kind for counterType: %q", got)
 	}
 
 	// Type name equal to package (case-insensitive) => just package
 	l := &Liveflux{}
-	if got := DefaultAliasFromType(l); got != "liveflux" {
-		t.Fatalf("unexpected alias for Liveflux: %q", got)
+	if got := DefaultKindFromType(l); got != "liveflux" {
+		t.Fatalf("unexpected kind for Liveflux: %q", got)
 	}
 
 	// Pointer vs value shouldn't matter
 	var cp ComponentInterface = c
-	if got := DefaultAliasFromType(cp); got != "liveflux.counter-type" {
-		t.Fatalf("unexpected alias for pointer receiver: %q", got)
+	if got := DefaultKindFromType(cp); got != "liveflux.counter-type" {
+		t.Fatalf("unexpected kind for pointer receiver: %q", got)
 	}
 }
 

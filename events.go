@@ -41,31 +41,31 @@ func (ed *EventDispatcher) Dispatch(name string, data ...map[string]interface{})
 	ed.events = append(ed.events, event)
 }
 
-// DispatchToAlias queues an event to be sent to a specific component alias.
-// This is handled by the client-side runtime which filters events by alias.
-func (ed *EventDispatcher) DispatchToAlias(componentAlias string, eventName string, data ...map[string]any) {
+// DispatchToKind queues an event to be sent to a specific component kind.
+// This is handled by the client-side runtime which filters events by kind.
+func (ed *EventDispatcher) DispatchToKind(componentKind string, eventName string, data ...map[string]any) {
 	event := Event{Name: eventName}
 	if len(data) > 0 && data[0] != nil {
 		event.Data = data[0]
 	} else {
 		event.Data = make(map[string]any)
 	}
-	// Add target alias metadata
-	event.Data["__target"] = componentAlias
+	// Add target kind metadata
+	event.Data["__target"] = componentKind
 	ed.events = append(ed.events, event)
 }
 
-// DispatchToAliasAndID queues an event to be sent to a specific component alias and ID.
-// The client-side runtime filters events by both alias and component ID.
-func (ed *EventDispatcher) DispatchToAliasAndID(componentAlias string, componentID string, eventName string, data ...map[string]any) {
+// DispatchToKindAndID queues an event to be sent to a specific component kind and ID.
+// The client-side runtime filters events by both kind and component ID.
+func (ed *EventDispatcher) DispatchToKindAndID(componentKind string, componentID string, eventName string, data ...map[string]any) {
 	event := Event{Name: eventName}
 	if len(data) > 0 && data[0] != nil {
 		event.Data = data[0]
 	} else {
 		event.Data = make(map[string]any)
 	}
-	// Add target alias and ID metadata
-	event.Data["__target"] = componentAlias
+	// Add target kind and ID metadata
+	event.Data["__target"] = componentKind
 	event.Data["__target_id"] = componentID
 	ed.events = append(ed.events, event)
 }

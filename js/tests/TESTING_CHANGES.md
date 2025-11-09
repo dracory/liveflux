@@ -2,7 +2,7 @@
 
 ## Summary of Changes
 
-We removed the hidden input fields from `Base.Root()` that previously carried component metadata (`liveflux_component_type` and `liveflux_component_id`). The client-side JavaScript now reads this metadata directly from data attributes on the root element.
+We removed the hidden input fields from `Base.Root()` that previously carried component metadata (`liveflux_component_kind` and `liveflux_component_id`). The client-side JavaScript now reads this metadata directly from data attributes on the root element.
 
 ## Files Modified
 

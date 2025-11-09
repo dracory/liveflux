@@ -7,16 +7,16 @@ import (
 	"github.com/samber/lo"
 )
 
-// PlaceholderByAlias returns a generic mount placeholder for a component by alias.
+// PlaceholderByKind returns a generic mount placeholder for a component by kind.
 // The inline JS client should look for elements with data-flux-mount="1"
-// and use the data-flux-component value to POST an initial mount.
-func PlaceholderByAlias(alias string, params ...map[string]string) hb.TagInterface {
+// and use the data-flux-component-kind value to POST an initial mount.
+func PlaceholderByKind(kind string, params ...map[string]string) hb.TagInterface {
 	p := lo.FirstOr(params, map[string]string{})
 
-	label := fmt.Sprintf("Loading %s...", alias)
+	label := fmt.Sprintf("Loading %s...", kind)
 	div := hb.Div().
 		Attr(DataFluxMount, "1").
-		Attr(DataFluxComponentAlias, alias).
+		Attr(DataFluxComponentKind, kind).
 		Text(label)
 
 	for k, v := range p {
@@ -29,18 +29,18 @@ func PlaceholderByAlias(alias string, params ...map[string]string) hb.TagInterfa
 	return div
 }
 
-// PlaceholderFor uses a Component's alias to build a placeholder.
+// PlaceholderFor uses a Component's kind to build a placeholder.
 // Note: the instance ID is not available until after the first mount.
 func Placeholder(c ComponentInterface, params ...map[string]string) hb.TagInterface {
 	if c == nil {
 		return hb.Text("component missing")
 	}
 
-	alias := AliasOf(c)
+	kind := KindOf(c)
 
-	if alias == "" {
-		return hb.Text("component has no alias")
+	if kind == "" {
+		return hb.Text("component has no kind")
 	}
 
-	return PlaceholderByAlias(alias, params...)
+	return PlaceholderByKind(kind, params...)
 }

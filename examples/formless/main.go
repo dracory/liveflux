@@ -10,10 +10,10 @@ import (
 
 func main() {
 	// Register components
-	liveflux.RegisterByAlias("formless.product-list", &ProductList{})
-	liveflux.RegisterByAlias("formless.article-list", &ArticleList{})
-	liveflux.RegisterByAlias("formless.multi-step", &MultiStepForm{})
-	liveflux.RegisterByAlias("formless.exclude-example", &ExcludeExample{})
+	liveflux.RegisterByKind("formless.product-list", &ProductList{})
+	liveflux.RegisterByKind("formless.article-list", &ArticleList{})
+	liveflux.RegisterByKind("formless.multi-step", &MultiStepForm{})
+	liveflux.RegisterByKind("formless.exclude-example", &ExcludeExample{})
 
 	// Create handler
 	handler := liveflux.NewHandler(nil)

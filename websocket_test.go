@@ -33,7 +33,7 @@ func TestWebSocketHandler_MessageValidatorPasses(t *testing.T) {
 	h := NewWebSocketHandler(store, WithWebSocketMessageValidator(validator))
 
 	comp := &fakeWSComponent{}
-	comp.SetAlias(comp.GetAlias())
+	comp.SetKind(comp.GetKind())
 	comp.SetID(NewID())
 	if err := comp.Mount(context.Background(), map[string]string{}); err != nil {
 		t.Fatalf("mount error: %v", err)
@@ -120,7 +120,7 @@ func TestWebSocketHandler_RequireTLSPermitsSecure(t *testing.T) {
 	h := NewWebSocketHandler(store, WithWebSocketRequireTLS(true))
 
 	comp := &fakeWSComponent{}
-	comp.SetAlias(comp.GetAlias())
+	comp.SetKind(comp.GetKind())
 	comp.SetID(NewID())
 	if err := comp.Mount(context.Background(), map[string]string{}); err != nil {
 		t.Fatalf("mount error: %v", err)
@@ -200,7 +200,7 @@ func TestWebSocketHandler_CSRFCheckPasses(t *testing.T) {
 	h := NewWebSocketHandler(store, WithWebSocketCSRFCheck(check))
 
 	comp := &fakeWSComponent{}
-	comp.SetAlias(comp.GetAlias())
+	comp.SetKind(comp.GetKind())
 	comp.SetID(NewID())
 	if err := comp.Mount(context.Background(), map[string]string{}); err != nil {
 		t.Fatalf("mount error: %v", err)
@@ -243,7 +243,7 @@ func TestWebSocketHandler_CSRFCheckBlocks(t *testing.T) {
 	}
 }
 
-func (c *fakeWSComponent) GetAlias() string { return "fake-ws" }
+func (c *fakeWSComponent) GetKind() string { return "fake-ws" }
 func (c *fakeWSComponent) Mount(ctx context.Context, params map[string]string) error {
 	c.Count = 0
 	return nil
@@ -299,7 +299,7 @@ func TestWebSocketHandler_ActionFlow(t *testing.T) {
 
 	// Create and store a component instance
 	comp := &fakeWSComponent{}
-	comp.SetAlias(comp.GetAlias())
+	comp.SetKind(comp.GetKind())
 	comp.SetID(NewID())
 	if err := comp.Mount(context.Background(), map[string]string{}); err != nil {
 		t.Fatalf("mount error: %v", err)
@@ -371,7 +371,7 @@ func TestWebSocketHandler_MissingComponentID(t *testing.T) {
 // nonWSComponent does not implement WebSocketComponent
 type nonWSComponent struct{ Base }
 
-func (c *nonWSComponent) GetAlias() string                                 { return "non-ws" }
+func (c *nonWSComponent) GetKind() string                                  { return "non-ws" }
 func (c *nonWSComponent) Mount(context.Context, map[string]string) error   { return nil }
 func (c *nonWSComponent) Handle(context.Context, string, url.Values) error { return nil }
 func (c *nonWSComponent) Render(context.Context) hb.TagInterface           { return hb.Div() }
@@ -380,7 +380,7 @@ func TestWebSocketHandler_ComponentDoesNotSupportWS(t *testing.T) {
 	h := NewWebSocketHandler(nil)
 
 	comp := &nonWSComponent{}
-	comp.SetAlias(comp.GetAlias())
+	comp.SetKind(comp.GetKind())
 	comp.SetID(NewID())
 	StoreDefault.Set(comp)
 
@@ -414,7 +414,7 @@ func TestWebSocketHandler_UnregisterOnClose(t *testing.T) {
 	h := NewWebSocketHandler(nil)
 
 	comp := &fakeWSComponent{}
-	comp.SetAlias(comp.GetAlias())
+	comp.SetKind(comp.GetKind())
 	comp.SetID(NewID())
 	StoreDefault.Set(comp)
 

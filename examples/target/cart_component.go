@@ -23,7 +23,7 @@ type CartComponent struct {
 	Items []CartItem
 }
 
-func (c *CartComponent) GetAlias() string {
+func (c *CartComponent) GetKind() string {
 	return "cart"
 }
 

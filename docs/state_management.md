@@ -14,7 +14,7 @@ type Store interface {
 }
 ```
 
-- `Component` is an alias for `ComponentInterface`.
+- `Component` is a kind-aware wrapper around `ComponentInterface`.
 - `Set` should persist the component using its `GetID()` value.
 - `Get` must return the same instance type that was stored to allow `Render` to run correctly.
 
@@ -122,7 +122,7 @@ Use Redis to share state between processes. Serialize component state with `enco
 
 ```go
 type snapshot struct {
-    Alias string
+    Kind  string
     State map[string]any
 }
 
@@ -144,7 +144,7 @@ func (s *RedisStore) Get(id string) (liveflux.Component, bool) {
         return nil, false
     }
 
-    proto, err := liveflux.NewByAlias(snap.Alias)
+    proto, err := liveflux.NewByKind(snap.Kind)
     if err != nil {
         return nil, false
     }
@@ -171,7 +171,7 @@ func (s *RedisStore) Set(c liveflux.Component) {
         return
     }
 
-    data, err := json.Marshal(snapshot{Alias: c.GetAlias(), State: state})
+    data, err := json.Marshal(snapshot{Kind: c.GetKind(), State: state})
     if err != nil {
         return
     }
@@ -188,7 +188,7 @@ func (s *RedisStore) Delete(id string) {
 }
 ```
 
-This approach pushes serialization responsibility to components through `Snapshot()`/`Hydrate()`. Alternatively, maintain a registry of custom marshaling functions per alias. Apply expirations to avoid orphaned keys and call `Delete` when user sessions end.
+This approach pushes serialization responsibility to components through `Snapshot()`/`Hydrate()`. Alternatively, maintain a registry of custom marshaling functions per kind. Apply expirations to avoid orphaned keys and call `Delete` when user sessions end.
 
 ## Lifecycle Considerations
 

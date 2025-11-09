@@ -5,16 +5,16 @@
   }
 
   const liveflux = window.liveflux;
-  const { dataFluxMount, dataFluxComponent } = liveflux;
+  const { dataFluxMount, dataFluxComponentKind } = liveflux;
   const mountSelector = `[${dataFluxMount}="1"]`;
   const mountSelectorWithFallback = `${mountSelector}, [flux-mount="1"]`;
 
   function mountPlaceholders(){
     document.querySelectorAll(mountSelectorWithFallback).forEach((el)=>{
-      const component = el.getAttribute(dataFluxComponent) || el.getAttribute('flux-component');
+      const component = el.getAttribute(dataFluxComponentKind) || el.getAttribute('flux-component-kind');
       if(!component) return;
       const params = liveflux.readParams(el);
-      params.liveflux_component_type = component;
+      params.liveflux_component_kind = component;
       const indicatorEls = liveflux.startRequestIndicators(el, el);
 
       liveflux.post(params).then((result)=>{

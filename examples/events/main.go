@@ -11,13 +11,13 @@ import (
 
 func main() {
 	// Register components
-	if err := liveflux.RegisterByAlias("post-creator", &PostCreator{}); err != nil {
+	if err := liveflux.RegisterByKind("post-creator", &PostCreator{}); err != nil {
 		log.Fatal(err)
 	}
-	if err := liveflux.RegisterByAlias("post-list", &PostList{}); err != nil {
+	if err := liveflux.RegisterByKind("post-list", &PostList{}); err != nil {
 		log.Fatal(err)
 	}
-	if err := liveflux.RegisterByAlias("notification-banner", &NotificationBanner{}); err != nil {
+	if err := liveflux.RegisterByKind("notification-banner", &NotificationBanner{}); err != nil {
 		log.Fatal(err)
 	}
 
@@ -58,10 +58,10 @@ func main() {
 				hb.H1().Text("Liveflux Events Example"),
 				hb.P().Text("This example demonstrates the event system. Create a post in the left component, and watch it appear in the list on the right via events."),
 				hb.Div().Class("container").Children([]hb.TagInterface{
-					liveflux.PlaceholderByAlias("post-creator"),
-					liveflux.PlaceholderByAlias("post-list"),
+					liveflux.PlaceholderByKind("post-creator"),
+					liveflux.PlaceholderByKind("post-list"),
 				}),
-				liveflux.PlaceholderByAlias("notification-banner"),
+				liveflux.PlaceholderByKind("notification-banner"),
 			})
 
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")

@@ -17,7 +17,7 @@
     <!-- Mock liveflux namespace for testing -->
     <script>
         window.liveflux = {
-            dataFluxComponent: 'data-flux-component',
+            dataFluxComponentKind: 'data-flux-component-kind',
             dataFluxComponentID: 'data-flux-component-id',
             dataFluxRoot: 'data-flux-root',
             dataFluxParam: 'data-flux-param',
@@ -126,8 +126,8 @@
         // Debug: Check if dispatch module loaded
         console.log('After dispatch.js:', {
             dispatchTo: window.liveflux.dispatchTo,
-            dispatchToAlias: window.liveflux.dispatchToAlias,
-            dispatchToAliasAndId: window.liveflux.dispatchToAliasAndId
+            dispatchToKind: window.liveflux.dispatchToKind,
+            dispatchToKindAndId: window.liveflux.dispatchToKindAndId
         });
     </script>
 
@@ -142,6 +142,20 @@
             disableTargetSupport: window.liveflux.disableTargetSupport
         });
     </script>
+
+    <!-- liveflux_triggers.js -->
+    <script src="/liveflux_triggers.js"></script>
+    <script>
+        // Debug: Check if triggers module loaded
+        console.log('After triggers.js:', {
+            parseTriggers: window.liveflux.parseTriggers,
+            registerTriggers: window.liveflux.registerTriggers,
+            unregisterTriggers: window.liveflux.unregisterTriggers,
+            initTriggers: window.liveflux.initTriggers,
+            cleanupTriggers: window.liveflux.cleanupTriggers,
+            configureTriggers: window.liveflux.configureTriggers
+        });
+    </script>
     
     <!-- Test specs -->
     <script src="/tests/find.spec.js"></script>
@@ -153,5 +167,6 @@
     <script src="/tests/handlers.spec.js"></script>
     <script src="/tests/data-flux-select.spec.js"></script>
     <script src="/tests/data-flux-target.spec.js"></script>
+    <script src="/tests/triggers.spec.js"></script>
 </body>
 </html>

@@ -15,7 +15,7 @@ type testSSRComp struct {
 	mounted map[string]string
 }
 
-func (c *testSSRComp) GetAlias() string { return "test.ssr-comp" }
+func (c *testSSRComp) GetKind() string { return "test.ssr-comp" }
 func (c *testSSRComp) Mount(_ context.Context, params map[string]string) error {
 	c.mounted = params
 	return nil
@@ -27,7 +27,7 @@ func (c *testSSRComp) Render(_ context.Context) hb.TagInterface {
 
 type errSSRComp struct{ Base }
 
-func (c *errSSRComp) GetAlias() string                                       { return "test.err-comp" }
+func (c *errSSRComp) GetKind() string                                        { return "test.err-comp" }
 func (c *errSSRComp) Mount(_ context.Context, _ map[string]string) error     { return errors.New("boom") }
 func (c *errSSRComp) Handle(_ context.Context, _ string, _ url.Values) error { return nil }
 func (c *errSSRComp) Render(_ context.Context) hb.TagInterface {

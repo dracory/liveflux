@@ -19,7 +19,7 @@ type MultiStepForm struct {
 	Submitted bool
 }
 
-func (c *MultiStepForm) GetAlias() string { return "formless.multi-step" }
+func (c *MultiStepForm) GetKind() string { return "formless.multi-step" }
 
 func (c *MultiStepForm) Mount(ctx context.Context, params map[string]string) error {
 	return nil
