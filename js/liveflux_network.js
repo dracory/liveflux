@@ -39,9 +39,9 @@
 
         // Process events from response
         const componentId = params.liveflux_component_id || '';
-        const componentAlias = params.liveflux_component_alias || '';
+        const componentKind = params.liveflux_component_kind || '';
         if(window.liveflux.events && window.liveflux.events.processEvents){
-          window.liveflux.events.processEvents(res, componentId, componentAlias);
+          window.liveflux.events.processEvents(res, componentId, componentKind);
         }
 
         const redirect = res.headers.get(HDR_REDIRECT);
