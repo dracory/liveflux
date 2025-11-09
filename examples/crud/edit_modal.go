@@ -38,7 +38,7 @@ type EditUserModal struct {
 	UpdatedEvent map[string]any
 }
 
-func (c *EditUserModal) GetAlias() string { return "users.edit_modal" }
+func (c *EditUserModal) GetKind() string { return "users.edit_modal" }
 
 func (c *EditUserModal) Mount(ctx context.Context, params map[string]string) error {
 	return nil
@@ -51,7 +51,7 @@ func (c *EditUserModal) Handle(ctx context.Context, action string, form url.Valu
 		email := form.Get("email")
 		role := form.Get("role")
 		if user, ok := repo.Update(id, name, email, role); ok {
-			c.DispatchToAlias("users.list", "user-updated", map[string]interface{}{
+			c.DispatchToKind("users.list", "user-updated", map[string]interface{}{
 				"id":    user.ID,
 				"name":  user.Name,
 				"email": user.Email,
@@ -85,8 +85,8 @@ func (c *EditUserModal) Render(ctx context.Context) hb.TagInterface {
 	// Hidden inputs
 	typeInput := hb.Input().
 		Type("hidden").
-		Name("liveflux_component_alias").
-		Value(c.GetAlias())
+		Name("liveflux_component_kind").
+		Value(c.GetKind())
 	idInput := hb.Input().
 		Type("hidden").
 		Name("liveflux_component_id").

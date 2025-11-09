@@ -7,26 +7,27 @@ import (
 // minimal component for Base behavior tests
 type baseComp struct{ Base }
 
-func (c *baseComp) GetAlias() string { return c.Base.GetAlias() }
+func (c *baseComp) GetKind() string { return c.Base.GetKind() }
+func (c *baseComp) GetID() string   { return c.Base.GetID() }
 
-func TestBase_SetAlias_Once(t *testing.T) {
+func TestBase_SetKind_Once(t *testing.T) {
 	var b Base
-	if b.GetAlias() != "" {
-		t.Fatalf("new Base should have empty alias")
+	if b.GetKind() != "" {
+		t.Fatalf("new Base should have empty kind")
 	}
-	b.SetAlias("first")
-	if got := b.GetAlias(); got != "first" {
-		t.Fatalf("expected alias 'first', got %q", got)
+	b.SetKind("first")
+	if got := b.GetKind(); got != "first" {
+		t.Fatalf("expected kind 'first', got %q", got)
 	}
 	// Setting empty should not change
-	b.SetAlias("")
-	if got := b.GetAlias(); got != "first" {
-		t.Fatalf("alias changed on empty SetAlias: %q", got)
+	b.SetKind("")
+	if got := b.GetKind(); got != "first" {
+		t.Fatalf("kind changed on empty SetKind: %q", got)
 	}
 	// Setting a new value after set-once should be ignored
-	b.SetAlias("second")
-	if got := b.GetAlias(); got != "first" {
-		t.Fatalf("alias should be set-once, got %q", got)
+	b.SetKind("second")
+	if got := b.GetKind(); got != "first" {
+		t.Fatalf("kind should be set-once, got %q", got)
 	}
 }
 
@@ -77,19 +78,19 @@ func TestBase_Redirect_API(t *testing.T) {
 
 func TestBase_DispatchHelpers(t *testing.T) {
 	var b Base
-	b.SetAlias("foo.bar")
+	b.SetKind("foo.bar")
 	b.SetID("123")
 
 	// Dispatch -> no targeting metadata
 	b.Dispatch("alpha", map[string]any{"value": 1})
 
-	// DispatchToAlias -> alias metadata
-	b.DispatchToAlias("other.alias", "beta", map[string]any{"value": 2})
+	// DispatchToKind -> kind metadata
+	b.DispatchToKind("other.kind", "beta", map[string]any{"value": 2})
 
-	// DispatchToAliasAndID -> alias & id metadata
-	b.DispatchToAliasAndID("other.alias", "other-id", "gamma", map[string]any{"value": 3})
+	// DispatchToKindAndID -> kind & id metadata
+	b.DispatchToKindAndID("other.kind", "other-id", "gamma", map[string]any{"value": 3})
 
-	// DispatchSelf -> alias & id metadata for current component
+	// DispatchSelf -> kind & id metadata for current component
 	b.DispatchSelf("delta", map[string]any{"value": 4})
 
 	events := b.GetEventDispatcher().TakeEvents()
@@ -109,16 +110,16 @@ func TestBase_DispatchHelpers(t *testing.T) {
 		t.Fatalf("event 1 name got %q want %q", events[1].Name, "beta")
 	}
 
-	if target := events[1].Data["__target"]; target != "other.alias" {
-		t.Fatalf("event 1 __target got %v want %v", target, "other.alias")
+	if target := events[1].Data["__target"]; target != "other.kind" {
+		t.Fatalf("event 1 __target got %v want %v", target, "other.kind")
 	}
 
 	if events[2].Name != "gamma" {
 		t.Fatalf("event 2 name got %q want %q", events[2].Name, "gamma")
 	}
 
-	if target := events[2].Data["__target"]; target != "other.alias" {
-		t.Fatalf("event 2 __target got %v want %v", target, "other.alias")
+	if target := events[2].Data["__target"]; target != "other.kind" {
+		t.Fatalf("event 2 __target got %v want %v", target, "other.kind")
 	}
 
 	if targetID := events[2].Data["__target_id"]; targetID != "other-id" {

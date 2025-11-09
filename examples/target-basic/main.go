@@ -24,7 +24,7 @@ type CartItem struct {
 	Price float64
 }
 
-func (c *CartComponent) GetAlias() string {
+func (c *CartComponent) GetKind() string {
 	return "cart"
 }
 
@@ -49,17 +49,17 @@ func (c *CartComponent) Handle(ctx context.Context, action string, data url.Valu
 		}
 		c.Items = append(c.Items, newItem)
 		c.Total += newItem.Price
-		
+
 		// Mark only the changed targets as dirty
 		c.MarkTargetDirty("#cart-total")
 		c.MarkTargetDirty(".line-items")
-		
+
 	case "remove-item":
 		if len(c.Items) > 0 {
 			removedItem := c.Items[len(c.Items)-1]
 			c.Items = c.Items[:len(c.Items)-1]
 			c.Total -= removedItem.Price
-			
+
 			// Mark targets as dirty
 			c.MarkTargetDirty("#cart-total")
 			c.MarkTargetDirty(".line-items")
@@ -82,7 +82,7 @@ func (c *CartComponent) Render(ctx context.Context) hb.TagInterface {
 // RenderTargets implements the TargetRenderer interface
 func (c *CartComponent) RenderTargets(ctx context.Context) []liveflux.TargetFragment {
 	fragments := []liveflux.TargetFragment{}
-	
+
 	// Only render fragments for dirty targets
 	if c.IsDirty("#cart-total") {
 		fragments = append(fragments, liveflux.TargetFragment{
@@ -91,7 +91,7 @@ func (c *CartComponent) RenderTargets(ctx context.Context) []liveflux.TargetFrag
 			SwapMode: liveflux.SwapReplace,
 		})
 	}
-	
+
 	if c.IsDirty(".line-items") {
 		fragments = append(fragments, liveflux.TargetFragment{
 			Selector: ".line-items",
@@ -99,7 +99,7 @@ func (c *CartComponent) RenderTargets(ctx context.Context) []liveflux.TargetFrag
 			SwapMode: liveflux.SwapReplace,
 		})
 	}
-	
+
 	return fragments
 }
 
@@ -113,7 +113,7 @@ func (c *CartComponent) renderTotal() hb.TagInterface {
 
 func (c *CartComponent) renderItems() hb.TagInterface {
 	ul := hb.UL().Class("line-items").Style("list-style: none; padding: 0;")
-	
+
 	for _, item := range c.Items {
 		ul.Child(
 			hb.LI().
@@ -123,7 +123,7 @@ func (c *CartComponent) renderItems() hb.TagInterface {
 				Text(fmt.Sprintf("%s - $%.2f", item.Name, item.Price)),
 		)
 	}
-	
+
 	return ul
 }
 
@@ -162,7 +162,7 @@ func main() {
 				hb.Div().Class("container").Children([]hb.TagInterface{
 					hb.H1().Text("Liveflux Targeted Updates Example"),
 					hb.P().Text("This example demonstrates targeted fragment updates. When you click the buttons, only the cart total and item list are updated, not the entire component."),
-					liveflux.PlaceholderByAlias("cart"),
+					liveflux.PlaceholderByKind("cart"),
 					liveflux.Script(),
 				}),
 			)

@@ -44,8 +44,8 @@ This directory contains Jasmine test specifications for the Liveflux JavaScript 
 
 ### Dispatch Module (`dispatch.spec.js`)
 - `dispatchTo()` - Target specific components
-- `dispatchToAlias()` - Target all components by alias
-- `dispatchToAliasAndId()` - Target specific component by alias and ID
+- `dispatchToKind()` - Target all components by kind
+- `dispatchToKindAndId()` - Target specific component by kind and ID
 - Error handling for missing parameters
 - Event payload construction with targeting data
 

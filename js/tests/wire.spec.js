@@ -18,7 +18,7 @@ describe('Liveflux Wire', function() {
                 </div>
                 <div data-flux-root="1" 
                      data-flux-component-id="incomplete-789">
-                    <p>Missing component alias</p>
+                    <p>Missing component kind</p>
                 </div>
             `;
             document.body.appendChild(testContainer);
@@ -39,11 +39,11 @@ describe('Liveflux Wire', function() {
             
             expect(counterRoot.$wire).toBeDefined();
             expect(counterRoot.$wire.id).toBe('counter-123');
-            expect(counterRoot.$wire.alias).toBe('counter');
+            expect(counterRoot.$wire.kind).toBe('counter');
             
             expect(todoRoot.$wire).toBeDefined();
             expect(todoRoot.$wire.id).toBe('todo-456');
-            expect(todoRoot.$wire.alias).toBe('todo');
+            expect(todoRoot.$wire.kind).toBe('todo');
         });
 
         it('should skip roots with missing component data', function() {
@@ -62,7 +62,7 @@ describe('Liveflux Wire', function() {
             
             expect(root.$wire).toBeDefined();
             expect(root.$wire.id).toBe('counter-123');
-            expect(root.$wire.alias).toBe('counter');
+            expect(root.$wire.kind).toBe('counter');
         });
     });
 
@@ -94,9 +94,9 @@ describe('Liveflux Wire', function() {
             expect(root.$wire.id).toBe('test-123');
         });
 
-        it('should expose alias property', function() {
+        it('should expose kind property', function() {
             const root = testContainer.querySelector('[data-flux-root]');
-            expect(root.$wire.alias).toBe('test-component');
+            expect(root.$wire.kind).toBe('test-component');
         });
 
         it('should expose on method', function() {
@@ -128,10 +128,10 @@ describe('Liveflux Wire', function() {
     describe('createWire', function() {
         it('should create wire object with correct properties', function() {
             const mockRoot = document.createElement('div');
-            const wire = window.liveflux.createWire('test-id', 'test-alias', mockRoot);
+            const wire = window.liveflux.createWire('test-id', 'test-kind', mockRoot);
             
             expect(wire.id).toBe('test-id');
-            expect(wire.alias).toBe('test-alias');
+            expect(wire.kind).toBe('test-kind');
             expect(typeof wire.on).toBe('function');
             expect(typeof wire.dispatch).toBe('function');
             expect(typeof wire.dispatchSelf).toBe('function');

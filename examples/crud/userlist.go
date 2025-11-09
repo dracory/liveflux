@@ -20,7 +20,7 @@ type UserList struct {
 	ModalCreateOpen bool
 }
 
-func (c *UserList) GetAlias() string { return "users.list" }
+func (c *UserList) GetKind() string { return "users.list" }
 
 func (c *UserList) Mount(ctx context.Context, params map[string]string) error {
 	if q, ok := params["q"]; ok && c.Query == "" {
@@ -119,11 +119,11 @@ func (c *UserList) Render(ctx context.Context) hb.TagInterface {
 
 	scriptSubscribe := `
       (function(){
-        var alias = '` + c.GetAlias() + `';
+        var kind = '` + c.GetKind() + `';
         var id = '` + c.GetID() + `';
         setTimeout(function(){
           ['user-created','user-updated','user-deleted'].forEach(function(evt){
-            window.liveflux.subscribe(alias, id, evt, 'dismiss_flash', 150);
+            window.liveflux.subscribe(kind, id, evt, 'dismiss_flash', 150);
           });
         }, 150);
       })();
@@ -131,8 +131,8 @@ func (c *UserList) Render(ctx context.Context) hb.TagInterface {
 
 	scriptModalOpenDispatch := `
       (function(){
-        console.log("Calling Create Modal Component: alias: ` + c.ModalCreateUser.GetAlias() + ` id: ` + c.ModalCreateUser.GetID() + ` event: open");
-        window.liveflux.dispatchToAliasAndId("` + c.ModalCreateUser.GetAlias() + `", "` + c.ModalCreateUser.GetID() + `", "open");
+        console.log("Calling Create Modal Component: kind: ` + c.ModalCreateUser.GetKind() + ` id: ` + c.ModalCreateUser.GetID() + ` event: open");
+        window.liveflux.dispatchToKindAndId("` + c.ModalCreateUser.GetKind() + `", "` + c.ModalCreateUser.GetID() + `", "open");
       })();
     `
 

@@ -112,7 +112,7 @@ describe('Liveflux Handlers', function() {
             setTimeout(function() {
                 if (window.liveflux.post.calls.count() > 0) {
                     const callArgs = window.liveflux.post.calls.argsFor(0)[0];
-                    expect(callArgs.liveflux_component_alias).toBe('counter');
+                    expect(callArgs.liveflux_component_kind).toBe('counter');
                     expect(callArgs.liveflux_component_id).toBe('counter-123');
                     expect(callArgs.liveflux_action).toBe('increment');
                 }
@@ -195,7 +195,7 @@ describe('Liveflux Handlers', function() {
             setTimeout(function() {
                 if (window.liveflux.post.calls.count() > 0) {
                     const callArgs = window.liveflux.post.calls.argsFor(0)[0];
-                    expect(callArgs.liveflux_component_alias).toBe('contact-form');
+                    expect(callArgs.liveflux_component_kind).toBe('contact-form');
                     expect(callArgs.liveflux_component_id).toBe('form-789');
                     expect(callArgs.liveflux_action).toBe('save');
                 }
@@ -277,7 +277,7 @@ describe('Liveflux Handlers', function() {
             setTimeout(function() {
                 if (window.liveflux.post.calls.count() > 0) {
                     const callArgs = window.liveflux.post.calls.argsFor(0)[0];
-                    expect(callArgs.liveflux_component_alias).toBe('modal');
+                    expect(callArgs.liveflux_component_kind).toBe('modal');
                     expect(callArgs.liveflux_component_id).toBe('modal-999');
                     expect(callArgs.liveflux_action).toBe('close');
                 }

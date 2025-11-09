@@ -22,7 +22,7 @@ Liveflux is a server-driven component system for Go. It uses [`github.com/dracor
 - Install: `go get github.com/dracory/liveflux`
 - Register a component and embed `liveflux.Base`
 - Mount the handler at `/liveflux`
-- Include `liveflux.Script()` and use `liveflux.PlaceholderByAlias()` or `liveflux.SSR()`
+- Include `liveflux.Script()` and use `liveflux.PlaceholderByKind()` or `liveflux.SSR()`
 
 ### Serving the client script endpoint
 
@@ -214,7 +214,7 @@ Start with the focused guides under `docs/`:
 
 ## Package API
 
-- **Components**: `ComponentInterface`, `Base`, and registry helpers (`Register`, `RegisterByAlias`, `New`). See `docs/components.md` and `docs/architecture.md`.
+- **Components**: `ComponentInterface`, `Base`, and registry helpers (`Register`, `RegisterByKind`, `New`). See `docs/components.md` and `docs/architecture.md`.
 - **Handlers**: HTTP + WebSocket entry points (`NewHandler`, `NewHandlerWS`, `NewWebSocketHandler`). See `docs/handler_and_transport.md` and `docs/websocket.md`.
 - **SSR helpers**: `SSR`, `SSRHTML` for first render hydration. See `docs/ssr.md`.
 - **Stores**: `Store` interface with default `MemoryStore`. See `docs/state_management.md` for custom implementations.

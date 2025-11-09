@@ -16,7 +16,7 @@ type ExcludeExample struct {
 	Message  string
 }
 
-func (c *ExcludeExample) GetAlias() string { return "formless.exclude-example" }
+func (c *ExcludeExample) GetKind() string { return "formless.exclude-example" }
 
 func (c *ExcludeExample) Mount(ctx context.Context, params map[string]string) error {
 	c.Username = "john_doe"

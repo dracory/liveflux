@@ -26,8 +26,8 @@ type SearchComponent struct {
 // Implement TargetRenderer to use targeted updates
 var _ liveflux.TargetRenderer = (*SearchComponent)(nil)
 
-// GetAlias returns the component alias
-func (c *SearchComponent) GetAlias() string {
+// GetKind returns the component kind
+func (c *SearchComponent) GetKind() string {
 	return "search"
 }
 

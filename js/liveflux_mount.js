@@ -14,7 +14,7 @@
       const component = el.getAttribute(dataFluxComponent) || el.getAttribute('flux-component');
       if(!component) return;
       const params = liveflux.readParams(el);
-      params.liveflux_component_alias = component;
+      params.liveflux_component_kind = component;
       const indicatorEls = liveflux.startRequestIndicators(el, el);
 
       liveflux.post(params).then((result)=>{

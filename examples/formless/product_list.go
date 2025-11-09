@@ -16,7 +16,7 @@ type ProductList struct {
 	Category string
 }
 
-func (c *ProductList) GetAlias() string { return "formless.product-list" }
+func (c *ProductList) GetKind() string { return "formless.product-list" }
 
 func (c *ProductList) Mount(ctx context.Context, params map[string]string) error {
 	c.Products = []string{"Laptop", "Mouse", "Keyboard", "Monitor", "Headphones"}

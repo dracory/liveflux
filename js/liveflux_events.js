@@ -48,7 +48,7 @@
     } catch(_) {}
   }
 
-  function processEvents(response, componentId, componentAlias){
+  function processEvents(response, componentId, componentKind){
     const hdr = response.headers.get('X-Liveflux-Events');
     if(!hdr) return;
     try{
@@ -59,27 +59,27 @@
         const data = ev.data || {};
         // handle targeting
         let payload = data;
-        const targetAlias = payload.__target;
+        const targetKind = payload.__target;
         const targetId = payload.__target_id;
 
-        if(targetAlias || targetId){
+        if(targetKind || targetId){
           payload = Object.assign({}, payload);
           delete payload.__target;
           delete payload.__target_id;
 
           let handled = false;
-          if(targetAlias && targetId && typeof liveflux.dispatchToAliasAndId === 'function'){
-            try { liveflux.dispatchToAliasAndId(targetAlias, targetId, ev.name, payload); handled = true; }
-            catch(e){ console.error('[Liveflux Events] dispatchToAliasAndId error', e); }
+          if(targetKind && targetId && typeof liveflux.dispatchToKindAndId === 'function'){
+            try { liveflux.dispatchToKindAndId(targetKind, targetId, ev.name, payload); handled = true; }
+            catch(e){ console.error('[Liveflux Events] dispatchToKindAndId error', e); }
           }
-          if(!handled && targetAlias && typeof liveflux.dispatchToAlias === 'function'){
-            try { liveflux.dispatchToAlias(targetAlias, ev.name, payload); handled = true; }
-            catch(e){ console.error('[Liveflux Events] dispatchToAlias error', e); }
+          if(!handled && targetKind && typeof liveflux.dispatchToKind === 'function'){
+            try { liveflux.dispatchToKind(targetKind, ev.name, payload); handled = true; }
+            catch(e){ console.error('[Liveflux Events] dispatchToKind error', e); }
           }
           if(!handled && targetId && typeof liveflux.findComponent === 'function' && typeof liveflux.dispatchTo === 'function'){
-            const lookupAlias = targetAlias || componentAlias;
+            const lookupKind = targetKind || componentKind;
             try {
-              const targetRoot = lookupAlias ? liveflux.findComponent(lookupAlias, targetId) : null;
+              const targetRoot = lookupKind ? liveflux.findComponent(lookupKind, targetId) : null;
               if(targetRoot){
                 liveflux.dispatchTo(targetRoot, ev.name, payload);
                 handled = true;
@@ -117,13 +117,13 @@
     };
   }
 
-  function subscribe(componentAlias, componentId, eventName, targetMethod, timeoutMs){
+  function subscribe(componentKind, componentId, eventName, targetMethod, timeoutMs){
     // if root is not found, do nothing
-    var root = (liveflux.findComponent) ? liveflux.findComponent(componentAlias, componentId) : null;
+    var root = (liveflux.findComponent) ? liveflux.findComponent(componentKind, componentId) : null;
     if(!root){ return; }
       
     var delay = typeof timeoutMs === 'number' ? timeoutMs : 0;
-    var key = [componentAlias || '', componentId || '', eventName || '', targetMethod || ''].join('::');
+    var key = [componentKind || '', componentId || '', eventName || '', targetMethod || ''].join('::');
 
     function bind(){
       var registry = liveflux.__componentSubscriptions || (liveflux.__componentSubscriptions = {});

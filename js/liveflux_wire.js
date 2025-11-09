@@ -9,7 +9,7 @@
   const rootSelector = `[${dataFluxRoot}]`;
   const rootSelectorWithFallback = `${rootSelector}, [flux-root]`;
 
-  function createWire(componentId, componentAlias, rootEl){
+  function createWire(componentId, componentKind, rootEl){
     return {
       on: function(eventName, callback){
         if(liveflux.events && typeof liveflux.events.onComponent === 'function'){
@@ -26,15 +26,15 @@
         const dispatchFn = liveflux.dispatch || (liveflux.events && liveflux.events.dispatch);
         if(typeof dispatchFn === 'function') dispatchFn(eventName, d);
       },
-      dispatchTo: function(targetAlias, eventName, data){
-        const d = Object.assign({}, data||{}, { __target: targetAlias });
+      dispatchTo: function(targetKind, eventName, data){
+        const d = Object.assign({}, data||{}, { __target: targetKind });
         const dispatchFn = liveflux.dispatch || (liveflux.events && liveflux.events.dispatch);
         if(typeof dispatchFn === 'function') dispatchFn(eventName, d);
       },
       call: function(action, data){
         action = action || 'submit';
         const params = Object.assign({}, data || {}, {
-          liveflux_component_alias: componentAlias,
+          liveflux_component_kind: componentKind,
           liveflux_component_id: componentId,
           liveflux_action: action
         });
@@ -57,7 +57,7 @@
         });
       },
       id: componentId,
-      alias: componentAlias
+      kind: componentKind
     };
   }
 

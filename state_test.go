@@ -11,7 +11,7 @@ import (
 // minimal component for store tests
 type storeComp struct{ Base }
 
-func (c *storeComp) GetAlias() string                               { return "test.store-comp" }
+func (c *storeComp) GetKind() string                                { return "test.store-comp" }
 func (c *storeComp) Mount(context.Context, map[string]string) error { return nil }
 func (c *storeComp) Handle(context.Context, string, url.Values) error {
 	return nil

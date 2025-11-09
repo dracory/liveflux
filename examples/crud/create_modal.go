@@ -22,7 +22,7 @@ type CreateUserModal struct {
 	CreatedEvent map[string]any
 }
 
-func (c *CreateUserModal) GetAlias() string {
+func (c *CreateUserModal) GetKind() string {
 	return "users.create_modal"
 }
 
@@ -59,7 +59,7 @@ func (c *CreateUserModal) onCreate(name string, email string, role string) {
 	log.Printf("Created user %s (%s)", user.Name, user.Email)
 
 	// emit server event (not used, just for example)
-	c.DispatchToAlias("users.list", "user-created", map[string]any{
+	c.DispatchToKind("users.list", "user-created", map[string]any{
 		"id":    user.ID,
 		"name":  user.Name,
 		"email": user.Email,
@@ -80,15 +80,15 @@ func (c *CreateUserModal) onCreate(name string, email string, role string) {
 }
 
 func (c *CreateUserModal) initScript() hb.TagInterface {
-	alias := c.GetAlias()
+	kind := c.GetKind()
 	id := c.GetID()
 	scriptSubscribe := `
       (function(){
-        var alias = '` + alias + `';
+        var kind = '` + kind + `';
         var id = '` + id + `';
         setTimeout(function(){
           ['open','close'].forEach(function(evt){
-            window.liveflux.subscribe(alias, id, evt, 'open', 0);
+            window.liveflux.subscribe(kind, id, evt, 'open', 0);
           });
         }, 100);
       })();
@@ -142,8 +142,8 @@ func (c *CreateUserModal) Render(ctx context.Context) hb.TagInterface {
 	// Hidden inputs
 	typeInput := hb.Input().
 		Type("hidden").
-		Name("liveflux_component_alias").
-		Value(c.GetAlias())
+		Name("liveflux_component_kind").
+		Value(c.GetKind())
 	idInput := hb.Input().
 		Type("hidden").
 		Name("liveflux_component_id").

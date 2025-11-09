@@ -42,11 +42,11 @@
       return;
     }
     
-    const componentAlias = component.getAttribute(dataFluxComponent);
-    const componentId = component.getAttribute(dataFluxComponentID);
+    const componentKind = component.getAttribute(dataFluxComponentKind);
+    const componentId   = component.getAttribute(dataFluxComponentID);
 
-    if(!componentAlias){
-      console.warn('[Liveflux Events] dispatchTo called without component alias');
+    if(!componentKind){
+      console.warn('[Liveflux Events] dispatchTo called without component kind');
       return;
     }
     
@@ -55,11 +55,11 @@
       return;
     }
 
-    console.log('[Liveflux Events] dispatchTo called with component alias:', componentAlias, 'component id:', componentId, 'event name:',eventName, 'data:', data);
+    console.log('[Liveflux Events] dispatchTo called with component kind:', componentKind, 'component id:', componentId, 'event name:',eventName, 'data:', data);
     
     const payload = Object.assign({}, data || {});
-    if(componentAlias){
-      payload.__target = componentAlias;
+    if(componentKind){
+      payload.__target = componentKind;
     }
     if(componentId){
       payload.__target_id = componentId;
@@ -71,33 +71,33 @@
   }
 
   /**
-   * Dispatches an event targeted to all components of specific component alias.
-   * @param {string} componentAlias - Alias of the target component.
+   * Dispatches an event targeted to all components of specific component kind.
+   * @param {string} componentKind - Kind of the target component.
    * @param {string} eventName - Event name to dispatch.
    * @param {Object} [data] - Optional payload for the event.
    * @returns {void}
    */
-  function dispatchToAlias(componentAlias, eventName, data){
-    if(!componentAlias){
-      console.warn('[Liveflux Events] dispatchToAlias called without component alias');
+  function dispatchToKind(componentKind, eventName, data){
+    if(!componentKind){
+      console.warn('[Liveflux Events] dispatchToKind called without component kind');
       return;
     }
 
     if(!eventName){
-      console.warn('[Liveflux Events] dispatchToAlias called without event name');
+      console.warn('[Liveflux Events] dispatchToKind called without event name');
       return;
     }
 
-    const components = document.querySelectorAll(`[${dataFluxRoot}][${dataFluxComponent}="${componentAlias}"]`);
+    const components = document.querySelectorAll(`[${dataFluxRoot}][${dataFluxComponentKind}="${componentKind}"]`);
     if(components.length === 0){
-      console.warn('[Liveflux Events] dispatchToAlias called without component');
+      console.warn('[Liveflux Events] dispatchToKind called without component');
       return;
     }
 
     components.forEach(function(component){
       const payload = Object.assign({}, data || {});
-      if(componentAlias){
-        payload.__target = componentAlias;
+      if(componentKind){
+        payload.__target = componentKind;
       }
       if(window.liveflux && window.liveflux.events && window.liveflux.events.dispatch){
         window.liveflux.events.dispatch(eventName, payload);
@@ -106,38 +106,38 @@
   }
 
   /**
-   * Dispatches an event targeted to a specific component alias and ID.
-   * @param {string} componentAlias - Alias of the target component.
+   * Dispatches an event targeted to a specific component kind and ID.
+   * @param {string} componentKind - Kind of the target component.
    * @param {string} componentId - ID of the target component instance.
    * @param {string} eventName - Event name to dispatch.
    * @param {Object} [data] - Optional payload for the event.
    * @returns {void}
    */
-  function dispatchToAliasAndId(componentAlias, componentId, eventName, data){
-    if(!componentAlias){
-      console.warn('[Liveflux Events] dispatchToAliasAndId called without component alias');
+  function dispatchToKindAndId(componentKind, componentId, eventName, data){
+    if(!componentKind){
+      console.warn('[Liveflux Events] dispatchToKindAndId called without component kind');
       return;
     }
 
     if(!componentId){
-      console.warn('[Liveflux Events] dispatchToAliasAndId called without component id');
+      console.warn('[Liveflux Events] dispatchToKindAndId called without component id');
       return;
     }
 
     if(!eventName){
-      console.warn('[Liveflux Events] dispatchToAliasAndId called without event name');
+      console.warn('[Liveflux Events] dispatchToKindAndId called without event name');
       return;
     }
 
-    const component = liveflux.findComponent ? liveflux.findComponent(componentAlias, componentId) : null;
+    const component = liveflux.findComponent ? liveflux.findComponent(componentKind, componentId) : null;
     if(!component){
-      console.warn('[Liveflux Events] dispatchToAliasAndId called without component');
+      console.warn('[Liveflux Events] dispatchToKindAndId called without component');
       return;
     }
 
     const payload = Object.assign({}, data || {});
-    if(componentAlias){
-      payload.__target = componentAlias;
+    if(componentKind){
+      payload.__target = componentKind;
     }
     if(componentId){
       payload.__target_id = componentId;
@@ -167,7 +167,7 @@
     liveflux.dispatch = liveflux.events.dispatch;
   }
   liveflux.dispatchTo = dispatchTo;
-  liveflux.dispatchToAlias = dispatchToAlias;
-  liveflux.dispatchToAliasAndId = dispatchToAliasAndId;
+  liveflux.dispatchToKind = dispatchToKind;
+  liveflux.dispatchToKindAndId = dispatchToKindAndId;
   liveflux.on = on;
 })();

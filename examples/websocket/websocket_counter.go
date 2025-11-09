@@ -17,8 +17,8 @@ type WebSocketCounter struct {
 	Count int
 }
 
-// GetAlias returns the component's alias.
-func (c *WebSocketCounter) GetAlias() string {
+// GetKind returns the component's kind.
+func (c *WebSocketCounter) GetKind() string {
 	return "websocket-counter"
 }
 

@@ -17,7 +17,7 @@ func NewID() string {
 	return id
 }
 
-// DefaultAliasFromType derives a sensible default alias from a component's Go type.
+// DefaultKindFromType derives a sensible default kind from a component's Go type.
 // Rules:
 // - Use the package name and kebab-cased struct name: "<pkg>.<type-kebab>"
 // - If struct name matches package name (case-insensitive), just use the package name.
@@ -25,7 +25,7 @@ func NewID() string {
 //
 //	package counter, type Counter -> "counter"
 //	package users, type UserList -> "users.user-list"
-func DefaultAliasFromType(c ComponentInterface) string {
+func DefaultKindFromType(c ComponentInterface) string {
 	if c == nil {
 		return ""
 	}
