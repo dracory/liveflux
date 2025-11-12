@@ -5,9 +5,9 @@
   }
 
   const liveflux = window.liveflux;
-  const { dataFluxRoot, dataFluxComponentID } = liveflux;
-  const rootSelector = `[${dataFluxRoot}]`;
-  const rootSelectorWithFallback = `${rootSelector}, [flux-root]`;
+  const componentKindAttr = liveflux.dataFluxComponentKind || 'data-flux-component-kind';
+  const componentIDAttr = liveflux.dataFluxComponentID || 'data-flux-component-id';
+  const rootSelector = `[${componentKindAttr}][${componentIDAttr}]`;
 
   function createWire(componentId, componentKind, rootEl){
     return {
@@ -62,10 +62,10 @@
   }
 
   function initWire(){
-    const roots = document.querySelectorAll(rootSelectorWithFallback);
+    const roots = document.querySelectorAll(rootSelector);
     roots.forEach(function(root){
-      const comp = root.getAttribute(liveflux.dataFluxComponentKind || 'data-flux-component-kind');
-      const id = root.getAttribute(liveflux.dataFluxComponentID || 'data-flux-component-id');
+      const comp = root.getAttribute(componentKindAttr);
+      const id = root.getAttribute(componentIDAttr);
       if(!comp || !id) return;
       root.$wire = createWire(id, comp, root);
     });
