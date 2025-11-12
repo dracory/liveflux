@@ -79,6 +79,13 @@
     return '';
   }
 
+  function isComponentRootNode(node){
+    if(!node || typeof node.hasAttribute !== 'function') return false;
+    const kindAttr = liveflux.dataFluxComponentKind || 'data-flux-component-kind';
+    const idAttr = liveflux.dataFluxComponentID || 'data-flux-component-id';
+    return node.hasAttribute(kindAttr) && node.hasAttribute(idAttr);
+  }
+
   function extractSelectedFragment(html, selectors){
     if(!selectors || !selectors.trim()) return html;
     if(typeof DOMParser === 'undefined'){
@@ -277,6 +284,7 @@
   liveflux.serializeElement = serializeElement;
   liveflux.readParams = readParams;
   liveflux.readSelectAttribute = readSelectAttribute;
+  liveflux.isComponentRootNode = isComponentRootNode;
   liveflux.extractSelectedFragment = extractSelectedFragment;
   liveflux.collectAllFields = collectAllFields;
   liveflux.resolveComponentMetadata = resolveComponentMetadata;

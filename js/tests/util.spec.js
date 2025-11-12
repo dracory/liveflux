@@ -263,4 +263,35 @@ describe('Liveflux Util', function() {
             expect(indicator.classList.contains('htmx-request')).toBeFalse();
         });
     });
+
+    describe('isComponentRootNode', function() {
+        let element;
+
+        beforeEach(function() {
+            element = document.createElement('div');
+        });
+
+        it('returns true when both component kind and id attributes are present', function() {
+            element.setAttribute('data-flux-component-kind', 'test.kind');
+            element.setAttribute('data-flux-component-id', 'abc123');
+
+            expect(window.liveflux.isComponentRootNode(element)).toBeTrue();
+        });
+
+        it('returns false when component kind attribute is missing', function() {
+            element.setAttribute('data-flux-component-id', 'abc123');
+
+            expect(window.liveflux.isComponentRootNode(element)).toBeFalse();
+        });
+
+        it('returns false when component id attribute is missing', function() {
+            element.setAttribute('data-flux-component-kind', 'test.kind');
+
+            expect(window.liveflux.isComponentRootNode(element)).toBeFalse();
+        });
+
+        it('returns false for null or non-element input', function() {
+            expect(window.liveflux.isComponentRootNode(null)).toBeFalse();
+        });
+    });
 });

@@ -21,11 +21,6 @@
     return selectAttr.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
   }
 
-  function isComponentRootNode(node){
-    if(!node || typeof node.hasAttribute !== 'function') return false;
-    return node.hasAttribute(componentKindAttr) && node.hasAttribute(componentIDAttr);
-  }
-
   function applySelectedFragment(root, selectors, newNode){
     if(!root || !newNode || !selectors || selectors.length === 0) return false;
     for(const selector of selectors){
@@ -106,7 +101,7 @@
       tmp.innerHTML = html;
       let newNode = tmp.firstElementChild;
       const selectors = parseSelectors(selectAttr);
-      if(newNode && selectors.length && metadata.root && !isComponentRootNode(newNode)){
+      if(newNode && selectors.length && metadata.root && !liveflux.isComponentRootNode(newNode)){
         const applied = applySelectedFragment(metadata.root, selectors, newNode);
         if(applied){
           liveflux.executeScripts(newNode);
@@ -125,7 +120,7 @@
           `[${componentKindAttr}="${metadata.comp}"][${componentIDAttr}="${metadata.id}"]`
         );
         if(targetRoot){
-          if(selectors.length && !isComponentRootNode(newNode)){
+          if(selectors.length && !liveflux.isComponentRootNode(newNode)){
             const applied = applySelectedFragment(targetRoot, selectors, newNode);
             if(applied){
               liveflux.executeScripts(newNode);
@@ -150,7 +145,7 @@
   function handleFormSubmit(e){
     const form = e.target.closest(`${rootSelector} form, form`);
     if(!form) return;
-    const root = form.closest(rootSelector) || form.closest('[flux-root]');
+    const root = form.closest(rootSelector);
     if(!root) return;
     const comp = root.getAttribute(componentKindAttr);
     const id = root.getAttribute(componentIDAttr);
@@ -197,7 +192,7 @@
       tmp.innerHTML = html;
       let newNode = tmp.firstElementChild;
       const selectors = parseSelectors(selectAttr);
-      if(newNode && selectors.length && !isComponentRootNode(newNode)){
+      if(newNode && selectors.length && !liveflux.isComponentRootNode(newNode)){
         const applied = applySelectedFragment(root, selectors, newNode);
         if(applied){
           liveflux.executeScripts(newNode);
