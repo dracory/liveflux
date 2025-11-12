@@ -18,11 +18,8 @@
   }
 
   const liveflux = window.liveflux;
-  const {
-    dataFluxComponentKind,
-    dataFluxComponentID,
-    dataFluxRoot,
-  } = liveflux;
+  const dataFluxComponentKind = liveflux.dataFluxComponentKind || 'data-flux-component-kind';
+  const dataFluxComponentID = liveflux.dataFluxComponentID || 'data-flux-component-id';
 
   /**
    * Dispatches an event targeted to a specific component.
@@ -88,13 +85,16 @@
       return;
     }
 
-    const components = document.querySelectorAll(`[${dataFluxRoot}][${dataFluxComponentKind}="${componentKind}"]`);
-    if(components.length === 0){
+    const components = document.querySelectorAll(liveflux.getComponentRootSelector());
+    const filtered = Array.from(components).filter(function(component){
+      return component.getAttribute(dataFluxComponentKind) === componentKind;
+    });
+    if(filtered.length === 0){
       console.warn('[Liveflux Events] dispatchToKind called without component');
       return;
     }
 
-    components.forEach(function(component){
+    filtered.forEach(function(component){
       const actualComponentKind = component.getAttribute(dataFluxComponentKind);
       const payload = Object.assign({}, data || {});
       if(actualComponentKind){

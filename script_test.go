@@ -60,7 +60,6 @@ func TestJSIncludesConfigVariables(t *testing.T) {
 		"dataFluxID":            DataFluxID,
 		"dataFluxMount":         DataFluxMount,
 		"dataFluxParam":         DataFluxParam,
-		"dataFluxRoot":          DataFluxRoot,
 		"dataFluxSubmit":        DataFluxSubmit,
 		"dataFluxWS":            DataFluxWS,
 		"dataFluxWSURL":         DataFluxWSURL,

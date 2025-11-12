@@ -1,5 +1,7 @@
 describe('Liveflux Dispatch', function() {
     beforeEach(function() {
+        const liveflux = window.liveflux;
+
         // Mock DOM elements
         this.mockComponent = {
             getAttribute: jasmine.createSpy('getAttribute').and.callFake(function(attr) {
@@ -9,9 +11,10 @@ describe('Liveflux Dispatch', function() {
             })
         };
 
-        // Mock querySelectorAll
+        // Mock querySelectorAll to support getComponentRootSelector usage
+        const rootSelector = liveflux.getComponentRootSelector ? liveflux.getComponentRootSelector() : '[data-flux-component-kind][data-flux-component-id]';
         spyOn(document, 'querySelectorAll').and.callFake(function(selector) {
-            if (selector.includes('test-kind') || selector.includes('test-component')) {
+            if (selector === rootSelector) {
                 return [this.mockComponent];
             }
             return [];
@@ -63,7 +66,7 @@ describe('Liveflux Dispatch', function() {
         it('should dispatch event to all components with kind', function() {
             const eventData = { test: 'data' };
             
-            window.liveflux.dispatchToKind('test-kind', 'test-event', eventData);
+            window.liveflux.dispatchToKind('test-component', 'test-event', eventData);
             
             expect(window.liveflux.events.dispatch).toHaveBeenCalledWith('test-event', {
                 test: 'data',

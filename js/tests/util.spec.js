@@ -16,11 +16,6 @@ describe('Liveflux Util', function() {
                     data-flux-action="submit">
                     External Button
                 </button>
-                <button id="btn-with-root-id" 
-                    data-flux-root-id="test-id-123"
-                    data-flux-action="update">
-                    Button with Root ID
-                </button>
             `;
             document.body.appendChild(testContainer);
         });
@@ -54,22 +49,6 @@ describe('Liveflux Util', function() {
             expect(metadata.comp).toBe('external-component');
             expect(metadata.id).toBe('external-id-456');
             expect(metadata.root).toBeNull();
-        });
-
-        it('should resolve metadata from root ID reference', function() {
-            const btn = document.getElementById('btn-with-root-id');
-            const rootSelector = '[data-flux-root]';
-            
-            // Add an ID to the root element
-            const root = document.querySelector('[data-flux-root]');
-            root.id = 'test-id-123';
-            
-            const metadata = window.liveflux.resolveComponentMetadata(btn, rootSelector);
-            
-            expect(metadata).not.toBeNull();
-            expect(metadata.comp).toBe('test-component');
-            expect(metadata.id).toBe('test-id-123');
-            expect(metadata.root).not.toBeNull();
         });
 
         it('should return null when button is null', function() {

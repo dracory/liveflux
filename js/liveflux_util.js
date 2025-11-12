@@ -209,19 +209,6 @@
       return { comp: explicitComp, id: explicitId, root: null };
     }
 
-    // 3. Try data attribute pointing to root by ID
-    const rootId = btn.getAttribute('data-flux-root-id');
-    if(rootId){
-      root = document.getElementById(rootId);
-      if(root){
-        const comp = root.getAttribute(liveflux.dataFluxComponentKind || 'data-flux-component-kind');
-        const id = root.getAttribute(liveflux.dataFluxComponentID || 'data-flux-component-id');
-        if(comp && id){
-          return { comp: comp, id: id, root: root };
-        }
-      }
-    }
-
     return null;
   }
 

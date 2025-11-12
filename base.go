@@ -92,8 +92,6 @@ func (b *Base) TakeRedirectDelaySeconds() int {
 // This avoids repeating boilerplate in every component's Render method.
 func (b *Base) Root(content hb.TagInterface) hb.TagInterface {
 	root := hb.Div().
-		// data-flux-root is checked by the client to determine if this is a Liveflux component.
-		Attr(DataFluxRoot, "1").
 		// data-flux-component-kind is the component kind (KIND identifier).
 		Attr(DataFluxComponentKind, b.GetKind()).
 		// data-flux-component-id is the component instance ID (INSTANCE identifier).

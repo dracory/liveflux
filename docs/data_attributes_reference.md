@@ -6,9 +6,8 @@ This page lists every `data-flux-*` attribute that the Liveflux runtime understa
 
 | Attribute | Purpose | Typical Placement |
 | --- | --- | --- |
-| `data-flux-root="1"` | Marks the DOM boundary for a mounted component so the client can find it. | Outer wrapper returned by `liveflux.Base.Root()` or SSR output |
-| `data-flux-component-kind="foo.bar"` | Identifies the component kind for routing follow-up requests. | Same element as `data-flux-root` |
-| `data-flux-component-id="abc123"` | Uniquely identifies the mounted instance in the store. | Same element as `data-flux-root` |
+| `data-flux-component-kind="foo.bar"` | Identifies which component is mounted; together with `data-flux-component-id` this marks the root element. | Component root |
+| `data-flux-component-id="abc123"` | Pairs with `data-flux-component-kind` so the runtime can look up the mounted instance. | Component root |
 | `data-flux-id="…"` | Optional developer-defined identifier exposed on `$wire`. Useful for JS access. | Component root |
 | `data-flux-mount="1"` | Marks placeholders the client should mount when bootstrapping. | Server-rendered placeholder containers |
 | `data-flux-param-foo="bar"` | Provides initial mount parameters (become `params["foo"]` in `Mount`). | Roots/placeholders |
@@ -52,7 +51,6 @@ This page lists every `data-flux-*` attribute that the Liveflux runtime understa
 | Attribute | Purpose | Typical Placement |
 | --- | --- | --- |
 | `data-flux-component-type="foo.list"` | Lets elements outside a component root specify which component kind they target. | Buttons/links outside the root |
-| `data-flux-root-id="component-root-id"` | Points to a component root by ID when it isn’t an ancestor of the trigger. | Buttons/links outside the root |
 
 ## Aliases & Compatibility Notes
 

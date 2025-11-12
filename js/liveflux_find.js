@@ -18,7 +18,8 @@
   }
 
   const liveflux = window.liveflux;
-  const { dataFluxRoot, dataFluxComponentKind, dataFluxComponentID } = liveflux;
+  const dataFluxComponentKind = liveflux.dataFluxComponentKind || 'data-flux-component-kind';
+  const dataFluxComponentID = liveflux.dataFluxComponentID || 'data-flux-component-id';
 
   /**
    * Finds a component by kind and ID.
@@ -27,7 +28,11 @@
    * @returns {HTMLElement|null} - The component element if found, otherwise null.
    */
   function findComponent(componentKind, componentId){
-    return document.querySelector(`[${dataFluxRoot}][${dataFluxComponentKind}="${componentKind}"][${dataFluxComponentID}="${componentId}"]`);
+    const selector = liveflux.getComponentRootSelector ? liveflux.getComponentRootSelector() : `[${dataFluxComponentKind}][${dataFluxComponentID}]`;
+    const elements = document.querySelectorAll(selector);
+    return Array.from(elements).find(function(el){
+      return el.getAttribute(dataFluxComponentKind) === componentKind && el.getAttribute(dataFluxComponentID) === componentId;
+    }) || null;
   }
   
   // Add functions to liveflux namespace

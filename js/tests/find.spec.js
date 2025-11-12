@@ -1,18 +1,5 @@
 describe('Liveflux Find', function() {
     beforeEach(function() {
-        // Mock document.querySelector
-        this.mockElement = { 
-            id: 'test-element',
-            getAttribute: jasmine.createSpy('getAttribute')
-        };
-        
-        spyOn(document, 'querySelector').and.callFake(function(selector) {
-            if (selector.includes('test-component') && selector.includes('test-id-123')) {
-                return this.mockElement;
-            }
-            return null;
-        }.bind(this));
-        
         // Re-initialize find module
         delete window.liveflux.findComponent;
         
@@ -24,50 +11,71 @@ describe('Liveflux Find', function() {
             }
 
             const liveflux = window.liveflux;
-            const { dataFluxRoot, dataFluxComponentKind, dataFluxComponentID } = liveflux;
+            const { dataFluxComponentKind, dataFluxComponentID } = liveflux;
 
             function findComponent(componentKind, componentId){
-                return document.querySelector(`[${dataFluxRoot}][${dataFluxComponentKind}="${componentKind}"][${dataFluxComponentID}="${componentId}"]`);
+                const selector = liveflux.getComponentRootSelector ? liveflux.getComponentRootSelector() : `[${dataFluxComponentKind}][${dataFluxComponentID}]`;
+                const elements = document.querySelectorAll(selector);
+                return Array.from(elements).find(function(el){
+                    return el.getAttribute(dataFluxComponentKind) === componentKind && el.getAttribute(dataFluxComponentID) === componentId;
+                }) || null;
             }
             
             liveflux.findComponent = findComponent;
         })();
+
+        const liveflux = window.liveflux;
+        this.component = {
+            id: 'test-element',
+            getAttribute: jasmine.createSpy('getAttribute').and.callFake(function(attr){
+                if(attr === (liveflux.dataFluxComponentKind || 'data-flux-component-kind')) return 'test-component';
+                if(attr === (liveflux.dataFluxComponentID || 'data-flux-component-id')) return 'test-id-123';
+                return null;
+            })
+        };
+
+        this.rootSelector = liveflux.getComponentRootSelector ? liveflux.getComponentRootSelector() : '[data-flux-component-kind][data-flux-component-id]';
+
+        spyOn(document, 'querySelectorAll').and.callFake(function(selector){
+            if(selector === this.rootSelector){
+                return [this.component];
+            }
+            return [];
+        }.bind(this));
     });
 
     describe('findComponent', function() {
         it('should find component by kind and ID', function() {
             const result = window.liveflux.findComponent('test-component', 'test-id-123');
             
-            expect(document.querySelector).toHaveBeenCalledWith(
-                '[data-flux-root][data-flux-component-kind="test-component"][data-flux-component-id="test-id-123"]'
-            );
-            expect(result).toBe(this.mockElement);
+            expect(document.querySelectorAll).toHaveBeenCalledWith(this.rootSelector);
+            expect(result).toBe(this.component);
         });
 
         it('should return null when component is not found', function() {
+            document.querySelectorAll.and.returnValue([]);
+
             const result = window.liveflux.findComponent('nonexistent', 'nonexistent-id');
             
-            expect(document.querySelector).toHaveBeenCalledWith(
-                '[data-flux-root][data-flux-component-kind="nonexistent"][data-flux-component-id="nonexistent-id"]'
-            );
-            expect(result).toBeNull();
-        });
-
-        it('should handle empty kind', function() {
-            const result = window.liveflux.findComponent('', 'test-id-123');
-            
-            expect(document.querySelector).toHaveBeenCalledWith(
-                '[data-flux-root][data-flux-component-kind=""][data-flux-component-id="test-id-123"]'
-            );
+            expect(document.querySelectorAll).toHaveBeenCalledWith(this.rootSelector);
             expect(result).toBeNull();
         });
 
         it('should handle empty ID', function() {
+            document.querySelectorAll.and.returnValue([]);
+
             const result = window.liveflux.findComponent('test-component', '');
             
-            expect(document.querySelector).toHaveBeenCalledWith(
-                '[data-flux-root][data-flux-component-kind="test-component"][data-flux-component-id=""]'
-            );
+            expect(document.querySelectorAll).toHaveBeenCalledWith(this.rootSelector);
+            expect(result).toBeNull();
+        });
+
+        it('should handle empty kind', function() {
+            document.querySelectorAll.and.returnValue([]);
+
+            const result = window.liveflux.findComponent('', 'test-id-123');
+            
+            expect(document.querySelectorAll).toHaveBeenCalledWith(this.rootSelector);
             expect(result).toBeNull();
         });
 
