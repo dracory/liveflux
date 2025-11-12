@@ -62,7 +62,7 @@
   }
 
   function initWire(){
-    const roots = document.querySelectorAll(rootSelector);
+    const roots = liveflux.findAllComponents ? liveflux.findAllComponents() : Array.from(document.querySelectorAll(rootSelector));
     roots.forEach(function(root){
       const comp = root.getAttribute(componentKindAttr);
       const id = root.getAttribute(componentIDAttr);

@@ -82,7 +82,7 @@ func TestBuildTargetResponse(t *testing.T) {
 		},
 	}
 
-	fullRender := `<div data-flux-root="1"><div id="value">updated</div></div>`
+	fullRender := `<div data-flux-component-kind="test-target" data-flux-component-id="abc123"><div id="value">updated</div></div>`
 
 	response := BuildTargetResponse(fragments, fullRender, comp)
 

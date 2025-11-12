@@ -85,16 +85,20 @@
       return;
     }
 
-    const components = document.querySelectorAll(liveflux.getComponentRootSelector());
-    const filtered = Array.from(components).filter(function(component){
+    if(typeof liveflux.findAllComponents !== 'function'){
+      throw new Error('[Liveflux Events] findAllComponents helper is required but not available');
+    }
+
+    const components = liveflux.findAllComponents(function(component){
       return component.getAttribute(dataFluxComponentKind) === componentKind;
     });
-    if(filtered.length === 0){
+
+    if(components.length === 0){
       console.warn('[Liveflux Events] dispatchToKind called without component');
       return;
     }
 
-    filtered.forEach(function(component){
+    components.forEach(function(component){
       const actualComponentKind = component.getAttribute(dataFluxComponentKind);
       const payload = Object.assign({}, data || {});
       if(actualComponentKind){

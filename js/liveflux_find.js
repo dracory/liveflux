@@ -21,6 +21,24 @@
   const dataFluxComponentKind = liveflux.dataFluxComponentKind || 'data-flux-component-kind';
   const dataFluxComponentID = liveflux.dataFluxComponentID || 'data-flux-component-id';
 
+  function queryComponentRoots(){
+    const selector = liveflux.getComponentRootSelector ? liveflux.getComponentRootSelector() : `[${dataFluxComponentKind}][${dataFluxComponentID}]`;
+    return Array.from(document.querySelectorAll(selector));
+  }
+
+  /**
+   * Returns a list of all component root elements. Optionally filter them.
+   * @param {Function} [predicate] - Optional filter function receiving each element.
+   * @returns {HTMLElement[]} - Array of component root elements.
+   */
+  function findAllComponents(predicate){
+    const elements = queryComponentRoots();
+    if(typeof predicate === 'function'){
+      return elements.filter(predicate);
+    }
+    return elements;
+  }
+
   /**
    * Finds a component by kind and ID.
    * @param {string} componentKind - Kind of the target component.
@@ -28,13 +46,15 @@
    * @returns {HTMLElement|null} - The component element if found, otherwise null.
    */
   function findComponent(componentKind, componentId){
-    const selector = liveflux.getComponentRootSelector ? liveflux.getComponentRootSelector() : `[${dataFluxComponentKind}][${dataFluxComponentID}]`;
-    const elements = document.querySelectorAll(selector);
-    return Array.from(elements).find(function(el){
+    if(!componentKind || !componentId){
+      return null;
+    }
+    return findAllComponents(function(el){
       return el.getAttribute(dataFluxComponentKind) === componentKind && el.getAttribute(dataFluxComponentID) === componentId;
-    }) || null;
+    })[0] || null;
   }
   
   // Add functions to liveflux namespace
+  liveflux.findAllComponents = findAllComponents;
   liveflux.findComponent = findComponent;
 })();
