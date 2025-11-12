@@ -14,8 +14,8 @@ describe('Liveflux Util', function() {
                     <button id="btn-inside" data-flux-action="increment">Click me</button>
                 </div>
                 <button id="btn-outside" 
-                    data-flux-component-type="external-component" 
-                    data-flux-component-id="external-id-456"
+                    data-flux-target-kind="external-component" 
+                    data-flux-target-id="external-id-456"
                     data-flux-action="submit">
                     External Button
                 </button>
@@ -239,6 +239,36 @@ describe('Liveflux Util', function() {
             window.liveflux.endRequestIndicators(els);
 
             expect(indicator.classList.contains('flux-request')).toBeFalse();
+        });
+
+        it('should restore inline style when non-indicator element was hidden inline', function() {
+            indicator.className = '';
+            indicator.style.display = 'none';
+
+            const els = window.liveflux.startRequestIndicators(trigger, root);
+
+            expect(indicator.style.display).toBe('inline-block');
+
+            window.liveflux.endRequestIndicators(els);
+
+            expect(indicator.style.display).toBe('none');
+        });
+
+        it('should remove display override when element had no inline display', function() {
+            indicator.className = '';
+            indicator.style.display = '';
+            const originalComputed = window.getComputedStyle(indicator).display;
+            indicator.style.display = 'none';
+
+            const els = window.liveflux.startRequestIndicators(trigger, root);
+
+            expect(indicator.style.display).toBe('inline-block');
+
+            indicator.style.display = '';
+            window.liveflux.endRequestIndicators(els);
+
+            expect(indicator.style.display).toBe('');
+            expect(window.getComputedStyle(indicator).display).toBe(originalComputed);
         });
     });
 

@@ -7,6 +7,7 @@
   const liveflux = window.liveflux;
   const { dataFluxParam, dataFluxIndicator, dataFluxSelect } = liveflux;
   const REQUEST_CLASS = 'flux-request';
+  const INDICATOR_ORIGINAL_DISPLAY_ATTR = 'data-liveflux-indicator-original-display';
   const dataParamPrefix = `${dataFluxParam}-`;
   const SELECT_LOG_PREFIX = '[Liveflux Select]';
 
@@ -202,8 +203,8 @@
     }
 
     // 2. Try explicit attributes on button (for buttons outside component root)
-    const explicitComp = btn.getAttribute('data-flux-component-type');
-    const explicitId = btn.getAttribute('data-flux-component-id');
+    const explicitComp = btn.getAttribute('data-flux-target-kind');
+    const explicitId = btn.getAttribute('data-flux-target-id');
     if(explicitComp && explicitId){
       return { comp: explicitComp, id: explicitId, root: null };
     }
@@ -257,6 +258,19 @@
   function startRequestIndicators(trigger, root){
     const elements = resolveIndicators(trigger, root);
     elements.forEach(function(el){
+      if(!el.classList.contains('flux-indicator') && !el.hasAttribute(INDICATOR_ORIGINAL_DISPLAY_ATTR)){
+        let currentDisplay = '';
+        if(typeof window !== 'undefined' && window.getComputedStyle){
+          currentDisplay = window.getComputedStyle(el).display;
+        }
+        if(!currentDisplay){
+          currentDisplay = el.style.display || '';
+        }
+        if(currentDisplay === 'none'){
+          el.setAttribute(INDICATOR_ORIGINAL_DISPLAY_ATTR, el.style.display || '');
+          el.style.display = 'inline-block';
+        }
+      }
       el.classList.add(REQUEST_CLASS);
     });
     return elements;
@@ -266,6 +280,18 @@
     if(!elements) return;
     elements.forEach(function(el){
       el.classList.remove(REQUEST_CLASS);
+      if(el.hasAttribute(INDICATOR_ORIGINAL_DISPLAY_ATTR)){
+        const originalDisplay = el.getAttribute(INDICATOR_ORIGINAL_DISPLAY_ATTR);
+        const shouldRestore = el.style.display === 'inline-block';
+        if(shouldRestore){
+          if(originalDisplay){
+            el.style.display = originalDisplay;
+          } else {
+            el.style.removeProperty('display');
+          }
+        }
+        el.removeAttribute(INDICATOR_ORIGINAL_DISPLAY_ATTR);
+      }
     });
   }
 

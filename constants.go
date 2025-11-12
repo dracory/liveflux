@@ -15,4 +15,8 @@ const (
 	DataFluxWS            = "data-flux-ws"
 	DataFluxWSURL         = "data-flux-ws-url"
 	DefaultEndpoint       = "/liveflux"
+
+	// used by external controls to target liveflux components
+	DataFluxTargetKind = "data-flux-target-kind"
+	DataFluxTargetID   = "data-flux-target-id"
 )

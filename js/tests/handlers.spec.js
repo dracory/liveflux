@@ -13,12 +13,12 @@ describe('Liveflux Handlers', function() {
         // Mock liveflux.post
         if (!window.liveflux.post || !window.liveflux.post.and) {
             window.liveflux.post = jasmine.createSpy('post').and.returnValue(Promise.resolve({
-                html: '<div data-flux-component-kind="test" data-flux-component-id="123"><p>Updated</p></div>'
+                html: '<button id="outside" data-flux-target-kind="test" data-flux-target-id="123" data-flux-action="ping">Ping</button>'
             }));
         } else {
             window.liveflux.post.calls.reset();
             window.liveflux.post.and.returnValue(Promise.resolve({
-                html: '<div data-flux-component-kind="test" data-flux-component-id="123"><p>Updated</p></div>'
+                html: '<button id="outside" data-flux-target-kind="test" data-flux-target-id="123" data-flux-action="ping">Ping</button>'
             }));
         }
         
@@ -242,13 +242,12 @@ describe('Liveflux Handlers', function() {
             testContainer = document.createElement('div');
             testContainer.id = 'test-container';
             testContainer.innerHTML = `
-                <div data-flux-component-kind="modal" 
-                     data-flux-component-id="modal-999">
-                    <p>Modal content</p>
+                <div data-flux-component-kind="modal" data-flux-component-id="modal-999">
+                    <button id="internal-btn" data-flux-action="open">Open Modal</button>
                 </div>
                 <button id="external-btn" 
-                    data-flux-component-type="modal" 
-                    data-flux-component-id="modal-999"
+                    data-flux-target-kind="modal" 
+                    data-flux-target-id="modal-999"
                     data-flux-action="close">
                     Close Modal
                 </button>

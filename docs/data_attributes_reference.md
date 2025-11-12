@@ -45,11 +45,12 @@ This page lists every `data-flux-*` attribute that the Liveflux runtime understa
 | `data-flux-ws` | Signals that the component/element should communicate over WebSocket. | Component roots, triggers |
 | `data-flux-ws-url="/liveflux/ws"` | Overrides the default WebSocket endpoint for the marked element/component. | Same element as `data-flux-ws` |
 
-## Cross-Component Metadata Helpers
+## External / Cross-Component Metadata Helpers
 
 | Attribute | Purpose | Typical Placement |
 | --- | --- | --- |
-| `data-flux-component-type="foo.list"` | Lets elements outside a component root specify which component kind they target. | Buttons/links outside the root |
+| `data-flux-target-kind="foo.list"` | Lets elements outside a component root specify which component kind they target. (Formerly `data-flux-component-type`). | Buttons/links outside the root |
+| `data-flux-target-id="abc123"` | Pairs with `data-flux-target-kind` to address a specific instance from outside the component root. (Formerly `data-flux-component-id` when used externally). | Buttons/links outside the root |
 
 ## Aliases & Compatibility Notes
 
