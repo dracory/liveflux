@@ -103,7 +103,6 @@ func JS(opts ...ClientOptions) string {
 		DataFluxDispatchTo:    DataFluxDispatchTo,
 		DataFluxComponentKind: DataFluxComponentKind,
 		DataFluxComponentID:   DataFluxComponentID,
-		DataFluxID:            DataFluxID,
 		DataFluxSelect:        DataFluxSelect,
 		DataFluxMount:         DataFluxMount,
 		DataFluxParam:         DataFluxParam,
@@ -158,7 +157,6 @@ type clientConfig struct {
 	DataFluxDispatchTo    string            `json:"dataFluxDispatchTo"`
 	DataFluxComponentKind string            `json:"dataFluxComponentKind"`
 	DataFluxComponentID   string            `json:"dataFluxComponentID"`
-	DataFluxID            string            `json:"dataFluxID"`
 	DataFluxSelect        string            `json:"dataFluxSelect"`
 	DataFluxMount         string            `json:"dataFluxMount"`
 	DataFluxParam         string            `json:"dataFluxParam"`

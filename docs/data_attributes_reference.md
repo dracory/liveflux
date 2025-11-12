@@ -8,7 +8,6 @@ This page lists every `data-flux-*` attribute that the Liveflux runtime understa
 | --- | --- | --- |
 | `data-flux-component-kind="foo.bar"` | Identifies which component is mounted; together with `data-flux-component-id` this marks the root element. | Component root |
 | `data-flux-component-id="abc123"` | Pairs with `data-flux-component-kind` so the runtime can look up the mounted instance. | Component root |
-| `data-flux-id="…"` | Optional developer-defined identifier exposed on `$wire`. Useful for JS access. | Component root |
 | `data-flux-mount="1"` | Marks placeholders the client should mount when bootstrapping. | Server-rendered placeholder containers |
 | `data-flux-param-foo="bar"` | Provides initial mount parameters (become `params["foo"]` in `Mount`). | Roots/placeholders |
 | `data-flux-dispatch-to="kind[:id]"` | Restricts client-dispatched events to a specific component kind or instance. | Elements calling `liveflux.dispatch*` |

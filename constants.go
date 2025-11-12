@@ -6,7 +6,6 @@ const (
 	DataFluxComponentKind = "data-flux-component-kind"
 	DataFluxComponentID   = "data-flux-component-id"
 	DataFluxExclude       = "data-flux-exclude"
-	DataFluxID            = "data-flux-id"
 	DataFluxInclude       = "data-flux-include"
 	DataFluxIndicator     = "data-flux-indicator"
 	DataFluxSelect        = "data-flux-select"

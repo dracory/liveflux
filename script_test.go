@@ -57,7 +57,6 @@ func TestJSIncludesConfigVariables(t *testing.T) {
 		"dataFluxDispatchTo":    DataFluxDispatchTo,
 		"dataFluxComponentKind": DataFluxComponentKind,
 		"dataFluxComponentID":   DataFluxComponentID,
-		"dataFluxID":            DataFluxID,
 		"dataFluxMount":         DataFluxMount,
 		"dataFluxParam":         DataFluxParam,
 		"dataFluxSubmit":        DataFluxSubmit,
