@@ -211,6 +211,7 @@ Start with the focused guides under `docs/`:
 - [WebSocket integration](docs/websocket.md)
 - [Triggers](docs/triggers.md)
 - [Targeted updates](docs/targeted_updates.md)
+- [Data attributes reference](docs/data_attributes_reference.md)
 
 ## Package API
 
