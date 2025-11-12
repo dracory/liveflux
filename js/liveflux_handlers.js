@@ -5,12 +5,12 @@
   }
 
   const liveflux = window.liveflux;
-  const { dataFluxAction, dataFluxRoot } = liveflux;
+  const actionAttr = liveflux.dataFluxAction || 'data-flux-action';
+  const componentKindAttr = liveflux.dataFluxComponentKind || 'data-flux-component-kind';
+  const componentIDAttr = liveflux.dataFluxComponentID || 'data-flux-component-id';
 
-  const actionSelector = `[${dataFluxAction}]`;
-  const actionSelectorWithFallback = `${actionSelector}, [flux-action]`;
-  const rootSelector = `[${dataFluxRoot}]`;
-  const rootSelectorWithFallback = `${rootSelector}, [flux-root]`;
+  const actionSelector = `[${actionAttr}]`;
+  const rootSelector = `[${componentKindAttr}][${componentIDAttr}]`;
   const SELECT_LOG_PREFIX = '[Liveflux Select]';
 
   // Track in-flight requests per component ID to prevent concurrent requests
@@ -23,8 +23,7 @@
 
   function isComponentRootNode(node){
     if(!node || typeof node.hasAttribute !== 'function') return false;
-    const rootAttr = dataFluxRoot || 'data-flux-root';
-    return node.hasAttribute(rootAttr) || node.hasAttribute('flux-root');
+    return node.hasAttribute(componentKindAttr) && node.hasAttribute(componentIDAttr);
   }
 
   function applySelectedFragment(root, selectors, newNode){
@@ -44,14 +43,14 @@
   }
 
   function handleActionClick(e){
-    const btn = e.target.closest(actionSelectorWithFallback);
+    const btn = e.target.closest(actionSelector);
     if(!btn) return;
 
     // Resolve component metadata with fallback chain
-    const metadata = liveflux.resolveComponentMetadata(btn, rootSelectorWithFallback);
+    const metadata = liveflux.resolveComponentMetadata(btn, rootSelector);
     if(!metadata) return;
 
-    const action = btn.getAttribute(dataFluxAction) || btn.getAttribute('flux-action');
+    const action = btn.getAttribute(actionAttr);
     const selectAttr = liveflux.readSelectAttribute ? liveflux.readSelectAttribute(btn) : '';
     const formId = btn.getAttribute('form');
     const assocForm = btn.closest('form') || (formId ? document.getElementById(formId) : null);
@@ -122,7 +121,9 @@
         if(liveflux.initWire) liveflux.initWire();
       } else if(newNode && !metadata.root){
         // Button was outside root - try to find root by ID to replace
-        const targetRoot = document.querySelector('[data-flux-component-id="' + metadata.id + '"]');
+        const targetRoot = document.querySelector(
+          `[${componentKindAttr}="${metadata.comp}"][${componentIDAttr}="${metadata.id}"]`
+        );
         if(targetRoot){
           if(selectors.length && !isComponentRootNode(newNode)){
             const applied = applySelectedFragment(targetRoot, selectors, newNode);
@@ -147,20 +148,20 @@
   }
 
   function handleFormSubmit(e){
-    const form = e.target.closest(`${rootSelector} form, [flux-root] form, form`);
+    const form = e.target.closest(`${rootSelector} form, form`);
     if(!form) return;
-    const root = form.closest(rootSelectorWithFallback);
+    const root = form.closest(rootSelector) || form.closest('[flux-root]');
     if(!root) return;
-    const comp = root.getAttribute(liveflux.dataFluxComponentKind || 'data-flux-component-kind');
-    const id = root.getAttribute(liveflux.dataFluxComponentID || 'data-flux-component-id');
+    const comp = root.getAttribute(componentKindAttr);
+    const id = root.getAttribute(componentIDAttr);
     if(!comp||!id) return;
     e.preventDefault();
 
-    const submitter = e.submitter || root.querySelector(actionSelectorWithFallback);
-    const selectAttr = submitter
+    const submitter = e.submitter || root.querySelector(actionSelector);
+    const selectAttr = submitter 
       ? (liveflux.readSelectAttribute ? liveflux.readSelectAttribute(submitter) : '')
       : (liveflux.readSelectAttribute ? liveflux.readSelectAttribute(form) : '');
-    const action = (submitter && (submitter.getAttribute(dataFluxAction) || submitter.getAttribute('flux-action'))) || form.getAttribute(dataFluxAction) || form.getAttribute('flux-action') || 'submit';
+    const action = (submitter && submitter.getAttribute(actionAttr)) || form.getAttribute(actionAttr) || 'submit';
 
     // Use collectAllFields to support data-flux-include and data-flux-exclude on submitter
     const fields = submitter 
