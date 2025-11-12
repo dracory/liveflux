@@ -79,11 +79,15 @@
     return '';
   }
 
-  function isComponentRootNode(node){
-    if(!node || typeof node.hasAttribute !== 'function') return false;
+  function getComponentRootSelector(){
     const kindAttr = liveflux.dataFluxComponentKind || 'data-flux-component-kind';
     const idAttr = liveflux.dataFluxComponentID || 'data-flux-component-id';
-    return node.hasAttribute(kindAttr) && node.hasAttribute(idAttr);
+    return `[${kindAttr}][${idAttr}]`;
+  }
+
+  function isComponentRootNode(node){
+    if(!node || typeof node.matches !== 'function') return false;
+    return node.matches(getComponentRootSelector());
   }
 
   function extractSelectedFragment(html, selectors){
@@ -186,8 +190,10 @@
   function resolveComponentMetadata(btn, rootSelector){
     if(!btn) return null;
 
+    const selector = rootSelector || getComponentRootSelector();
+
     // 1. Try nearest root (standard case) - read from data attributes
-    let root = btn.closest(rootSelector);
+    let root = btn.closest(selector);
     if(root){
       const comp = root.getAttribute(liveflux.dataFluxComponentKind || 'data-flux-component-kind');
       const id = root.getAttribute(liveflux.dataFluxComponentID || 'data-flux-component-id');
@@ -284,6 +290,7 @@
   liveflux.serializeElement = serializeElement;
   liveflux.readParams = readParams;
   liveflux.readSelectAttribute = readSelectAttribute;
+  liveflux.getComponentRootSelector = getComponentRootSelector;
   liveflux.isComponentRootNode = isComponentRootNode;
   liveflux.extractSelectedFragment = extractSelectedFragment;
   liveflux.collectAllFields = collectAllFields;

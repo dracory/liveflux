@@ -294,4 +294,33 @@ describe('Liveflux Util', function() {
             expect(window.liveflux.isComponentRootNode(null)).toBeFalse();
         });
     });
+
+    describe('getComponentRootSelector', function() {
+        let originalKindAttr;
+        let originalIdAttr;
+
+        beforeEach(function() {
+            originalKindAttr = window.liveflux.dataFluxComponentKind;
+            originalIdAttr = window.liveflux.dataFluxComponentID;
+        });
+
+        afterEach(function() {
+            window.liveflux.dataFluxComponentKind = originalKindAttr;
+            window.liveflux.dataFluxComponentID = originalIdAttr;
+        });
+
+        it('returns default selector when custom attributes are not set', function() {
+            window.liveflux.dataFluxComponentKind = undefined;
+            window.liveflux.dataFluxComponentID = undefined;
+
+            expect(window.liveflux.getComponentRootSelector()).toBe('[data-flux-component-kind][data-flux-component-id]');
+        });
+
+        it('returns selector using custom attribute names', function() {
+            window.liveflux.dataFluxComponentKind = 'custom-kind';
+            window.liveflux.dataFluxComponentID = 'custom-id';
+
+            expect(window.liveflux.getComponentRootSelector()).toBe('[custom-kind][custom-id]');
+        });
+    });
 });

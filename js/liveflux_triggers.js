@@ -409,8 +409,7 @@
     if (definitions.length === 0) return;
 
     // Resolve component metadata
-    const rootSelector = `[${liveflux.dataFluxRoot || 'data-flux-root'}], [flux-root]`;
-    const metadata = liveflux.resolveComponentMetadata(el, rootSelector);
+    const metadata = liveflux.resolveComponentMetadata(el, liveflux.getComponentRootSelector());
     
     if (!metadata) {
       console.warn(`${TRIGGER_LOG_PREFIX} No component metadata found for element`, el);

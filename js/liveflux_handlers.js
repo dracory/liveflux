@@ -8,9 +8,7 @@
   const actionAttr = liveflux.dataFluxAction || 'data-flux-action';
   const componentKindAttr = liveflux.dataFluxComponentKind || 'data-flux-component-kind';
   const componentIDAttr = liveflux.dataFluxComponentID || 'data-flux-component-id';
-
-  const actionSelector = `[${actionAttr}]`;
-  const rootSelector = `[${componentKindAttr}][${componentIDAttr}]`;
+  const rootSelector = liveflux.getComponentRootSelector();
   const SELECT_LOG_PREFIX = '[Liveflux Select]';
 
   // Track in-flight requests per component ID to prevent concurrent requests
@@ -38,7 +36,7 @@
   }
 
   function handleActionClick(e){
-    const btn = e.target.closest(actionSelector);
+    const btn = e.target.closest(`[${actionAttr}]`);
     if(!btn) return;
 
     // Resolve component metadata with fallback chain
@@ -147,12 +145,12 @@
     if(!form) return;
     const root = form.closest(rootSelector);
     if(!root) return;
-    const comp = root.getAttribute(componentKindAttr);
-    const id = root.getAttribute(componentIDAttr);
-    if(!comp||!id) return;
+    const componentKind = root.getAttribute(componentKindAttr);
+    const componentId   = root.getAttribute(componentIDAttr);
+    if(!componentKind||!componentId) return;
     e.preventDefault();
 
-    const submitter = e.submitter || root.querySelector(actionSelector);
+    const submitter = e.submitter || root.querySelector(`[${actionAttr}]`);
     const selectAttr = submitter 
       ? (liveflux.readSelectAttribute ? liveflux.readSelectAttribute(submitter) : '')
       : (liveflux.readSelectAttribute ? liveflux.readSelectAttribute(form) : '');
@@ -163,7 +161,11 @@
       ? liveflux.collectAllFields(submitter, root, form)
       : liveflux.serializeElement(form);
 
-    const params = Object.assign({}, fields, { liveflux_component_kind: comp, liveflux_component_id: id, liveflux_action: action });
+    const params = Object.assign({}, fields, {
+      liveflux_component_kind: componentKind,
+      liveflux_component_id: componentId,
+      liveflux_action: action
+    });
     const indicatorEls = liveflux.startRequestIndicators(submitter || form, root);
 
     liveflux.post(params).then((result)=>{
