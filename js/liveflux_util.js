@@ -7,7 +7,6 @@
   const liveflux = window.liveflux;
   const { dataFluxParam, dataFluxIndicator, dataFluxSelect } = liveflux;
   const REQUEST_CLASS = 'flux-request';
-  const REQUEST_CLASS_COMPAT = 'htmx-request';
   const dataParamPrefix = `${dataFluxParam}-`;
   const SELECT_LOG_PREFIX = '[Liveflux Select]';
 
@@ -243,7 +242,7 @@
     });
 
     if(!indicatorAttr){
-      const fallbackSelector = '.flux-indicator, .htmx-indicator';
+      const fallbackSelector = '.flux-indicator';
       if(root){
         root.querySelectorAll(fallbackSelector).forEach(function(node){ targets.add(node); });
       }
@@ -259,7 +258,6 @@
     const elements = resolveIndicators(trigger, root);
     elements.forEach(function(el){
       el.classList.add(REQUEST_CLASS);
-      el.classList.add(REQUEST_CLASS_COMPAT);
     });
     return elements;
   }
@@ -268,7 +266,6 @@
     if(!elements) return;
     elements.forEach(function(el){
       el.classList.remove(REQUEST_CLASS);
-      el.classList.remove(REQUEST_CLASS_COMPAT);
     });
   }
 

@@ -182,7 +182,7 @@ See `examples/formless/` for complete working examples.
 
 ### Request Indicators
 
-Liveflux mirrors htmx-style loading indicators. Add `data-flux-indicator` (or `flux-indicator`) to any trigger element (button, link, mount placeholder) and set it to a CSS selector list. Every request started from that trigger toggles the `flux-request` and `htmx-request` classes on the referenced elements for the duration of the network call. When the attribute is omitted, Liveflux falls back to any `.flux-indicator` or `.htmx-indicator` elements inside the component root or on the trigger itself.
+Liveflux mirrors htmx-style loading indicators. Add `data-flux-indicator` (or `flux-indicator`) to any trigger element (button, link, mount placeholder) and set it to a CSS selector list. Every request started from that trigger toggles the `flux-request` class on the referenced elements for the duration of the network call. When the attribute is omitted, Liveflux falls back to any `.flux-indicator` elements inside the component root or on the trigger itself.
 
 Example:
 
@@ -198,4 +198,4 @@ Example:
 .hidden.flux-request { display: inline-block; }
 ```
 
-You can also use the literal value `this` to toggle the trigger element. The compatibility `htmx-request` class makes existing htmx indicator styles work without changes.
+You can also use the literal value `this` to toggle the trigger element.

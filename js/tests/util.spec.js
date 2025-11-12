@@ -223,9 +223,7 @@ describe('Liveflux Util', function() {
 
             expect(Array.isArray(els)).toBeTrue();
             expect(trigger.classList.contains('flux-request')).toBeTrue();
-            expect(trigger.classList.contains('htmx-request')).toBeTrue();
             expect(indicator.classList.contains('flux-request')).toBeTrue();
-            expect(indicator.classList.contains('htmx-request')).toBeTrue();
 
             window.liveflux.endRequestIndicators(els);
         });
@@ -237,12 +235,10 @@ describe('Liveflux Util', function() {
             const els = window.liveflux.startRequestIndicators(trigger, root);
 
             expect(indicator.classList.contains('flux-request')).toBeTrue();
-            expect(indicator.classList.contains('htmx-request')).toBeTrue();
 
             window.liveflux.endRequestIndicators(els);
 
             expect(indicator.classList.contains('flux-request')).toBeFalse();
-            expect(indicator.classList.contains('htmx-request')).toBeFalse();
         });
     });
 
