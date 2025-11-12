@@ -66,6 +66,9 @@ func TestTargetFragment(t *testing.T) {
 		if frag.SwapMode != SwapReplace {
 			t.Errorf("expected swap mode replace, got %s", frag.SwapMode)
 		}
+		if frag.Content == nil || frag.Content.ToHTML() != "<div>content</div>" {
+			t.Errorf("expected content fragment div with text, got %#v", frag.Content)
+		}
 	})
 }
 

@@ -199,7 +199,7 @@ func (h *Handler) handle(ctx context.Context, w http.ResponseWriter, r *http.Req
 	}
 
 	// Render the component
-	h.writeRender(ctx, w, r, c)
+	h.writeRender(ctx, w, c)
 }
 
 // validateKindAndID ensures required params are present. Returns true if OK.
@@ -253,7 +253,7 @@ func (h *Handler) maybeWriteRedirect(w http.ResponseWriter, c ComponentInterface
 // writeRender renders component HTML and sends any queued events.
 // If the component implements TargetRenderer, it will send only the changed fragments
 // instead of the full component.
-func (h *Handler) writeRender(ctx context.Context, w http.ResponseWriter, r *http.Request, c ComponentInterface) {
+func (h *Handler) writeRender(ctx context.Context, w http.ResponseWriter, c ComponentInterface) {
 	// Check if component supports events
 	if ea, ok := c.(EventAware); ok {
 		dispatcher := ea.GetEventDispatcher()

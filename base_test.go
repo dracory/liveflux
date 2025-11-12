@@ -4,12 +4,6 @@ import (
 	"testing"
 )
 
-// minimal component for Base behavior tests
-type baseComp struct{ Base }
-
-func (c *baseComp) GetKind() string { return c.Base.GetKind() }
-func (c *baseComp) GetID() string   { return c.Base.GetID() }
-
 func TestBase_SetKind_Once(t *testing.T) {
 	var b Base
 	if b.GetKind() != "" {
