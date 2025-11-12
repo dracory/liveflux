@@ -21,12 +21,12 @@ describe('Liveflux Triggers', function() {
         // Mock liveflux.post
         if (!window.liveflux.post || !window.liveflux.post.and) {
             window.liveflux.post = jasmine.createSpy('post').and.returnValue(Promise.resolve({
-                html: '<div data-flux-root="1" data-flux-component-kind="test" data-flux-component-id="123"><p>Updated</p></div>'
+                html: '<div data-flux-component-kind="test" data-flux-component-id="123"><p>Updated</p></div>'
             }));
         } else {
             window.liveflux.post.calls.reset();
             window.liveflux.post.and.returnValue(Promise.resolve({
-                html: '<div data-flux-root="1" data-flux-component-kind="test" data-flux-component-id="123"><p>Updated</p></div>'
+                html: '<div data-flux-component-kind="test" data-flux-component-id="123"><p>Updated</p></div>'
             }));
         }
         
@@ -92,6 +92,8 @@ describe('Liveflux Triggers', function() {
                 enableTriggers: true
             });
         }
+
+        this.rootSelector = window.liveflux.getComponentRootSelector();
     });
 
     afterEach(function() {
@@ -289,7 +291,7 @@ describe('Liveflux Triggers', function() {
 
         it('should register trigger on element', function() {
             testContainer.innerHTML = `
-                <div data-flux-root="1" data-flux-component="search" data-flux-component-id="search-123">
+                <div data-flux-component-kind="search" data-flux-component-id="search-123">
                     <input id="search-input" 
                            type="text" 
                            name="query"
@@ -308,7 +310,7 @@ describe('Liveflux Triggers', function() {
 
         it('should fire action on trigger event', function(done) {
             testContainer.innerHTML = `
-                <div data-flux-root="1" data-flux-component="search" data-flux-component-id="search-123">
+                <div data-flux-component-kind="search" data-flux-component-id="search-123">
                     <input id="search-input" 
                            type="text" 
                            name="query"
@@ -318,7 +320,7 @@ describe('Liveflux Triggers', function() {
             `;
             
             const input = document.getElementById('search-input');
-            const root = testContainer.querySelector('[data-flux-root]');
+            const root = testContainer.querySelector(this.rootSelector);
             
             // Update existing spy to return the actual root
             window.liveflux.resolveComponentMetadata.and.returnValue({
@@ -342,7 +344,7 @@ describe('Liveflux Triggers', function() {
 
         it('should respect delay modifier', function(done) {
             testContainer.innerHTML = `
-                <div data-flux-root="1" data-flux-component="search" data-flux-component-id="search-123">
+                <div data-flux-component-kind="search" data-flux-component-id="search-123">
                     <input id="search-input" 
                            type="text" 
                            name="query"
@@ -352,7 +354,7 @@ describe('Liveflux Triggers', function() {
             `;
             
             const input = document.getElementById('search-input');
-            const root = testContainer.querySelector('[data-flux-root]');
+            const root = testContainer.querySelector(this.rootSelector);
             
             // Update existing spy to return the actual root
             window.liveflux.resolveComponentMetadata.and.returnValue({
@@ -380,7 +382,7 @@ describe('Liveflux Triggers', function() {
 
         it('should debounce multiple rapid events', function(done) {
             testContainer.innerHTML = `
-                <div data-flux-root="1" data-flux-component="search" data-flux-component-id="search-123">
+                <div data-flux-component-kind="search" data-flux-component-id="search-123">
                     <input id="search-input" 
                            type="text" 
                            name="query"
@@ -390,7 +392,7 @@ describe('Liveflux Triggers', function() {
             `;
             
             const input = document.getElementById('search-input');
-            const root = testContainer.querySelector('[data-flux-root]');
+            const root = testContainer.querySelector(this.rootSelector);
             
             // Update existing spy to return the actual root
             window.liveflux.resolveComponentMetadata.and.returnValue({
@@ -434,7 +436,7 @@ describe('Liveflux Triggers', function() {
 
         it('should initialize all triggers in document', function() {
             testContainer.innerHTML = `
-                <div data-flux-root="1" data-flux-component="search" data-flux-component-id="search-123">
+                <div data-flux-component-kind="search" data-flux-component-id="search-123">
                     <input id="input1" data-flux-trigger="keyup" data-flux-action="search" />
                     <input id="input2" data-flux-trigger="change" data-flux-action="filter" />
                 </div>
@@ -449,10 +451,10 @@ describe('Liveflux Triggers', function() {
 
         it('should initialize triggers in specific root', function() {
             testContainer.innerHTML = `
-                <div id="root1" data-flux-root="1" data-flux-component="comp1" data-flux-component-id="id1">
+                <div id="root1" data-flux-component-kind="comp1" data-flux-component-id="id1">
                     <input data-flux-trigger="keyup" data-flux-action="action1" />
                 </div>
-                <div id="root2" data-flux-root="1" data-flux-component="comp2" data-flux-component-id="id2">
+                <div id="root2" data-flux-component-kind="comp2" data-flux-component-id="id2">
                     <input data-flux-trigger="change" data-flux-action="action2" />
                 </div>
             `;
@@ -482,7 +484,7 @@ describe('Liveflux Triggers', function() {
 
         it('should remove event listeners and stop trigger actions', function() {
             testContainer.innerHTML = `
-                <div data-flux-root="1" data-flux-component="search" data-flux-component-id="search-123">
+                <div data-flux-component-kind="search" data-flux-component-id="search-123">
                     <input id="search-input"
                            type="text"
                            name="query"
@@ -492,7 +494,7 @@ describe('Liveflux Triggers', function() {
             `;
 
             const input = document.getElementById('search-input');
-            const root = testContainer.querySelector('[data-flux-root]');
+            const root = testContainer.querySelector(this.rootSelector);
 
             window.liveflux.resolveComponentMetadata.and.returnValue({
                 comp: 'search',
@@ -518,7 +520,7 @@ describe('Liveflux Triggers', function() {
 
         it('should clear pending timers when unregistering delayed triggers', function(done) {
             testContainer.innerHTML = `
-                <div data-flux-root="1" data-flux-component="search" data-flux-component-id="search-123">
+                <div data-flux-component-kind="search" data-flux-component-id="search-123">
                     <input id="search-input"
                            type="text"
                            name="query"
@@ -528,7 +530,7 @@ describe('Liveflux Triggers', function() {
             `;
 
             const input = document.getElementById('search-input');
-            const root = testContainer.querySelector('[data-flux-root]');
+            const root = testContainer.querySelector(this.rootSelector);
 
             window.liveflux.resolveComponentMetadata.and.returnValue({
                 comp: 'search',
@@ -601,7 +603,7 @@ describe('Liveflux Triggers', function() {
 
         it('should send trigger event name in header', function(done) {
             testContainer.innerHTML = `
-                <div data-flux-root="1" data-flux-component="search" data-flux-component-id="search-123">
+                <div data-flux-component-kind="search" data-flux-component-id="search-123">
                     <input id="search-input" 
                            type="text"
                            name="query"
@@ -611,7 +613,7 @@ describe('Liveflux Triggers', function() {
             `;
             
             const input = document.getElementById('search-input');
-            const root = testContainer.querySelector('[data-flux-root]');
+            const root = testContainer.querySelector(this.rootSelector);
             
             // Update existing spy to return the actual root
             window.liveflux.resolveComponentMetadata.and.returnValue({

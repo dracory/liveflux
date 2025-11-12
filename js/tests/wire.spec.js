@@ -1,27 +1,26 @@
 describe('Liveflux Wire', function() {
     describe('initWire', function() {
         let testContainer;
+        let rootSelector;
 
         beforeEach(function() {
             testContainer = document.createElement('div');
             testContainer.id = 'test-container';
             testContainer.innerHTML = `
-                <div data-flux-root="1" 
-                     data-flux-component-kind="counter" 
+                <div data-flux-component-kind="counter" 
                      data-flux-component-id="counter-123">
                     <p>Counter content</p>
                 </div>
-                <div data-flux-root="1" 
-                     data-flux-component-kind="todo" 
+                <div data-flux-component-kind="todo" 
                      data-flux-component-id="todo-456">
                     <p>Todo content</p>
                 </div>
-                <div data-flux-root="1" 
-                     data-flux-component-id="incomplete-789">
+                <div id="incomplete-root" data-flux-component-id="incomplete-789">
                     <p>Missing component kind</p>
                 </div>
             `;
             document.body.appendChild(testContainer);
+            rootSelector = window.liveflux.getComponentRootSelector();
         });
 
         afterEach(function() {
@@ -33,7 +32,7 @@ describe('Liveflux Wire', function() {
         it('should initialize $wire on all valid roots', function() {
             window.liveflux.initWire();
             
-            const roots = testContainer.querySelectorAll('[data-flux-root]');
+            const roots = testContainer.querySelectorAll(rootSelector);
             const counterRoot = roots[0];
             const todoRoot = roots[1];
             
@@ -49,9 +48,10 @@ describe('Liveflux Wire', function() {
         it('should skip roots with missing component data', function() {
             window.liveflux.initWire();
             
-            const roots = testContainer.querySelectorAll('[data-flux-root]');
-            const incompleteRoot = roots[2];
-            
+            const roots = testContainer.querySelectorAll(rootSelector);
+            expect(roots.length).toBe(2);
+
+            const incompleteRoot = document.getElementById('incomplete-root');
             expect(incompleteRoot.$wire).toBeUndefined();
         });
 
@@ -68,19 +68,20 @@ describe('Liveflux Wire', function() {
 
     describe('$wire API', function() {
         let testContainer;
+        let rootSelector;
 
         beforeEach(function() {
             testContainer = document.createElement('div');
             testContainer.id = 'test-container';
             testContainer.innerHTML = `
-                <div data-flux-root="1" 
-                     data-flux-component-kind="test-component" 
+                <div data-flux-component-kind="test-component" 
                      data-flux-component-id="test-123">
                     <p>Test content</p>
                 </div>
             `;
             document.body.appendChild(testContainer);
             window.liveflux.initWire();
+            rootSelector = window.liveflux.getComponentRootSelector();
         });
 
         afterEach(function() {
@@ -90,37 +91,37 @@ describe('Liveflux Wire', function() {
         });
 
         it('should expose id property', function() {
-            const root = testContainer.querySelector('[data-flux-root]');
+            const root = testContainer.querySelector(rootSelector);
             expect(root.$wire.id).toBe('test-123');
         });
 
         it('should expose kind property', function() {
-            const root = testContainer.querySelector('[data-flux-root]');
+            const root = testContainer.querySelector(rootSelector);
             expect(root.$wire.kind).toBe('test-component');
         });
 
         it('should expose on method', function() {
-            const root = testContainer.querySelector('[data-flux-root]');
+            const root = testContainer.querySelector(rootSelector);
             expect(typeof root.$wire.on).toBe('function');
         });
 
         it('should expose dispatch method', function() {
-            const root = testContainer.querySelector('[data-flux-root]');
+            const root = testContainer.querySelector(rootSelector);
             expect(typeof root.$wire.dispatch).toBe('function');
         });
 
         it('should expose dispatchSelf method', function() {
-            const root = testContainer.querySelector('[data-flux-root]');
+            const root = testContainer.querySelector(rootSelector);
             expect(typeof root.$wire.dispatchSelf).toBe('function');
         });
 
         it('should expose dispatchTo method', function() {
-            const root = testContainer.querySelector('[data-flux-root]');
+            const root = testContainer.querySelector(rootSelector);
             expect(typeof root.$wire.dispatchTo).toBe('function');
         });
 
         it('should expose call method', function() {
-            const root = testContainer.querySelector('[data-flux-root]');
+            const root = testContainer.querySelector(rootSelector);
             expect(typeof root.$wire.call).toBe('function');
         });
     });

@@ -136,7 +136,7 @@ Use `$wire.on()` within component scripts:
 func (c *Component) Render(ctx context.Context) hb.TagInterface {
     script := hb.Script(`
         (function(){
-            var root = document.currentScript.closest('[data-flux-root]');
+            var root = document.currentScript.closest('[data-flux-component-kind][data-flux-component-id]');
             if(!root || !root.$wire) return;
             
             root.$wire.on('post-created', function(event){

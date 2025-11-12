@@ -475,7 +475,7 @@ Instead, format on blur or use client-side formatting.
 ### Triggers Not Firing
 
 1. **Check console for errors**: Look for `[Liveflux Triggers]` messages
-2. **Verify component metadata**: Ensure element is inside a `data-flux-root`
+2. **Verify component metadata**: Ensure the element sits within a node that has both `data-flux-component-kind` and `data-flux-component-id`
 3. **Check action exists**: Verify `data-flux-action` attribute is present
 4. **Inspect trigger parsing**: Use browser dev tools to check if triggers are registered
 

@@ -77,7 +77,7 @@ describe('Liveflux data-flux-select integration', function() {
     beforeEach(function() {
         originalPost = window.liveflux.post;
         window.liveflux.post = jasmine.createSpy('post').and.returnValue(Promise.resolve({
-            html: '<div data-flux-root="1" data-flux-component-kind="test" data-flux-component-id="123">'
+            html: '<div data-flux-component-kind="test" data-flux-component-id="123">'
                 + '<div id="partial">Filtered</div>'
                 + '</div>'
         }));
@@ -102,7 +102,7 @@ describe('Liveflux data-flux-select integration', function() {
 
     it('filters action responses before swap when trigger defines data-flux-select', function(done) {
         testContainer.innerHTML = `
-            <div data-flux-root="1" data-flux-component-kind="test" data-flux-component-id="123">
+            <div data-flux-component-kind="test" data-flux-component-id="123">
                 <div id="partial">Original</div>
                 <button id="select-action" data-flux-action="refresh" data-flux-select="#partial">Refresh</button>
                 <div class="wrapper">static</div>
@@ -120,7 +120,7 @@ describe('Liveflux data-flux-select integration', function() {
 
         setTimeout(function() {
             expect(extractSpy).toHaveBeenCalledWith(
-                '<div data-flux-root="1" data-flux-component-kind="test" data-flux-component-id="123">'
+                '<div data-flux-component-kind="test" data-flux-component-id="123">'
                 + '<div id="partial">Filtered</div>'
                 + '</div>',
                 '#partial'
@@ -137,7 +137,7 @@ describe('Liveflux data-flux-select integration', function() {
 
     it('filters form submissions when submitter defines data-flux-select', function(done) {
         testContainer.innerHTML = `
-            <div data-flux-root="1" data-flux-component-kind="test" data-flux-component-id="123">
+            <div data-flux-component-kind="test" data-flux-component-id="123">
                 <form id="select-form">
                     <button type="submit" data-flux-action="save" data-flux-select="#partial">Save</button>
                 </form>

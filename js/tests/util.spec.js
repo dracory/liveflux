@@ -1,13 +1,16 @@
 describe('Liveflux Util', function() {
     describe('resolveComponentMetadata', function() {
         let testContainer;
+        let rootSelector;
 
         beforeEach(function() {
             // Create a test container instead of replacing body
             testContainer = document.createElement('div');
             testContainer.id = 'test-container';
+            rootSelector = window.liveflux.getComponentRootSelector();
+
             testContainer.innerHTML = `
-                <div data-flux-root="1" data-flux-component-kind="test-component" data-flux-component-id="test-id-123">
+                <div data-flux-component-kind="test-component" data-flux-component-id="test-id-123">
                     <button id="btn-inside" data-flux-action="increment">Click me</button>
                 </div>
                 <button id="btn-outside" 
@@ -28,20 +31,17 @@ describe('Liveflux Util', function() {
 
         it('should resolve metadata from nearest root using data attributes', function() {
             const btn = document.getElementById('btn-inside');
-            const rootSelector = '[data-flux-root]';
             
             const metadata = window.liveflux.resolveComponentMetadata(btn, rootSelector);
             
             expect(metadata).not.toBeNull();
             expect(metadata.comp).toBe('test-component');
             expect(metadata.id).toBe('test-id-123');
-            expect(metadata.root).not.toBeNull();
-            expect(metadata.root.getAttribute('data-flux-root')).toBe('1');
+            expect(metadata.root).toBe(document.querySelector(rootSelector));
         });
 
         it('should resolve metadata from explicit button attributes', function() {
             const btn = document.getElementById('btn-outside');
-            const rootSelector = '[data-flux-root]';
             
             const metadata = window.liveflux.resolveComponentMetadata(btn, rootSelector);
             
@@ -52,7 +52,7 @@ describe('Liveflux Util', function() {
         });
 
         it('should return null when button is null', function() {
-            const metadata = window.liveflux.resolveComponentMetadata(null, '[data-flux-root]');
+            const metadata = window.liveflux.resolveComponentMetadata(null, rootSelector);
             expect(metadata).toBeNull();
         });
 
@@ -60,32 +60,32 @@ describe('Liveflux Util', function() {
             const btn = document.createElement('button');
             testContainer.appendChild(btn);
             
-            const metadata = window.liveflux.resolveComponentMetadata(btn, '[data-flux-root]');
+            const metadata = window.liveflux.resolveComponentMetadata(btn, rootSelector);
             expect(metadata).toBeNull();
         });
 
         it('should handle missing component attribute', function() {
             testContainer.innerHTML = `
-                <div data-flux-root="1" data-flux-component-id="test-id-123">
+                <div data-flux-component-id="test-id-123">
                     <button id="btn-incomplete" data-flux-action="test">Click</button>
                 </div>
             `;
             
             const btn = document.getElementById('btn-incomplete');
-            const metadata = window.liveflux.resolveComponentMetadata(btn, '[data-flux-root]');
+            const metadata = window.liveflux.resolveComponentMetadata(btn, rootSelector);
             
             expect(metadata).toBeNull();
         });
 
         it('should handle missing component-id attribute', function() {
             testContainer.innerHTML = `
-                <div data-flux-root="1" data-flux-component-kind="test-component">
+                <div data-flux-component-kind="test-component">
                     <button id="btn-incomplete" data-flux-action="test">Click</button>
                 </div>
             `;
             
             const btn = document.getElementById('btn-incomplete');
-            const metadata = window.liveflux.resolveComponentMetadata(btn, '[data-flux-root]');
+            const metadata = window.liveflux.resolveComponentMetadata(btn, rootSelector);
             
             expect(metadata).toBeNull();
         });
@@ -138,12 +138,13 @@ describe('Liveflux Util', function() {
 
     describe('collectAllFields', function() {
         let testContainer;
+        let rootSelector;
 
         beforeEach(function() {
             testContainer = document.createElement('div');
             testContainer.id = 'test-container';
             testContainer.innerHTML = `
-                <div data-flux-root="1" data-flux-component-kind="test" data-flux-component-id="123">
+                <div data-flux-component-kind="test" data-flux-component-id="123">
                     <form id="main-form">
                         <input type="text" name="field1" value="value1">
                     </form>
@@ -156,6 +157,7 @@ describe('Liveflux Util', function() {
                 <input type="text" id="external-input" name="field2" value="value2">
             `;
             document.body.appendChild(testContainer);
+            rootSelector = window.liveflux.getComponentRootSelector();
         });
 
         afterEach(function() {
@@ -166,7 +168,7 @@ describe('Liveflux Util', function() {
 
         it('should collect fields from form', function() {
             const btn = document.getElementById('btn-with-include');
-            const root = document.querySelector('[data-flux-root]');
+            const root = document.querySelector(rootSelector);
             const form = document.getElementById('main-form');
             
             const fields = window.liveflux.collectAllFields(btn, root, form);
@@ -176,7 +178,7 @@ describe('Liveflux Util', function() {
 
         it('should include fields from data-flux-include selector', function() {
             const btn = document.getElementById('btn-with-include');
-            const root = document.querySelector('[data-flux-root]');
+            const root = document.querySelector(rootSelector);
             const form = document.getElementById('main-form');
             
             const fields = window.liveflux.collectAllFields(btn, root, form);
@@ -192,13 +194,13 @@ describe('Liveflux Util', function() {
     });
 
     describe('request indicators', function() {
-        let trigger, root, indicator, testContainer;
+        let trigger, root, indicator, testContainer, rootSelector;
 
         beforeEach(function() {
             testContainer = document.createElement('div');
             testContainer.id = 'test-container';
             testContainer.innerHTML = `
-                <div id="component" data-flux-root="1" data-flux-component-kind="test" data-flux-component-id="abc">
+                <div id="component" data-flux-component-kind="test" data-flux-component-id="abc">
                     <button id="action" data-flux-indicator="this, #spinner">Action</button>
                     <span id="spinner" class="flux-indicator"></span>
                 </div>
@@ -207,6 +209,7 @@ describe('Liveflux Util', function() {
             trigger = document.getElementById('action');
             root = document.getElementById('component');
             indicator = document.getElementById('spinner');
+            rootSelector = window.liveflux.getComponentRootSelector();
         });
 
         afterEach(function() {

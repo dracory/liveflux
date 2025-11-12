@@ -58,7 +58,6 @@ describe('Liveflux Target Updates', function() {
     it('should apply single target fragment with replace mode', function() {
       // Setup component root
       const root = document.createElement('div');
-      root.setAttribute('data-flux-root', '1');
       root.setAttribute('data-flux-component-kind', 'cart');
       root.setAttribute('data-flux-component-id', 'abc123');
       root.innerHTML = '<div id="total">$99</div>';
@@ -80,7 +79,6 @@ describe('Liveflux Target Updates', function() {
 
     it('should apply multiple fragments in order', function() {
       const root = document.createElement('div');
-      root.setAttribute('data-flux-root', '1');
       root.innerHTML = `
         <div id="total">$99</div>
         <ul class="items"></ul>
@@ -105,7 +103,6 @@ describe('Liveflux Target Updates', function() {
 
     it('should apply full component replacement first', function() {
       const root = document.createElement('div');
-      root.setAttribute('data-flux-root', '1');
       root.setAttribute('data-flux-component-kind', 'cart');
       root.setAttribute('data-flux-component-id', 'abc123');
       root.innerHTML = '<div>old content</div>';
@@ -113,7 +110,7 @@ describe('Liveflux Target Updates', function() {
 
       const html = `
         <template data-flux-component-kind="cart" data-flux-component-id="abc123">
-          <div data-flux-root="1" data-flux-component-kind="cart" data-flux-component-id="abc123">
+          <div data-flux-component-kind="cart" data-flux-component-id="abc123">
             <div id="new">new content</div>
           </div>
         </template>
@@ -122,13 +119,12 @@ describe('Liveflux Target Updates', function() {
       const result = window.liveflux.applyTargets(html, root);
       
       expect(result).toBeNull();
-      const newRoot = testContainer.querySelector('[data-flux-root]');
+      const newRoot = testContainer.querySelector('[data-flux-component-kind="cart"][data-flux-component-id="abc123"]');
       expect(newRoot.querySelector('#new').textContent).toBe('new content');
     });
 
     it('should validate component metadata', function() {
       const root = document.createElement('div');
-      root.setAttribute('data-flux-root', '1');
       root.setAttribute('data-flux-component-kind', 'cart');
       root.setAttribute('data-flux-component-id', 'abc123');
       root.innerHTML = '<div id="total">$99</div>';

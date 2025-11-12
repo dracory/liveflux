@@ -13,12 +13,12 @@ describe('Liveflux Handlers', function() {
         // Mock liveflux.post
         if (!window.liveflux.post || !window.liveflux.post.and) {
             window.liveflux.post = jasmine.createSpy('post').and.returnValue(Promise.resolve({
-                html: '<div data-flux-root="1" data-flux-component-kind="test" data-flux-component-id="123"><p>Updated</p></div>'
+                html: '<div data-flux-component-kind="test" data-flux-component-id="123"><p>Updated</p></div>'
             }));
         } else {
             window.liveflux.post.calls.reset();
             window.liveflux.post.and.returnValue(Promise.resolve({
-                html: '<div data-flux-root="1" data-flux-component-kind="test" data-flux-component-id="123"><p>Updated</p></div>'
+                html: '<div data-flux-component-kind="test" data-flux-component-id="123"><p>Updated</p></div>'
             }));
         }
         
@@ -84,8 +84,7 @@ describe('Liveflux Handlers', function() {
             testContainer = document.createElement('div');
             testContainer.id = 'test-container';
             testContainer.innerHTML = `
-                <div data-flux-root="1" 
-                     data-flux-component-kind="counter" 
+                <div data-flux-component-kind="counter" 
                      data-flux-component-id="counter-123">
                     <button id="increment-btn" data-flux-action="increment">Increment</button>
                     <input type="text" name="amount" value="5">
@@ -164,8 +163,7 @@ describe('Liveflux Handlers', function() {
             testContainer = document.createElement('div');
             testContainer.id = 'test-container';
             testContainer.innerHTML = `
-                <div data-flux-root="1" 
-                     data-flux-component-kind="contact-form" 
+                <div data-flux-component-kind="contact-form" 
                      data-flux-component-id="form-789">
                     <form id="test-form">
                         <input type="text" name="name" value="John Doe">
@@ -244,8 +242,7 @@ describe('Liveflux Handlers', function() {
             testContainer = document.createElement('div');
             testContainer.id = 'test-container';
             testContainer.innerHTML = `
-                <div data-flux-root="1" 
-                     data-flux-component-kind="modal" 
+                <div data-flux-component-kind="modal" 
                      data-flux-component-id="modal-999">
                     <p>Modal content</p>
                 </div>
