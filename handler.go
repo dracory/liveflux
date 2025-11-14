@@ -294,7 +294,9 @@ func (h *Handler) writeError(w http.ResponseWriter, status int, msg string) {
 
 func (h *Handler) writeClientScript(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
-	_, _ = w.Write([]byte(JS()))
+	// Serve a WebSocket-enabled client bundle so that <script src="/liveflux"> works
+	// with components that opt into WebSocket via data-flux-ws attributes.
+	_, _ = w.Write([]byte(JS(ClientOptions{UseWebSocket: true})))
 }
 
 // buildRedirectFallbackHTML returns the script + noscript fallback HTML document for a redirect.

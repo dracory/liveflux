@@ -38,7 +38,7 @@ func main() {
 		html += `<div class="col-md-6"><h3>WebSocket Counter 2</h3>` + liveflux.SSR(inst2).ToHTML() + `</div>`
 		html += `</div></div>`
 
-		// Include WebSocket client (from core js/websocket.js)
+		// Include WebSocket-enabled client inline so UseWebSocket is true
 		html += `<script src="/liveflux"></script>`
 		// Inline debug bootstrap to verify client is loaded and elements are found
 		html += `<script>

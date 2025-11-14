@@ -39,6 +39,23 @@ func TestHandler_GetScript(t *testing.T) {
 	}
 }
 
+func TestHandler_GetScript_UsesWebSocket(t *testing.T) {
+	h := NewHandler(NewMemoryStore())
+	req := httptest.NewRequest(http.MethodGet, "/liveflux", nil)
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rec.Code)
+	}
+
+	body := rec.Body.String()
+	// The first line is the JSON config merged into window.liveflux; ensure it enables WebSocket.
+	if !strings.Contains(body, `"useWebSocket":true`) {
+		t.Fatalf("expected script config to enable useWebSocket, got: %q", body)
+	}
+}
+
 func (c *handlerComp) GetKind() string { return "" }
 func (c *handlerComp) Mount(_ context.Context, params map[string]string) error {
 	if v, ok := params["init"]; ok && v == "err" {
