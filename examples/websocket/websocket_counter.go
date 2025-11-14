@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/url"
 	"strconv"
 
@@ -181,5 +182,7 @@ func (c *WebSocketCounter) Render(ctx context.Context) hb.TagInterface {
 
 func init() {
 	// Register the component so liveflux.New(&WebSocketCounter{}) works
-	liveflux.Register(new(WebSocketCounter))
+	if err := liveflux.Register(new(WebSocketCounter)); err != nil {
+		log.Fatal(err)
+	}
 }

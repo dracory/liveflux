@@ -78,5 +78,7 @@ func main() {
 
 func init() {
 	// Register the search component
-	liveflux.Register(new(SearchComponent))
+	if err := liveflux.Register(new(SearchComponent)); err != nil {
+		log.Fatal(err)
+	}
 }

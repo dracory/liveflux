@@ -53,7 +53,9 @@ func TestPlaceholder_ComponentNoKind(t *testing.T) {
 func TestPlaceholder_ComponentWithKind_Registered(t *testing.T) {
 	// Register this type with a unique kind and ensure Placeholder uses it
 	unique := "test." + NewID()
-	RegisterByKind(unique, &phComp{}) // unique kind
+	if err := RegisterByKind(unique, &phComp{}); err != nil { // unique kind
+		t.Fatalf("RegisterByKind error: %v", err)
+	}
 
 	c := &phComp{}
 	h := Placeholder(c, map[string]string{"x": "1"}).ToHTML()

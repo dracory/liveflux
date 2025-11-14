@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/url"
 	"time"
 
@@ -59,5 +60,7 @@ func (c *ExternalIndicatorDemo) Render(ctx context.Context) hb.TagInterface {
 }
 
 func init() {
-	liveflux.Register(new(ExternalIndicatorDemo))
+	if err := liveflux.Register(new(ExternalIndicatorDemo)); err != nil {
+		log.Fatal(err)
+	}
 }

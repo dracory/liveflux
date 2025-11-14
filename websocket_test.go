@@ -50,7 +50,9 @@ func TestWebSocketHandler_MessageValidatorPasses(t *testing.T) {
 	if resp != nil && resp.StatusCode != http.StatusSwitchingProtocols {
 		t.Fatalf("unexpected HTTP response on upgrade: %d", resp.StatusCode)
 	}
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	msg := WebSocketMessage{Type: "action", ComponentID: comp.GetID(), Action: "inc"}
 	if err := conn.WriteJSON(msg); err != nil {
@@ -158,7 +160,7 @@ func TestWebSocketHandler_RateLimitAllowsWithinThreshold(t *testing.T) {
 		if resp != nil && resp.StatusCode != http.StatusSwitchingProtocols {
 			t.Fatalf("unexpected HTTP response on upgrade: %d", resp.StatusCode)
 		}
-		conn.Close()
+		_ = conn.Close()
 	}
 }
 

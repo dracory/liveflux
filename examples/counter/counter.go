@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/url"
 	"strconv"
 
@@ -80,5 +81,7 @@ func (c *Counter) Render(ctx context.Context) hb.TagInterface {
 
 func init() {
 	// Register using default kind derived from type ("counter")
-	liveflux.Register(new(Counter))
+	if err := liveflux.Register(new(Counter)); err != nil {
+		log.Fatal(err)
+	}
 }

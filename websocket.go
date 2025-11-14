@@ -221,7 +221,9 @@ func (h *WebSocketHandler) handleWebSocket(w http.ResponseWriter, r *http.Reques
 		// The upgrader has already written an error response
 		return
 	}
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	// Set up a context for this connection
 	ctx, cancel := context.WithCancel(r.Context())

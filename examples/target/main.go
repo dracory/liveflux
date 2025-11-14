@@ -69,7 +69,9 @@ func main() {
 			)
 
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.Write([]byte(page.ToHTML()))
+		if _, err := w.Write([]byte(page.ToHTML())); err != nil {
+			return
+		}
 	})
 
 	http.Handle("/liveflux", handler)

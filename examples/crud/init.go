@@ -1,10 +1,22 @@
 package main
 
-import "github.com/dracory/liveflux"
+import (
+	"log"
+
+	"github.com/dracory/liveflux"
+)
 
 func init() {
-    liveflux.Register(new(UserList))
-    liveflux.Register(new(CreateUserModal))
-    liveflux.Register(new(EditUserModal))
-    liveflux.Register(new(DeleteUserModal))
+	if err := liveflux.Register(new(UserList)); err != nil {
+		log.Fatal(err)
+	}
+	if err := liveflux.Register(new(CreateUserModal)); err != nil {
+		log.Fatal(err)
+	}
+	if err := liveflux.Register(new(EditUserModal)); err != nil {
+		log.Fatal(err)
+	}
+	if err := liveflux.Register(new(DeleteUserModal)); err != nil {
+		log.Fatal(err)
+	}
 }

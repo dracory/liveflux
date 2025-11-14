@@ -65,7 +65,9 @@ func main() {
 			})
 
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprint(w, page.ToHTML())
+		if _, err := fmt.Fprint(w, page.ToHTML()); err != nil {
+			return
+		}
 	})
 
 	addr := ":8084"

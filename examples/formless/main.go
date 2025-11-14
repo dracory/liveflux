@@ -10,10 +10,18 @@ import (
 
 func main() {
 	// Register components
-	liveflux.RegisterByKind("formless.product-list", &ProductList{})
-	liveflux.RegisterByKind("formless.article-list", &ArticleList{})
-	liveflux.RegisterByKind("formless.multi-step", &MultiStepForm{})
-	liveflux.RegisterByKind("formless.exclude-example", &ExcludeExample{})
+	if err := liveflux.RegisterByKind("formless.product-list", &ProductList{}); err != nil {
+		log.Fatal(err)
+	}
+	if err := liveflux.RegisterByKind("formless.article-list", &ArticleList{}); err != nil {
+		log.Fatal(err)
+	}
+	if err := liveflux.RegisterByKind("formless.multi-step", &MultiStepForm{}); err != nil {
+		log.Fatal(err)
+	}
+	if err := liveflux.RegisterByKind("formless.exclude-example", &ExcludeExample{}); err != nil {
+		log.Fatal(err)
+	}
 
 	// Create handler
 	handler := liveflux.NewHandler(nil)
@@ -22,7 +30,10 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		page := buildPage()
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		fmt.Fprint(w, page.ToHTML())
+		if _, err := fmt.Fprint(w, page.ToHTML()); err != nil {
+			// If we can't write the response there is nothing reasonable to do here.
+			return
+		}
 	})
 
 	// Mount Liveflux handler

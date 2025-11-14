@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"net/url"
 	"sort"
 	"strconv"
@@ -300,5 +301,7 @@ func escapeJS(s string) string {
 }
 
 func init() {
-	liveflux.Register(new(Tree))
+	if err := liveflux.Register(new(Tree)); err != nil {
+		log.Fatal(err)
+	}
 }

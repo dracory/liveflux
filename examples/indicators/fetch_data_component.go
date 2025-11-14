@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/url"
 	"time"
 
@@ -69,5 +70,7 @@ func (c *fetchDataComponent) Render(ctx context.Context) hb.TagInterface {
 }
 
 func init() {
-	liveflux.Register(new(fetchDataComponent))
+	if err := liveflux.Register(new(fetchDataComponent)); err != nil {
+		log.Fatal(err)
+	}
 }
