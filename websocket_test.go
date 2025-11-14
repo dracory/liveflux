@@ -79,7 +79,9 @@ func TestWebSocketHandler_MessageValidatorBlocks(t *testing.T) {
 	if resp != nil && resp.StatusCode != http.StatusSwitchingProtocols {
 		t.Fatalf("unexpected HTTP response on upgrade: %d", resp.StatusCode)
 	}
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	err = conn.WriteJSON(WebSocketMessage{Type: "action", ComponentID: "comp", Action: "block"})
 	if err != nil {
@@ -139,7 +141,9 @@ func TestWebSocketHandler_RequireTLSPermitsSecure(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dial error: %v", err)
 	}
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	msg := WebSocketMessage{Type: "action", ComponentID: comp.GetID(), Action: "inc"}
 	if err := conn.WriteJSON(msg); err != nil {
@@ -176,7 +180,7 @@ func TestWebSocketHandler_RateLimitBlocksExcess(t *testing.T) {
 	if resp != nil && resp.StatusCode != http.StatusSwitchingProtocols {
 		t.Fatalf("unexpected HTTP response on upgrade: %d", resp.StatusCode)
 	}
-	conn.Close()
+	_ = conn.Close()
 
 	_, resp2, err := dialWS(t, ts.URL)
 	if err == nil {
@@ -218,7 +222,9 @@ func TestWebSocketHandler_CSRFCheckPasses(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dial error: %v", err)
 	}
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	msg := WebSocketMessage{Type: "action", ComponentID: comp.GetID(), Action: "inc"}
 	if err := conn.WriteJSON(msg); err != nil {
@@ -321,7 +327,9 @@ func TestWebSocketHandler_ActionFlow(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dial error: %v", err)
 	}
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	// Send initial message with componentID and an action
 	init := WebSocketMessage{Type: "action", ComponentID: comp.GetID(), Action: "inc"}
@@ -354,7 +362,9 @@ func TestWebSocketHandler_MissingComponentID(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dial error: %v", err)
 	}
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	// Send message without componentID
 	msg := WebSocketMessage{Type: "action", Action: "inc"}
@@ -397,7 +407,9 @@ func TestWebSocketHandler_ComponentDoesNotSupportWS(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dial error: %v", err)
 	}
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 
 	msg := WebSocketMessage{Type: "action", ComponentID: comp.GetID(), Action: "x"}
 	if err := conn.WriteJSON(msg); err != nil {
@@ -434,7 +446,7 @@ func TestWebSocketHandler_UnregisterOnClose(t *testing.T) {
 
 	// send initial message with componentID
 	_ = conn.WriteJSON(WebSocketMessage{Type: "action", ComponentID: comp.GetID(), Action: "inc"})
-	conn.Close()
+	_ = conn.Close()
 
 	// Allow cleanup to happen
 	time.Sleep(100 * time.Millisecond)
