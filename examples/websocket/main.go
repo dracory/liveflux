@@ -1,11 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
-	"mime"
 	"net/http"
-	"os"
-	"strings"
+	"time"
 
 	"github.com/dracory/liveflux"
 )
@@ -13,62 +12,7 @@ import (
 func main() {
 	mux := http.NewServeMux()
 
-	// Liveflux WebSocket endpoint
-	handler := liveflux.NewWebSocketHandler(nil)
-	handler.Handle("websocket-counter", func() liveflux.ComponentInterface {
-		return &WebSocketCounter{}
-	})
-	mux.Handle("/liveflux", handler)
-
-	// Ensure correct JS MIME type to satisfy browsers with nosniff
-	_ = mime.AddExtensionType(".js", "application/javascript")
-
-	// Resolve static directory to support running from repo root and examples/websocket
-	resolveStaticDir := func() string {
-		candidates := []string{
-			"./static",     // when running from repo root
-			"../../static", // when running from examples/websocket
-		}
-		for _, dir := range candidates {
-			if f, err := os.Stat(dir); err == nil && f.IsDir() {
-				return dir
-			}
-		}
-		// fallback to first
-		return "./static"
-	}
-	staticDir := resolveStaticDir()
-
-	// Resolve core websocket client location (repo js/websocket.js)
-	resolveWSClient := func() string {
-		candidates := []string{
-			"./js/websocket.js",     // when running from repo root
-			"../../js/websocket.js", // when running from examples/websocket
-		}
-		for _, p := range candidates {
-			if f, err := os.Stat(p); err == nil && !f.IsDir() {
-				return p
-			}
-		}
-		// fallback path (may 404 if not present)
-		return "./js/websocket.js"
-	}
-	wsClientPath := resolveWSClient()
-
-	// Serve the WS client with explicit MIME type
-	mux.HandleFunc("/static/websocket.js", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
-		http.ServeFile(w, r, wsClientPath)
-	})
-
-	// Generic static files (images, css, etc.)
-	fs := http.FileServer(http.Dir(staticDir))
-	mux.Handle("/static/", http.StripPrefix("/static/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasSuffix(r.URL.Path, ".js") {
-			w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
-		}
-		fs.ServeHTTP(w, r)
-	})))
+	mux.Handle("/liveflux", liveflux.NewHandlerWS(nil))
 
 	// Home page renders the SSR for two WebSocketCounters
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -95,7 +39,7 @@ func main() {
 		html += `</div></div>`
 
 		// Include WebSocket client (from core js/websocket.js)
-		html += `<script src="/static/websocket.js"></script>`
+		html += `<script src="/liveflux"></script>`
 		// Inline debug bootstrap to verify client is loaded and elements are found
 		html += `<script>
           console.log('[BOOT] inline script running');
@@ -109,7 +53,12 @@ func main() {
 		_, _ = w.Write([]byte(html))
 	})
 
-	addr := ":8080"
+	port := "8091"
+	addr := ":" + port
+	fmt.Printf("========================\n")
+	fmt.Printf("Server running at: http://localhost:%s\n", port)
+	fmt.Println("Current time: " + time.Now().Format("2006-01-02 15:04:05"))
+	fmt.Printf("========================\n")
 	log.Printf("Liveflux WebSocket counter example listening on %s", addr)
 	if err := http.ListenAndServe(addr, mux); err != nil {
 		log.Fatal(err)
