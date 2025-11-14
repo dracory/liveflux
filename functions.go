@@ -41,6 +41,9 @@ func DefaultKindFromType(c ComponentInterface) string {
 	}
 
 	parts := strings.Split(pkgPath, "/")
+	if len(parts) == 0 {
+		return strings.ToLower(toKebab(t.Name()))
+	}
 	pkg := parts[len(parts)-1]
 	typeKebab := toKebab(t.Name())
 	if strings.EqualFold(pkg, typeKebab) {

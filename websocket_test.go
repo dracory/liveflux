@@ -279,7 +279,10 @@ func dialWSWithHeader(t *testing.T, serverURL string, header http.Header) (*webs
 
 func dialWSWithOptions(t *testing.T, serverURL string, header http.Header, dialer *websocket.Dialer) (*websocket.Conn, *http.Response, error) {
 	t.Helper()
-	u, _ := url.Parse(serverURL)
+	u, err := url.Parse(serverURL)
+	if err != nil || u == nil {
+		return nil, nil, err
+	}
 	switch u.Scheme {
 	case "http":
 		u.Scheme = "ws"
