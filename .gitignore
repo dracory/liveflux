@@ -41,3 +41,5 @@ examples/tree/tmp/
 examples/websocket/tmp/
 js/tests/tmp/
 examples/indicators/tmp/
+examples/data-flux-include/tmp/
+examples/data-flux-indicator/tmp/

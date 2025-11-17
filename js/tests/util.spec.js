@@ -134,6 +134,21 @@ describe('Liveflux Util', function() {
             
             expect(Object.keys(fields).length).toBe(0);
         });
+
+        it('should collect multiple checkbox values with the same name as an array', function() {
+            testContainer.innerHTML = `
+                <form id="multi-checkbox-form">
+                    <input type="checkbox" name="selected_ids" value="1" checked>
+                    <input type="checkbox" name="selected_ids" value="2" checked>
+                    <input type="checkbox" name="selected_ids" value="3">
+                </form>
+            `;
+            const form = document.getElementById('multi-checkbox-form');
+            const fields = window.liveflux.serializeElement(form);
+
+            expect(Array.isArray(fields.selected_ids)).toBeTrue();
+            expect(fields.selected_ids).toEqual(['1', '2']);
+        });
     });
 
     describe('collectAllFields', function() {
@@ -185,6 +200,32 @@ describe('Liveflux Util', function() {
             
             expect(fields.field1).toBe('value1');
             expect(fields.field2).toBe('value2');
+        });
+
+        it('should collect multiple checkbox values from data-flux-include as an array', function() {
+            testContainer.innerHTML = `
+                <div data-flux-component-kind="test" data-flux-component-id="123">
+                    <form id="main-form">
+                        <input type="text" name="field1" value="value1">
+                    </form>
+                    <button id="btn-with-include-checkboxes" 
+                        data-flux-include=".external-checkbox"
+                        data-flux-action="submit">
+                        Submit
+                    </button>
+                </div>
+                <input type="checkbox" class="external-checkbox" name="selected_ids" value="1" checked>
+                <input type="checkbox" class="external-checkbox" name="selected_ids" value="2" checked>
+            `;
+
+            const btn = document.getElementById('btn-with-include-checkboxes');
+            const root = document.querySelector(rootSelector);
+            const form = document.getElementById('main-form');
+
+            const fields = window.liveflux.collectAllFields(btn, root, form);
+
+            expect(Array.isArray(fields.selected_ids)).toBeTrue();
+            expect(fields.selected_ids).toEqual(['1', '2']);
         });
 
         it('should handle null button', function() {

@@ -10,11 +10,20 @@
 
   /**
    * Performs a POST request to the Liveflux endpoint and returns HTML.
-   * @param {Record<string, string>} params
+   * @param {Record<string, string | string[]>} params
    * @returns {Promise<{html: string, response: Response}>}
    */
   function post(params){
-    const body = new URLSearchParams(params);
+    const body = new URLSearchParams();
+    Object.keys(params || {}).forEach(function(key){
+      const value = params[key];
+      if(value === undefined || value === null) return;
+      if(Array.isArray(value)){
+        value.forEach(function(v){ body.append(key, v); });
+      } else {
+        body.append(key, value);
+      }
+    });
     const endpoint = window.liveflux.endpoint || '/liveflux';
     const headers = Object.assign({
       'Content-Type':'application/x-www-form-urlencoded',

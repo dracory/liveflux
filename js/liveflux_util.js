@@ -26,6 +26,21 @@
     const params = {};
     if(!el) return params;
     
+    // Helper to accumulate multiple values under the same name, matching
+    // how browsers send repeated fields (e.g., checkboxes, multi-select).
+    const addValue = (name, value) => {
+      if(!name) return;
+      const v = value ?? '';
+      const existing = params[name];
+      if(existing === undefined){
+        params[name] = v;
+      } else if(Array.isArray(existing)){
+        existing.push(v);
+      } else {
+        params[name] = [existing, v];
+      }
+    };
+    
     // Helper function to serialize a single field
     const serializeField = (field) => {
       const name = field.name; if(!name) return;
@@ -34,10 +49,10 @@
       if(field.tagName === 'SELECT' && field.multiple){
         const selected = Array.from(field.options).filter(o=>o.selected).map(o=>o.value);
         if(selected.length === 0) return;
-        params[name] = selected[selected.length-1];
+        selected.forEach((val)=>addValue(name, val));
         return;
       }
-      params[name] = field.value ?? '';
+      addValue(name, field.value);
     };
     
     // If element itself is a form field, serialize it
@@ -144,9 +159,33 @@
             console.warn('[Liveflux] Include selector "' + selector + '" matched no elements');
           }
           elements.forEach(function(el){
+            // Skip elements that are already inside the primary scope (form/root)
+            // to avoid double-serializing the same fields.
+            if (assocForm && assocForm.contains && assocForm.contains(el)) return;
+            if (!assocForm && root && root.contains && root.contains(el)) return;
             const included = serializeElement(el);
-            // Later sources override (last-write-wins)
-            Object.assign(fields, included);
+            // Merge included fields, accumulating multiple values under the
+            // same name so repeated checkboxes/multi-selects preserve all
+            // selected values.
+            Object.keys(included).forEach(function(key){
+              const incoming = included[key];
+              const existing = fields[key];
+              if(existing === undefined){
+                fields[key] = incoming;
+              } else if(Array.isArray(existing)){
+                if(Array.isArray(incoming)){
+                  fields[key] = existing.concat(incoming);
+                } else {
+                  existing.push(incoming);
+                }
+              } else {
+                if(Array.isArray(incoming)){
+                  fields[key] = [existing].concat(incoming);
+                } else {
+                  fields[key] = [existing, incoming];
+                }
+              }
+            });
           });
         } catch(e) {
           console.error('[Liveflux] Invalid include selector "' + selector + '":', e);
