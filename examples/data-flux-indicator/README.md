@@ -1,6 +1,7 @@
 # Liveflux Indicators Example
 
-Demonstrates several request indicator patterns that toggle while the server processes actions.
+This example demonstrates several request indicator patterns and **where** indicators can live
+relative to the component that triggers them (inside the component root vs elsewhere on the page).
 
 ## Run
 
@@ -13,19 +14,39 @@ Then open http://localhost:8084
 
 ## Components
 
-1. **Button Demo (`IndicatorDemo`)**  
-   Simulates a slow fetch and uses `data-flux-indicator="this, #demo-spinner"` so both the button and spinner animate. The spinner starts hidden (`display: none`) and is revealed automatically during the request.
+There are three main demos rendered as Bootstrap cards:
+
+1. **Fetch Data Demo (`fetchDataComponent`)**  
+   *Where things live: both the trigger button and the spinner are inside the card.*  
+   This component simulates a slow `fetch` action and uses
+   `data-flux-indicator="this, .demo-spinner"` so **both** the button and the small spinner
+   next to it animate. The spinner starts hidden (`display: none`) and is revealed automatically
+   during the request.
 
 2. **Form Demo (`IndicatorForm`)**  
-   Submits a simple form and targets a spinner inside the submit button. It shows how form submissions can reuse the indicator helper while updating a status panel via `data-flux-select`.
+   *Where things live: the text input, submit button, and its spinner are all inside the card.*  
+   A simple form that posts a `name` field. The submit button uses
+   `data-flux-indicator="this, #form-spinner"` so the button and its inline spinner animate while
+   the form is being processed. The message panel above the form is updated via
+   `data-flux-select="#form-status"`.
 
-3. **External Indicator (`ExternalIndicatorDemo`)**  
-   Toggles the shared page-level indicator with `data-flux-indicator="#global-indicator"`, demonstrating that indicators do not need to live inside the component’s root.
+3. **External Indicator Demo (`ExternalIndicatorDemo`)**  
+   *Where things live: the card contains only the trigger and status text, but it drives a
+   **page-level** indicator rendered above all cards.*  
+   The component’s button uses `data-flux-indicator="#global-indicator"` to toggle a shared banner
+   at the top of the page. This demonstrates that indicators do **not** need to live inside the
+   component’s root; any element on the page can be targeted.
 
-Each component intentionally sleeps for ~1s so the indicator state is visible.
+Each component intentionally sleeps for around one second so the indicator state is easy to see.
 
-## Global indicator
+## Global indicator and external triggers
 
-The page hosts a reusable element with `id="global-indicator"`. Any component can reference it in `data-flux-indicator` to provide consistent UX for long-running actions (e.g., background tasks, cross-component coordination).
+The page hosts a reusable element with `id="global-indicator"` above the cards. Any component or
+button can reference it in `data-flux-indicator` to provide a consistent, page-level UX for
+long‑running actions (for example, background tasks or cross‑component coordination).
 
-There's also a top-level button wired with `data-flux-target-kind` / `data-flux-target-id` to trigger the button demo's `fetch` action, showing how external controls can drive indicators on other components.
+The main page also wires **external buttons** (outside any component card) using
+`data-flux-target-kind` / `data-flux-target-id` to invoke the fetch action on the
+`fetchDataComponent` while toggling either the global indicator or a local spinner next to the
+button. This shows how **controls and indicators can live outside the card**, while still driving
+actions and indicators for a specific component.
