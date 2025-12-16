@@ -55,6 +55,11 @@ Because the server expects both kind and id, the runtime MUST still send both va
 - If one of the target attributes is missing and the trigger is inside a component root, the runtime MAY fill the missing value from the closest component root.
 - If the missing value cannot be resolved, the runtime MUST NOT fall back to the closest root silently.
 
+To avoid producing mismatched kind/id pairs, the runtime MUST only fill a missing value from the closest root when the provided value matches the root:
+
+- If only `data-flux-target-kind` is present, fill `data-flux-target-id` only when the closest root has the same kind.
+- If only `data-flux-target-id` is present, fill `data-flux-target-kind` only when the closest root has the same id.
+
 ### Attributes
 
 No new attributes are required.
