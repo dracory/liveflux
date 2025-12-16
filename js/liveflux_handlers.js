@@ -145,9 +145,6 @@
     if(!form) return;
     const root = form.closest(rootSelector);
     if(!root) return;
-    const componentKind = root.getAttribute(componentKindAttr);
-    const componentId   = root.getAttribute(componentIDAttr);
-    if(!componentKind||!componentId) return;
     e.preventDefault();
 
     const submitter = e.submitter || root.querySelector(`[${actionAttr}]`);
@@ -156,16 +153,39 @@
       : (liveflux.readSelectAttribute ? liveflux.readSelectAttribute(form) : '');
     const action = (submitter && submitter.getAttribute(actionAttr)) || form.getAttribute(actionAttr) || 'submit';
 
+    // Resolve metadata from submitter if possible (supports cross-component targeting).
+    // If no submitter, fall back to the form's component root.
+    let metadata = null;
+    if(submitter && typeof liveflux.resolveComponentMetadata === 'function'){
+      metadata = liveflux.resolveComponentMetadata(submitter, rootSelector);
+    }
+    if(!metadata){
+      const componentKind = root.getAttribute(componentKindAttr);
+      const componentId   = root.getAttribute(componentIDAttr);
+      if(!componentKind || !componentId) return;
+      metadata = { comp: componentKind, id: componentId, root: root };
+    }
+
+    // Check if there's already a pending request for this component
+    if(pendingRequests.has(metadata.id)){
+      console.log('[Liveflux] Skipping form submit - request already in progress for component:', metadata.id);
+      return;
+    }
+
     // Use collectAllFields to support data-flux-include and data-flux-exclude on submitter
     const fields = submitter 
       ? liveflux.collectAllFields(submitter, root, form)
       : liveflux.serializeElement(form);
 
     const params = Object.assign({}, fields, {
-      liveflux_component_kind: componentKind,
-      liveflux_component_id: componentId,
+      liveflux_component_kind: metadata.comp,
+      liveflux_component_id: metadata.id,
       liveflux_action: action
     });
+
+    // Mark this component as having a pending request
+    pendingRequests.set(metadata.id, true);
+
     const indicatorEls = liveflux.startRequestIndicators(submitter || form, root);
 
     liveflux.post(params).then((result)=>{
@@ -173,14 +193,24 @@
       
       // Check if response contains target templates
       if(liveflux.hasTargetTemplates && liveflux.hasTargetTemplates(rawHtml)){
-        const fallback = liveflux.applyTargets(rawHtml, root);
+        const applyRoot = metadata.root || root;
+        const fallback = liveflux.applyTargets(rawHtml, applyRoot);
         if(fallback){
           // Targets failed, do full replacement with fallback HTML
           const tmp = document.createElement('div');
           tmp.innerHTML = fallback;
           const newNode = tmp.firstElementChild;
           if(newNode){
-            root.replaceWith(newNode);
+            if(metadata.root){
+              metadata.root.replaceWith(newNode);
+            } else {
+              const targetRoot = document.querySelector(
+                `[${componentKindAttr}="${metadata.comp}"][${componentIDAttr}="${metadata.id}"]`
+              );
+              if(targetRoot){
+                targetRoot.replaceWith(newNode);
+              }
+            }
             liveflux.executeScripts(newNode);
           }
         }
@@ -194,8 +224,8 @@
       tmp.innerHTML = html;
       let newNode = tmp.firstElementChild;
       const selectors = parseSelectors(selectAttr);
-      if(newNode && selectors.length && !liveflux.isComponentRootNode(newNode)){
-        const applied = applySelectedFragment(root, selectors, newNode);
+      if(newNode && selectors.length && metadata.root && !liveflux.isComponentRootNode(newNode)){
+        const applied = applySelectedFragment(metadata.root, selectors, newNode);
         if(applied){
           liveflux.executeScripts(newNode);
           if(liveflux.initWire) liveflux.initWire();
@@ -204,13 +234,35 @@
         newNode = tmp.firstElementChild;
       }
       if(newNode){
-        root.replaceWith(newNode);
-        liveflux.executeScripts(newNode);
-        if(liveflux.initWire) liveflux.initWire();
+        if(metadata.root){
+          metadata.root.replaceWith(newNode);
+          liveflux.executeScripts(newNode);
+          if(liveflux.initWire) liveflux.initWire();
+          return;
+        }
+        const targetRoot = document.querySelector(
+          `[${componentKindAttr}="${metadata.comp}"][${componentIDAttr}="${metadata.id}"]`
+        );
+        if(targetRoot){
+          if(selectors.length && !liveflux.isComponentRootNode(newNode)){
+            const applied = applySelectedFragment(targetRoot, selectors, newNode);
+            if(applied){
+              liveflux.executeScripts(newNode);
+              if(liveflux.initWire) liveflux.initWire();
+              return;
+            }
+            newNode = tmp.firstElementChild;
+          }
+          targetRoot.replaceWith(newNode);
+          liveflux.executeScripts(newNode);
+          if(liveflux.initWire) liveflux.initWire();
+        }
       }
     }).catch((err)=>{ console.error('form submit', err); })
       .finally(()=>{
         liveflux.endRequestIndicators(indicatorEls);
+        // Clear the pending request flag
+        pendingRequests.delete(metadata.id);
       });
   }
 

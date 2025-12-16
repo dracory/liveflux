@@ -49,8 +49,8 @@ This page lists every `data-flux-*` attribute that the Liveflux runtime understa
 
 | Attribute | Purpose | Typical Placement |
 | --- | --- | --- |
-| `data-flux-target-kind="foo.list"` | Lets elements outside a component root specify which component kind they target. (Formerly `data-flux-component-type`). | Buttons/links outside the root |
-| `data-flux-target-id="abc123"` | Pairs with `data-flux-target-kind` to address a specific instance from outside the component root. (Formerly `data-flux-component-id` when used externally). | Buttons/links outside the root |
+| `data-flux-target-kind="foo.list"` | Explicitly routes the action request to a specific component kind, overriding the nearest component root resolution. If used without `data-flux-target-id`, the runtime only fills the missing ID from the nearest component root when the kind matches the root kind; otherwise the request is not sent. | Trigger elements (inside or outside component roots) |
+| `data-flux-target-id="abc123"` | Explicitly routes the action request to a specific component instance, overriding the nearest component root resolution. If used without `data-flux-target-kind`, the runtime only fills the missing kind from the nearest component root when the id matches the root id; otherwise the request is not sent. | Trigger elements (inside or outside component roots) |
 
 ## Aliases & Compatibility Notes
 

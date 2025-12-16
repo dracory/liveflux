@@ -12,6 +12,9 @@ describe('Liveflux Util', function() {
             testContainer.innerHTML = `
                 <div data-flux-component-kind="test-component" data-flux-component-id="test-id-123">
                     <button id="btn-inside" data-flux-action="increment">Click me</button>
+                    <button id="btn-inside-target" data-flux-action="open" data-flux-target-kind="external-component" data-flux-target-id="external-id-456">Open</button>
+                    <button id="btn-inside-target-only-kind" data-flux-action="open" data-flux-target-kind="external-component">Open</button>
+                    <button id="btn-inside-target-only-kind-matches" data-flux-action="open" data-flux-target-kind="test-component">Open</button>
                 </div>
                 <button id="btn-outside" 
                     data-flux-target-kind="external-component" 
@@ -19,6 +22,7 @@ describe('Liveflux Util', function() {
                     data-flux-action="submit">
                     External Button
                 </button>
+                <button id="btn-outside-target-only-kind" data-flux-target-kind="external-component" data-flux-action="submit">External Button</button>
             `;
             document.body.appendChild(testContainer);
         });
@@ -49,6 +53,42 @@ describe('Liveflux Util', function() {
             expect(metadata.comp).toBe('external-component');
             expect(metadata.id).toBe('external-id-456');
             expect(metadata.root).toBeNull();
+        });
+
+        it('should prefer explicit target attributes even when inside a component root', function() {
+            const btn = document.getElementById('btn-inside-target');
+
+            const metadata = window.liveflux.resolveComponentMetadata(btn, rootSelector);
+
+            expect(metadata).not.toBeNull();
+            expect(metadata.comp).toBe('external-component');
+            expect(metadata.id).toBe('external-id-456');
+        });
+
+        it('should return null when target override is partial and missing value cannot be resolved', function() {
+            const btn = document.getElementById('btn-inside-target-only-kind');
+
+            const metadata = window.liveflux.resolveComponentMetadata(btn, rootSelector);
+
+            expect(metadata).toBeNull();
+        });
+
+        it('should fill missing target id from nearest root when explicit kind matches root kind', function() {
+            const btn = document.getElementById('btn-inside-target-only-kind-matches');
+
+            const metadata = window.liveflux.resolveComponentMetadata(btn, rootSelector);
+
+            expect(metadata).not.toBeNull();
+            expect(metadata.comp).toBe('test-component');
+            expect(metadata.id).toBe('test-id-123');
+        });
+
+        it('should return null when target override is partial and missing value cannot be resolved', function() {
+            const btn = document.getElementById('btn-outside-target-only-kind');
+
+            const metadata = window.liveflux.resolveComponentMetadata(btn, rootSelector);
+
+            expect(metadata).toBeNull();
         });
 
         it('should return null when button is null', function() {

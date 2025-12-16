@@ -231,6 +231,33 @@
 
     const selector = rootSelector || getComponentRootSelector();
 
+    const explicitCompAttr = btn.getAttribute('data-flux-target-kind');
+    const explicitIdAttr = btn.getAttribute('data-flux-target-id');
+    const hasExplicitOverride = !!(explicitCompAttr || explicitIdAttr);
+
+    // Explicit override: if either data-flux-target-* attribute is present, treat it as authoritative.
+    // If one of them is missing, attempt to fill it from the nearest root only when it would
+    // not create a mismatched kind/id pair (i.e., the provided explicit value matches the root).
+    if(hasExplicitOverride){
+      const root = btn.closest(selector);
+      let comp = explicitCompAttr;
+      let id = explicitIdAttr;
+      if(root){
+        const rootComp = root.getAttribute(liveflux.dataFluxComponentKind || 'data-flux-component-kind');
+        const rootId = root.getAttribute(liveflux.dataFluxComponentID || 'data-flux-component-id');
+        if(!comp && id && rootId && id === rootId){
+          comp = rootComp;
+        }
+        if(!id && comp && rootComp && comp === rootComp){
+          id = rootId;
+        }
+      }
+      if(comp && id){
+        return { comp: comp, id: id, root: root || null };
+      }
+      return null;
+    }
+
     // 1. Try nearest root (standard case) - read from data attributes
     let root = btn.closest(selector);
     if(root){
@@ -242,10 +269,8 @@
     }
 
     // 2. Try explicit attributes on button (for buttons outside component root)
-    const explicitComp = btn.getAttribute('data-flux-target-kind');
-    const explicitId = btn.getAttribute('data-flux-target-id');
-    if(explicitComp && explicitId){
-      return { comp: explicitComp, id: explicitId, root: null };
+    if(explicitCompAttr && explicitIdAttr){
+      return { comp: explicitCompAttr, id: explicitIdAttr, root: null };
     }
 
     return null;
