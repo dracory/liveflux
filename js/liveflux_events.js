@@ -118,34 +118,88 @@
   }
 
   function subscribe(componentKind, componentId, eventName, targetMethod, timeoutMs){
-    // if root is not found, do nothing
-    var root = (liveflux.findComponent) ? liveflux.findComponent(componentKind, componentId) : null;
-    if(!root){ return; }
-      
-    var delay = typeof timeoutMs === 'number' ? timeoutMs : 0;
-    var key = [componentKind || '', componentId || '', eventName || '', targetMethod || ''].join('::');
+    // Backward compatible signature:
+    // - subscribe(kind,id,event,method,timeoutMs)
+    // Extended:
+    // - subscribe(kind,id,event,method,{scope:'global'|'component', delayMs:<number>})
 
-    function bind(){
+    var opts = null;
+    var delayMs = 0;
+    if(timeoutMs && typeof timeoutMs === 'object'){
+      opts = timeoutMs;
+      delayMs = typeof opts.delayMs === 'number' ? opts.delayMs : 0;
+    } else {
+      delayMs = typeof timeoutMs === 'number' ? timeoutMs : 0;
+    }
+
+    var kind = componentKind || '';
+    var id = componentId || '';
+    var ev = eventName || '';
+    var method = targetMethod || '';
+    if(!kind || !id || !ev || !method) return;
+
+    var scope = (opts && typeof opts.scope === 'string') ? opts.scope : 'component';
+
+    function bindComponentScoped(){
+      if(!liveflux.findComponent) return;
+      var root = liveflux.findComponent(kind, id);
+      if(!root || !root.$wire || !root.$wire.on || !root.$wire.call) return;
+
       var registry = liveflux.__componentSubscriptions || (liveflux.__componentSubscriptions = {});
+      var key = ['subscribe', 'component', kind, id, ev, method].join('::');
+
       var existing = registry[key];
       if(existing && typeof existing.cleanup === 'function'){
         existing.cleanup();
       }
 
-      var cleanup = root.$wire.on(eventName, function(){ root.$wire.call(targetMethod); });
+      var cleanup = root.$wire.on(ev, function(){ root.$wire.call(method); });
       registry[key] = { cleanup: cleanup };
     }
 
-    setTimeout(bind, delay);
+    function bindGlobalScoped(){
+      if(!window.liveflux || !window.liveflux.on || !window.liveflux.findComponent) return;
+      var reg = window.liveflux.__subscriptions || (window.liveflux.__subscriptions = {});
+      var key = ['subscribe', 'global', kind, id, ev, method].join('::');
+      if(reg[key]) return;
+
+      reg[key] = window.liveflux.on(ev, function(){
+        var root = window.liveflux.findComponent(kind, id);
+        if(!root || !root.$wire || !root.$wire.call) return;
+        root.$wire.call(method);
+      });
+    }
+
+    function bind(){
+      if(scope === 'global'){
+        bindGlobalScoped();
+      } else {
+        bindComponentScoped();
+      }
+    }
+
+    setTimeout(bind, delayMs);
+
+    // If Liveflux isn't ready when subscribe() is called, bind again after init.
+    // This is especially important for inline scripts in SSR HTML.
+    document.addEventListener('livewire:init', function(){ setTimeout(bind, 0); });
+  }
+
+  // Binds a global event to a component action call.
+  // This is a convenience helper to avoid per-component boilerplate scripts.
+  // It will wait for livewire:init if Liveflux is not ready yet and de-dupe bindings.
+  function bindEventToAction(componentKind, componentId, eventName, actionName){
+    subscribe(componentKind, componentId, eventName, actionName, { scope: 'global', delayMs: 0 });
   }
 
   // Expose as module
   window.liveflux.events = {
-    on, dispatch, processEvents, onComponent, subscribe
+    on, dispatch, processEvents, onComponent, subscribe, bindEventToAction
   };
   // Convenience top-level
   window.liveflux.on = on;
   window.liveflux.dispatch = dispatch;
   window.liveflux.subscribe = subscribe;
+  window.liveflux.bindEventToAction = bindEventToAction;
 
 })();

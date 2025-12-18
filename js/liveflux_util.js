@@ -253,6 +253,16 @@
         }
       }
       if(comp && id){
+        // If the explicit target points to a different component than the nearest root,
+        // do not return the nearest root as the replacement target.
+        // The handlers will locate the correct root by kind+id.
+        if(root){
+          const rootComp = root.getAttribute(liveflux.dataFluxComponentKind || 'data-flux-component-kind');
+          const rootId = root.getAttribute(liveflux.dataFluxComponentID || 'data-flux-component-id');
+          if(rootComp !== comp || rootId !== id){
+            return { comp: comp, id: id, root: null };
+          }
+        }
         return { comp: comp, id: id, root: root || null };
       }
       return null;

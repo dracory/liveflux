@@ -3,6 +3,7 @@ package liveflux
 import (
 	_ "embed"
 	"encoding/json"
+	"strconv"
 	"strings"
 
 	"github.com/dracory/hb"
@@ -134,6 +135,31 @@ func JS(opts ...ClientOptions) string {
 // Script returns an hb.Script tag containing the client JS with optional configuration.
 func Script(opts ...ClientOptions) hb.TagInterface {
 	return hb.Script(JS(opts...))
+}
+
+func BindEventToActionScript(componentKind string, componentID string, eventName string, actionName string) hb.TagInterface {
+	k := strings.TrimSpace(componentKind)
+	id := strings.TrimSpace(componentID)
+	ev := strings.TrimSpace(eventName)
+	action := strings.TrimSpace(actionName)
+	if k == "" || id == "" || ev == "" || action == "" {
+		return hb.Script("")
+	}
+
+	js := "(function(){" +
+		"var kind=" + strconv.Quote(k) + ";" +
+		"var id=" + strconv.Quote(id) + ";" +
+		"var ev=" + strconv.Quote(ev) + ";" +
+		"var action=" + strconv.Quote(action) + ";" +
+		"function bind(){" +
+		"if(!window.liveflux||!window.liveflux.subscribe)return;" +
+		"window.liveflux.subscribe(kind,id,ev,action,{scope:'global',delayMs:0});" +
+		"}" +
+		"bind();" +
+		"document.addEventListener('livewire:init',bind);" +
+		"})();"
+
+	return hb.Script(js)
 }
 
 // ClientOptions configures the embedded client.
